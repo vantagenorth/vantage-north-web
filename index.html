@@ -77,9 +77,11 @@
         </a>
     </header>
 
-    <!-- Center Main Content -->
-    <main class="flex-grow flex flex-col items-center justify-center px-6 md:px-12 pt-10 pb-20 md:pt-16 md:pb-24">
-        <div class="w-full max-w-5xl mx-auto flex flex-col items-center text-center">
+    <!-- Main Content -->
+    <main class="flex-grow flex flex-col items-center justify-center px-6 md:px-12 pt-10 pb-16 md:pt-16 md:pb-24">
+        
+        <!-- Centered Hero Section -->
+        <div class="w-full max-w-4xl mx-auto flex flex-col items-center text-center">
             
             <!-- Big Tagline (with extra space below) -->
             <h1 class="font-urbanist text-4xl sm:text-5xl md:text-6xl lg:text-[4.25rem] font-semibold tracking-tight text-vnBlack leading-[1.08] max-w-3xl mb-10 md:mb-14 animate-fade-up delay-100">
@@ -97,7 +99,7 @@
             </p>
 
             <!-- WhatsApp CTA -->
-            <div class="mb-16 md:mb-20 animate-fade-up delay-300">
+            <div class="mb-16 md:mb-24 animate-fade-up delay-300">
                 <a 
                     href="https://wa.me/971585211269" 
                     target="_blank" 
@@ -110,10 +112,14 @@
                     <span>Let's chat</span>
                 </a>
             </div>
+        </div>
 
-            <!-- Mac-like Browser Window Showcase -->
-            <div class="w-full max-w-4xl mx-auto animate-fade-up delay-400">
-                <div class="rounded-xl sm:rounded-2xl overflow-hidden border border-black/15 bg-[#111111] shadow-[0_32px_80px_-16px_rgba(0,0,0,0.35)]">
+        <!-- Two-Column Showcase: Mac Browser (Left) + 4 Cards (Right) -->
+        <div class="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-stretch animate-fade-up delay-400">
+            
+            <!-- Left Column: Mac-like Browser Window -->
+            <div class="lg:col-span-7 flex flex-col">
+                <div class="rounded-xl sm:rounded-2xl overflow-hidden border border-black/15 bg-[#111111] shadow-[0_32px_80px_-16px_rgba(0,0,0,0.35)] flex-grow flex flex-col">
                     <!-- macOS Window Title / Address Bar -->
                     <div class="bg-[#1C1C1E] border-b border-white/10 px-4 py-3 flex items-center justify-between select-none">
                         <!-- Traffic Lights -->
@@ -135,22 +141,74 @@
                         <div class="w-16"></div>
                     </div>
                     <!-- App Report Snapshot Content -->
-                    <div class="relative overflow-hidden bg-[#0E0E0E]">
+                    <div class="relative overflow-hidden bg-[#0E0E0E] flex-grow">
                         <img 
                             src="reports_snapshot.png" 
                             alt="Vantage North Handover Inspection Report" 
-                            class="w-[calc(100%+8px)] max-w-none h-auto block"
+                            class="w-[calc(100%+8px)] max-w-none h-full object-cover object-top block"
                         >
                     </div>
                 </div>
             </div>
 
+            <!-- Right Column: 4 Value Cards -->
+            <div class="lg:col-span-5 flex flex-col justify-between gap-4 sm:gap-5 text-left">
+                
+                <!-- Card 01 -->
+                <div class="bg-vnWhite/90 border border-vnGray/20 p-6 sm:p-7 shadow-[0_12px_30px_rgba(0,0,0,0.04)] flex-1 flex flex-col justify-center">
+                    <h2 class="font-urbanist text-lg sm:text-xl font-semibold text-vnBlack tracking-tight mb-2.5">
+                        <span class="text-vnGray font-medium mr-1">01 —</span> Protect Your Reputation
+                    </h2>
+                    <p class="font-epilogue text-sm text-vnDarkGray leading-relaxed">
+                        Every handover reflects on your agency. We provide independent, detailed inspections and professional digital reporting to help ensure properties are presented and delivered to the expected standard.
+                    </p>
+                </div>
+
+                <!-- Card 02 -->
+                <div class="bg-vnWhite/90 border border-vnGray/20 p-6 sm:p-7 shadow-[0_12px_30px_rgba(0,0,0,0.04)] flex-1 flex flex-col justify-center">
+                    <h2 class="font-urbanist text-lg sm:text-xl font-semibold text-vnBlack tracking-tight mb-2.5">
+                        <span class="text-vnGray font-medium mr-1">02 —</span> End-to-End Management
+                    </h2>
+                    <p class="font-epilogue text-sm text-vnDarkGray leading-relaxed">
+                        From initial inspection to final verification, we coordinate the defect resolution process, manage contractor attendance and oversee remedial works, giving you one point of contact throughout.
+                    </p>
+                </div>
+
+                <!-- Card 03 -->
+                <div class="bg-vnWhite/90 border border-vnGray/20 p-6 sm:p-7 shadow-[0_12px_30px_rgba(0,0,0,0.04)] flex-1 flex flex-col justify-center">
+                    <h2 class="font-urbanist text-lg sm:text-xl font-semibold text-vnBlack tracking-tight mb-2.5">
+                        <span class="text-vnGray font-medium mr-1">03 —</span> Save Time, Reduce Hassle
+                    </h2>
+                    <p class="font-epilogue text-sm text-vnDarkGray leading-relaxed">
+                        No chasing contractors, coordinating appointments or following up on outstanding defects. We manage the process on your behalf, keeping you informed without adding to your workload.
+                    </p>
+                </div>
+
+                <!-- Card 04 -->
+                <div class="bg-vnWhite/90 border border-vnGray/20 p-6 sm:p-7 shadow-[0_12px_30px_rgba(0,0,0,0.04)] flex-1 flex flex-col justify-center">
+                    <h2 class="font-urbanist text-lg sm:text-xl font-semibold text-vnBlack tracking-tight mb-2.5">
+                        <span class="text-vnGray font-medium mr-1">04 —</span> Independent Quality Oversight
+                    </h2>
+                    <p class="font-epilogue text-sm text-vnDarkGray leading-relaxed">
+                        We work independently of developers and contractors, documenting defects, monitoring rectification and verifying completed works to provide greater transparency and confidence at handover.
+                    </p>
+                </div>
+
+            </div>
+
         </div>
+
     </main>
 
-    <!-- Minimal Footer -->
-    <footer class="w-full py-8 px-6 md:px-12 text-center">
-        <p class="font-epilogue text-xs text-vnGray tracking-wider">
+    <!-- Bottom RERA Certified & Minimal Footer -->
+    <footer class="w-full pt-6 pb-10 px-6 md:px-12 text-center space-y-4">
+        <div class="inline-flex items-center justify-center gap-2 px-4 py-1.5 border border-vnBlack/25 bg-vnWhite/60">
+            <span class="w-1.5 h-1.5 rounded-full bg-vnBlack"></span>
+            <span class="font-urbanist text-xs font-semibold uppercase tracking-[0.2em] text-vnBlack">
+                RERA Certified
+            </span>
+        </div>
+        <p class="font-epilogue text-xs text-vnGray tracking-wider block">
             &copy; <span id="year"></span> Vantage North. Dubai, UAE.
         </p>
     </footer>
