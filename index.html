@@ -65,6 +65,15 @@
         .delay-200 { animation-delay: 0.2s; opacity: 0; }
         .delay-300 { animation-delay: 0.3s; opacity: 0; }
         .delay-400 { animation-delay: 0.4s; opacity: 0; }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .cursor-blink {
+            animation: blink 1s step-end infinite;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between bg-vnBg text-vnBlack selection:bg-vnBlack selection:text-vnWhite">
@@ -86,15 +95,15 @@
         <!-- Centered Hero Section -->
         <div class="w-full max-w-4xl mx-auto flex flex-col items-center text-center">
             
-            <!-- Big Title: 'starts here' on a new line & bold, no period -->
+            <!-- Big Title: 'starts here' on a new line & bold, typed out with blinking '_' -->
             <h1 class="font-urbanist text-[2.7rem] sm:text-[3.6rem] md:text-[4.5rem] lg:text-[5.1rem] font-normal tracking-tight text-vnBlack leading-[1.08] max-w-4xl mb-10 md:mb-14 animate-fade-up delay-100">
                 A better handover<br>
-                <span class="font-bold">starts here</span>
+                <span class="font-bold"><span id="typewriter-text"></span><span id="typewriter-cursor" aria-hidden="true">_</span></span>
             </h1>
 
             <!-- Tagline (darker text) -->
             <p class="font-epilogue text-base sm:text-lg md:text-xl text-vnDarkGray font-normal leading-relaxed max-w-2xl mb-6 animate-fade-up delay-200">
-                Seamless handover inspection and end-to-end defect resolution for leading real estate agents and property managers.
+                Seamless handover inspection and end-to-end defect resolution for select agents and property managers.
             </p>
 
             <!-- Origin Line (no comma, no full-stop) -->
@@ -151,6 +160,23 @@
 
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
+
+        (function () {
+            const text = 'starts here';
+            const textEl = document.getElementById('typewriter-text');
+            const cursorEl = document.getElementById('typewriter-cursor');
+            let index = 0;
+
+            setTimeout(function typeNext() {
+                if (index < text.length) {
+                    textEl.textContent += text.charAt(index);
+                    index++;
+                    setTimeout(typeNext, 75);
+                } else {
+                    cursorEl.classList.add('cursor-blink');
+                }
+            }, 400);
+        })();
     </script>
 </body>
 </html>
