@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vantage North | Premium Handover &amp; Rectification Management</title>
+    <title>Vantage North | A Better Handover Starts Here</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Urbanist & Epilogue -->
@@ -17,6 +17,7 @@
                     colors: {
                         vnBg: '#D5D5D5',
                         vnGray: '#646464',
+                        vnDarkGray: '#2B2B2B',
                         vnBlack: '#000000',
                         vnWhite: '#FFFFFF',
                     },
@@ -60,6 +61,7 @@
         .delay-100 { animation-delay: 0.1s; opacity: 0; }
         .delay-200 { animation-delay: 0.2s; opacity: 0; }
         .delay-300 { animation-delay: 0.3s; opacity: 0; }
+        .delay-400 { animation-delay: 0.4s; opacity: 0; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between bg-vnBg text-vnBlack selection:bg-vnBlack selection:text-vnWhite">
@@ -76,21 +78,26 @@
     </header>
 
     <!-- Center Main Content -->
-    <main class="flex-grow flex items-center justify-center px-6 md:px-12 py-12 md:py-16">
-        <div class="w-full max-w-4xl mx-auto flex flex-col items-center text-center">
+    <main class="flex-grow flex flex-col items-center justify-center px-6 md:px-12 pt-10 pb-20 md:pt-16 md:pb-24">
+        <div class="w-full max-w-5xl mx-auto flex flex-col items-center text-center">
             
-            <!-- Big Tagline -->
-            <h1 class="font-urbanist text-4xl sm:text-5xl md:text-6xl lg:text-[4.25rem] font-semibold tracking-tight text-vnBlack leading-[1.08] max-w-3xl mb-6 animate-fade-up delay-100">
-                Premium Handover &amp; Rectification Management
+            <!-- Big Tagline (with extra space below) -->
+            <h1 class="font-urbanist text-4xl sm:text-5xl md:text-6xl lg:text-[4.25rem] font-semibold tracking-tight text-vnBlack leading-[1.08] max-w-3xl mb-10 md:mb-14 animate-fade-up delay-100">
+                A better handover starts here.
             </h1>
 
-            <!-- Description -->
-            <p class="font-epilogue text-base sm:text-lg md:text-xl text-vnGray font-normal leading-relaxed max-w-2xl mb-14 animate-fade-up delay-200">
-                We are an Australian-led firm providing end-to-end handover snag inspection and contractor management for Dubai agents and property managers.
+            <!-- Description (darker text) -->
+            <p class="font-epilogue text-base sm:text-lg md:text-xl text-vnDarkGray font-normal leading-relaxed max-w-2xl mb-6 animate-fade-up delay-200">
+                Premium handover inspections and end-to-end defect resolution management for leading real estate agents and property managers.
+            </p>
+
+            <!-- Origin Badge Line -->
+            <p class="font-epilogue text-sm sm:text-base text-vnDarkGray font-medium tracking-wide mb-12 animate-fade-up delay-200">
+                🇦🇺 Australian-led, 🇦🇪 Dubai-based.
             </p>
 
             <!-- WhatsApp CTA -->
-            <div class="animate-fade-up delay-300">
+            <div class="mb-16 md:mb-20 animate-fade-up delay-300">
                 <a 
                     href="https://wa.me/971585211269" 
                     target="_blank" 
@@ -102,6 +109,40 @@
                     </svg>
                     <span>Let's chat</span>
                 </a>
+            </div>
+
+            <!-- Mac-like Browser Window Showcase -->
+            <div class="w-full max-w-4xl mx-auto animate-fade-up delay-400">
+                <div class="rounded-xl sm:rounded-2xl overflow-hidden border border-black/15 bg-[#111111] shadow-[0_32px_80px_-16px_rgba(0,0,0,0.35)]">
+                    <!-- macOS Window Title / Address Bar -->
+                    <div class="bg-[#1C1C1E] border-b border-white/10 px-4 py-3 flex items-center justify-between select-none">
+                        <!-- Traffic Lights -->
+                        <div class="flex items-center space-x-2 w-16">
+                            <span class="w-3 h-3 rounded-full bg-[#FF5F56] inline-block"></span>
+                            <span class="w-3 h-3 rounded-full bg-[#FFBD2E] inline-block"></span>
+                            <span class="w-3 h-3 rounded-full bg-[#27C93F] inline-block"></span>
+                        </div>
+                        <!-- Centered URL Bar -->
+                        <div class="flex-1 max-w-sm mx-auto">
+                            <div class="bg-[#2C2C2E] text-white/70 text-[11px] sm:text-xs font-epilogue rounded-md py-1 px-3 flex items-center justify-center gap-1.5 border border-white/5">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3 h-3 text-white/50">
+                                    <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd" />
+                                </svg>
+                                <span class="truncate">app.vantagenorth.ae/reports</span>
+                            </div>
+                        </div>
+                        <!-- Right spacer for symmetry -->
+                        <div class="w-16"></div>
+                    </div>
+                    <!-- App Report Snapshot Content -->
+                    <div class="relative overflow-hidden bg-[#0E0E0E]">
+                        <img 
+                            src="reports_snapshot.png" 
+                            alt="Vantage North Handover Inspection Report" 
+                            class="w-[calc(100%+8px)] max-w-none h-auto block"
+                        >
+                    </div>
+                </div>
             </div>
 
         </div>
