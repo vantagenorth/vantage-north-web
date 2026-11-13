@@ -89,60 +89,19 @@
                 We are an Australian-led firm providing end-to-end handover snag inspection and contractor management for Dubai agents and property managers.
             </p>
 
-            <!-- Email Form Card -->
-            <div class="w-full max-w-md bg-vnWhite p-8 sm:p-10 border border-vnGray/15 shadow-[0_20px_50px_rgba(0,0,0,0.06)] animate-fade-up delay-300">
-                <form id="contactForm" onsubmit="handleSubmit(event)" class="space-y-5 text-left">
-                    <div class="text-center mb-6">
-                        <h2 class="font-urbanist text-2xl font-semibold tracking-tight text-vnBlack">
-                            Work with us
-                        </h2>
-                    </div>
-
-                    <div>
-                        <label for="name" class="block font-epilogue text-[11px] uppercase tracking-[0.15em] text-vnGray font-medium mb-2">
-                            Name
-                        </label>
-                        <input 
-                            type="text" 
-                            id="name" 
-                            name="name" 
-                            required 
-                            placeholder="Your full name"
-                            class="w-full bg-vnWhite border border-vnGray/30 px-4 py-3.5 text-sm font-epilogue text-vnBlack placeholder-vnGray/50 focus:border-vnBlack focus:outline-none transition-colors"
-                        >
-                    </div>
-
-                    <div>
-                        <label for="email" class="block font-epilogue text-[11px] uppercase tracking-[0.15em] text-vnGray font-medium mb-2">
-                            Email
-                        </label>
-                        <input 
-                            type="email" 
-                            id="email" 
-                            name="email" 
-                            required 
-                            placeholder="name@company.com"
-                            class="w-full bg-vnWhite border border-vnGray/30 px-4 py-3.5 text-sm font-epilogue text-vnBlack placeholder-vnGray/50 focus:border-vnBlack focus:outline-none transition-colors"
-                        >
-                    </div>
-
-                    <div class="pt-2">
-                        <button 
-                            type="submit" 
-                            class="w-full bg-vnBlack text-vnWhite font-urbanist text-xs font-semibold uppercase tracking-[0.2em] py-4 px-6 hover:bg-vnGray transition-colors duration-300"
-                        >
-                            Submit
-                        </button>
-                    </div>
-                </form>
-
-                <!-- Confirmation State -->
-                <div id="formSuccess" class="hidden py-8 text-center space-y-3">
-                    <h3 class="font-urbanist text-2xl font-semibold text-vnBlack">Thank you</h3>
-                    <p class="font-epilogue text-sm text-vnGray leading-relaxed">
-                        We have received your details and will be in touch shortly.
-                    </p>
-                </div>
+            <!-- WhatsApp CTA -->
+            <div class="animate-fade-up delay-300">
+                <a 
+                    href="https://wa.me/971585211269" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center justify-center gap-3 bg-vnBlack text-vnWhite font-urbanist text-sm sm:text-base font-semibold tracking-[0.12em] uppercase px-10 py-4 shadow-[0_14px_34px_rgba(0,0,0,0.12)] hover:bg-vnGray transition-colors duration-300"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                        <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.126.556 4.124 1.535 5.862l-1.535 5.603 5.736-1.505c1.696.906 3.631 1.422 5.69 1.422 6.627 0 12-5.373 12-12 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                    <span>Let's chat</span>
+                </a>
             </div>
 
         </div>
@@ -157,12 +116,6 @@
 
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
-
-        function handleSubmit(event) {
-            event.preventDefault();
-            document.getElementById('contactForm').classList.add('hidden');
-            document.getElementById('formSuccess').classList.remove('hidden');
-        }
     </script>
 </body>
 </html>
