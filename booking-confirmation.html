@@ -53,7 +53,7 @@
         <div id="loadingState" class="bg-white border border-neutral-200 rounded-2xl p-8 text-center">
             <div class="w-10 h-10 border-2 border-neutral-300 border-t-black rounded-full animate-spin mx-auto mb-4"></div>
             <h1 class="text-xl font-semibold">Confirming Your Payment &amp; Inspection Slot...</h1>
-            <p class="text-sm text-vnGray mt-2">Please wait a moment while we finalize your booking with Cal.com and send your confirmation email.</p>
+            <p class="text-sm text-vnGray mt-2">Please wait a moment while we finalize your inspection booking and send your confirmation email.</p>
         </div>
 
         <!-- Error -->
@@ -156,6 +156,13 @@
                     body: JSON.stringify({ bookingReference, paymentIntentId, token }),
                 });
                 const data = await res.json();
+                if (data.calWarning || data.reportWarning || data.normWarning) {
+                    console.warn('Booking sync warnings:', {
+                        calWarning: data.calWarning,
+                        reportWarning: data.reportWarning,
+                        normWarning: data.normWarning,
+                    });
+                }
                 if (!res.ok) {
                     throw new Error(data.error || 'Could not confirm booking.');
                 }

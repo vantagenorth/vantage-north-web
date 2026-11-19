@@ -276,8 +276,8 @@
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-medium mb-1">On-Site Access Instructions</label>
-                                    <input id="accessInstructions" type="text" placeholder="e.g. Key with concierge / NOC ready" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
+                                    <label class="block text-xs font-medium mb-1">On-Site Access Instructions *</label>
+                                    <input id="accessInstructions" type="text" required placeholder="e.g. Key with concierge / NOC ready" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
                                 </div>
                             </div>
                         </div>
@@ -750,8 +750,8 @@
                 termsAccepted: document.getElementById('termsAccepted').checked,
             };
 
-            if (!payload.fullName || !payload.email || !payload.phone || !payload.projectName || !payload.areaCommunity || !payload.unitNumber) {
-                errorEl.textContent = 'Please fill in all required (*) personal and unit fields.';
+            if (!payload.fullName || !payload.email || !payload.phone || !payload.projectName || !payload.areaCommunity || !payload.unitNumber || !payload.accessInstructions) {
+                errorEl.textContent = 'Please fill in all required (*) personal, unit, and on-site access fields.';
                 errorEl.classList.remove('hidden');
                 return;
             }

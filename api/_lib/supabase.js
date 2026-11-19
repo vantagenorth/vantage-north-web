@@ -264,20 +264,35 @@ async function findOrCreateAgent(agent) {
 
 async function insertReport(report) {
   if (!isSupabaseConfigured()) return null;
-  const created = await supabaseFetch('reports', {
-    method: 'POST',
-    headers: { Prefer: 'return=representation' },
-    body: JSON.stringify({
-      id: crypto.randomUUID(),
-      client_id: report.clientId || null,
-      unit_id: report.unitId || null,
-      agent_id: report.agentId || null,
-      report_type: report.reportType || 'Handover',
-      status: report.status || 'pending',
-      ref: report.ref || null,
-    }),
-  });
-  return Array.isArray(created.data) ? created.data[0] : created.data;
+  const basePayload = {
+    id: crypto.randomUUID(),
+    client_id: report.clientId || null,
+    unit_id: report.unitId || null,
+    agent_id: report.agentId || null,
+    ref: report.ref || null,
+  };
+
+  const attempts = [
+    { ...basePayload, report_type: report.reportType || 'Handover', status: report.status || 'pending' },
+    { ...basePayload, report_type: (report.reportType || 'handover').toLowerCase(), status: 'draft' },
+    { ...basePayload, report_type: report.reportType || 'Handover' },
+    basePayload,
+  ];
+
+  let lastErr = null;
+  for (const payload of attempts) {
+    try {
+      const created = await supabaseFetch('reports', {
+        method: 'POST',
+        headers: { Prefer: 'return=representation' },
+        body: JSON.stringify(payload),
+      });
+      return Array.isArray(created.data) ? created.data[0] : created.data;
+    } catch (err) {
+      lastErr = err;
+    }
+  }
+  throw lastErr;
 }
 
 function getSigningSecret() {

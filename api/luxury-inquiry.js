@@ -87,6 +87,7 @@ module.exports = async function handler(req, res) {
     const html = `
       <div style="font-family:'Helvetica Neue',Arial,sans-serif;background:#FAFAFA;padding:32px 16px;color:#000;">
         <div style="max-width:600px;margin:0 auto;background:#FFF;border:1px solid #E5E5E5;border-radius:12px;padding:32px;">
+          <img src="https://vantagenorth.ae/logo/vantage_north_logo_email_footer.png" alt="Vantage North" style="height:28px;width:auto;display:block;margin-bottom:20px;">
           <p style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#646464;margin:0 0 8px;">Vantage North — Luxury Home Quote Request</p>
           <h1 style="font-size:24px;margin:0 0 16px;font-weight:600;">We've Received Your Custom Inspection Request</h1>
           <p style="font-size:15px;line-height:1.6;color:#2B2B2B;margin:0 0 20px;">

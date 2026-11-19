@@ -37,8 +37,8 @@ module.exports = async function handler(req, res) {
     if (!termsAccepted) {
       return res.status(400).json({ error: 'You must accept the Vantage North Terms of Service.' });
     }
-    if (!fullName || !email || !phone || !projectName || !areaCommunity || !unitNumber || !scheduledStart) {
-      return res.status(400).json({ error: 'Please complete all required personal, unit, and schedule fields.' });
+    if (!fullName || !email || !phone || !projectName || !areaCommunity || !unitNumber || !accessInstructions || !scheduledStart) {
+      return res.status(400).json({ error: 'Please complete all required personal, unit, on-site access, and schedule fields.' });
     }
 
     const quote = calculateQuote({ propertyType, bedroomTier, buaSqft, packageType });
