@@ -38,30 +38,34 @@ module.exports = async function handler(req, res) {
     }
 
     if (ziinaData.status === 'completed') {
+      const paymentRow = await getPaymentByIntentId(intentId);
+      const booking = paymentRow?.bookings;
+      let reportId = booking?.report_id || null;
+
+      if (booking && !reportId) {
+        try {
+          const report = await insertReport({
+            clientId: booking.client_id,
+            unitId: booking.unit_id,
+            agentId: booking.agent_id,
+            reportType: 'Handover',
+            status: 'pending',
+            ref: booking.booking_reference,
+          });
+          reportId = report?.id || null;
+        } catch (e) {
+          console.warn('Webhook report creation warning:', e.message);
+        }
+      }
+
       await updatePaymentByIntentId(intentId, {
         status: 'paid',
         paid_at: new Date().toISOString(),
         raw_response: ziinaData,
+        ...(reportId ? { report_id: reportId } : {}),
       });
 
-      const paymentRow = await getPaymentByIntentId(intentId);
-      const booking = paymentRow?.bookings;
       if (booking && booking.status !== 'confirmed') {
-        let reportId = booking.report_id || null;
-        if (!reportId) {
-          try {
-            const report = await insertReport({
-              bookingId: booking.id,
-              clientId: booking.client_id,
-              unitId: booking.unit_id,
-              type: 'Handover',
-              status: 'pending',
-            });
-            reportId = report?.id || null;
-          } catch (e) {
-            console.warn('Webhook report creation warning:', e.message);
-          }
-        }
         await updateBookingByReference(booking.booking_reference, {
           status: 'confirmed',
           ...(reportId ? { report_id: reportId } : {}),

@@ -74,16 +74,12 @@ module.exports = async function handler(req, res) {
         booking_reference: bookingReference,
         client_id: clientRes.data.id,
         status: 'quote_requested',
-        package_type: 'custom_quote',
-        package_label: 'Luxury Home — Price on Request',
-        price_aed: null,
-        inspection_purpose: inspectionPurpose,
         timezone: 'Asia/Dubai',
         terms_accepted: true,
         terms_accepted_at: new Date().toISOString(),
         notes: notes
           ? notes.trim()
-          : `Luxury Villa (${bedroomTier || 'Custom'}${buaSqft ? `, ${buaSqft} sq ft` : ''}) — ${unitNumber}, ${projectName}, ${areaCommunity}`,
+          : `Luxury Villa (${bedroomTier || 'Custom'}${buaSqft ? `, ${buaSqft} sq ft` : ''}) — ${unitNumber}, ${projectName}, ${areaCommunity} | Purpose: ${inspectionPurpose}`,
       });
       supabaseSynced = true;
     }

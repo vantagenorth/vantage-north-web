@@ -117,7 +117,7 @@ module.exports = async function handler(req, res) {
           calBookingUid: dbBooking.cal_booking_uid,
           scheduledStart: dbBooking.scheduled_start,
           scheduledEnd: dbBooking.scheduled_end,
-          fullName: dbBooking.clients?.full_name || tokenData?.fullName,
+          fullName: dbBooking.clients?.name || tokenData?.fullName,
           email: dbBooking.clients?.email || tokenData?.email,
           phone: dbBooking.clients?.phone || tokenData?.phone,
           projectName: tokenData?.projectName || 'Dubai Property',
@@ -125,7 +125,7 @@ module.exports = async function handler(req, res) {
           unitNumber: tokenData?.unitNumber || 'TBD',
           developer: tokenData?.developer || 'Not specified',
           dewaConnected: tokenData?.dewaConnected ?? true,
-          inspectionPurpose: dbBooking.inspection_purpose || tokenData?.inspectionPurpose || 'Handover',
+          inspectionPurpose: tokenData?.inspectionPurpose || 'Handover',
           accessInstructions: tokenData?.accessInstructions || 'Will coordinate prior to inspection',
           kindOfApartment: tokenData?.kindOfApartment || '1 Bedroom',
           intentId: paymentIntentId || dbBooking.payments?.[0]?.ziina_payment_intent_id,
@@ -229,26 +229,28 @@ module.exports = async function handler(req, res) {
     let supabaseSynced = false;
     let reportId = dbBooking?.report_id || null;
     if (isSupabaseConfigured()) {
-      await updatePaymentByIntentId(b.intentId, {
-        status: 'paid',
-        paid_at: new Date().toISOString(),
-        raw_response: ziinaData,
-      });
-
       if (!reportId && dbBooking?.id) {
         try {
           const report = await insertReport({
-            bookingId: dbBooking.id,
             clientId: dbBooking.client_id,
             unitId: dbBooking.unit_id,
-            type: b.inspectionPurpose || 'Handover',
+            agentId: dbBooking.agent_id,
+            reportType: b.inspectionPurpose || 'Handover',
             status: 'pending',
+            ref: b.bookingReference,
           });
           reportId = report?.id || null;
         } catch (repErr) {
           console.warn('Report creation warning:', repErr.message);
         }
       }
+
+      await updatePaymentByIntentId(b.intentId, {
+        status: 'paid',
+        paid_at: new Date().toISOString(),
+        raw_response: ziinaData,
+        ...(reportId ? { report_id: reportId } : {}),
+      });
 
       await updateBookingByReference(b.bookingReference, {
         status: 'confirmed',

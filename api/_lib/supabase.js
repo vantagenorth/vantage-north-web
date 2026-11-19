@@ -42,18 +42,33 @@ async function supabaseFetch(path, options = {}) {
 
 async function upsertClient(client) {
   if (!isSupabaseConfigured()) return { skipped: true, data: null };
-  const payload = {
-    full_name: client.fullName,
-    email: client.email.trim().toLowerCase(),
-    phone: client.phone || null,
-    updated_at: new Date().toISOString(),
-  };
-  const res = await supabaseFetch('clients?on_conflict=email', {
+  const cleanEmail = client.email.trim().toLowerCase();
+  const existing = await supabaseFetch(
+    `clients?email=eq.${encodeURIComponent(cleanEmail)}&limit=1`,
+    { method: 'GET' }
+  );
+  if (Array.isArray(existing.data) && existing.data[0]?.id) {
+    const updated = await supabaseFetch(`clients?id=eq.${encodeURIComponent(existing.data[0].id)}`, {
+      method: 'PATCH',
+      headers: { Prefer: 'return=representation' },
+      body: JSON.stringify({
+        name: client.fullName,
+        phone: client.phone || existing.data[0].phone || null,
+      }),
+    });
+    return { skipped: false, data: Array.isArray(updated.data) ? updated.data[0] : existing.data[0] };
+  }
+
+  const created = await supabaseFetch('clients', {
     method: 'POST',
-    headers: { Prefer: 'resolution=merge-duplicates,return=representation' },
-    body: JSON.stringify(payload),
+    headers: { Prefer: 'return=representation' },
+    body: JSON.stringify({
+      name: client.fullName,
+      email: cleanEmail,
+      phone: client.phone || null,
+    }),
   });
-  return { skipped: false, data: Array.isArray(res.data) ? res.data[0] : res.data };
+  return { skipped: false, data: Array.isArray(created.data) ? created.data[0] : created.data };
 }
 
 async function insertBooking(booking) {
@@ -129,17 +144,17 @@ async function getPaymentByIntentId(intentId) {
   return Array.isArray(res.data) ? res.data[0] || null : null;
 }
 
-async function findOrCreateByName(table, name) {
+async function upsertDeveloper(name) {
   if (!isSupabaseConfigured() || !name) return null;
   const clean = name.trim();
-  if (!clean) return null;
-  const existing = await supabaseFetch(`${table}?name=eq.${encodeURIComponent(clean)}&limit=1`, {
+  if (!clean || clean === 'Not specified') return null;
+  const existing = await supabaseFetch(`developers?name=eq.${encodeURIComponent(clean)}&limit=1`, {
     method: 'GET',
   });
   if (Array.isArray(existing.data) && existing.data[0]?.id) {
     return existing.data[0];
   }
-  const created = await supabaseFetch(table, {
+  const created = await supabaseFetch('developers', {
     method: 'POST',
     headers: { Prefer: 'return=representation' },
     body: JSON.stringify({ name: clean }),
@@ -147,18 +162,10 @@ async function findOrCreateByName(table, name) {
   return Array.isArray(created.data) ? created.data[0] : created.data;
 }
 
-async function upsertDeveloper(name) {
-  return findOrCreateByName('developers', name);
-}
-
-async function upsertArea(name) {
-  return findOrCreateByName('areas', name);
-}
-
-async function findOrCreateProject({ name, areaId, developerId }) {
+async function findOrCreateProject({ name, area, developerId }) {
   if (!isSupabaseConfigured() || !name) return null;
   const clean = name.trim();
-  const areaFilter = areaId ? `&area_id=eq.${encodeURIComponent(areaId)}` : '';
+  const areaFilter = area ? `&area=eq.${encodeURIComponent(area.trim())}` : '';
   const existing = await supabaseFetch(`projects?name=eq.${encodeURIComponent(clean)}${areaFilter}&limit=1`, {
     method: 'GET',
   });
@@ -170,7 +177,7 @@ async function findOrCreateProject({ name, areaId, developerId }) {
     headers: { Prefer: 'return=representation' },
     body: JSON.stringify({
       name: clean,
-      area_id: areaId || null,
+      area: area ? area.trim() : null,
       developer_id: developerId || null,
     }),
   });
@@ -179,9 +186,9 @@ async function findOrCreateProject({ name, areaId, developerId }) {
 
 async function insertUnit(unit) {
   if (!isSupabaseConfigured()) return null;
-  if (unit.unitNumber && unit.projectId) {
+  if (unit.unitNo && unit.project) {
     const existing = await supabaseFetch(
-      `units?unit_number=eq.${encodeURIComponent(unit.unitNumber)}&project_id=eq.${encodeURIComponent(unit.projectId)}&limit=1`,
+      `units?unit_no=eq.${encodeURIComponent(unit.unitNo)}&project=eq.${encodeURIComponent(unit.project)}&limit=1`,
       { method: 'GET' }
     );
     if (Array.isArray(existing.data) && existing.data[0]?.id) {
@@ -192,16 +199,13 @@ async function insertUnit(unit) {
     method: 'POST',
     headers: { Prefer: 'return=representation' },
     body: JSON.stringify({
-      unit_number: unit.unitNumber,
-      project_id: unit.projectId || null,
-      area_id: unit.areaId || null,
-      developer_id: unit.developerId || null,
-      client_id: unit.clientId || null,
-      property_type: unit.propertyType || null,
-      bedroom_tier: unit.bedroomTier || null,
-      address: unit.address || null,
-      dewa_connected: Boolean(unit.dewaConnected),
-      access_instructions: unit.accessInstructions || null,
+      unit_no: unit.unitNo,
+      type: unit.type || null,
+      beds: unit.beds || null,
+      developer: unit.developer || null,
+      project: unit.project || null,
+      dewa_active: Boolean(unit.dewaActive),
+      access_notes: unit.accessNotes || null,
     }),
   });
   return Array.isArray(created.data) ? created.data[0] : created.data;
@@ -222,8 +226,8 @@ async function findOrCreateAgent(agent) {
     method: 'POST',
     headers: { Prefer: 'return=representation' },
     body: JSON.stringify({
-      full_name: agent.fullName.trim(),
-      agency: agent.agency ? agent.agency.trim() : null,
+      name: agent.fullName.trim(),
+      agency_name: agent.agency ? agent.agency.trim() : null,
       email: agent.email ? agent.email.trim().toLowerCase() : null,
       phone: agent.phone ? agent.phone.trim() : null,
     }),
@@ -237,11 +241,12 @@ async function insertReport(report) {
     method: 'POST',
     headers: { Prefer: 'return=representation' },
     body: JSON.stringify({
-      booking_id: report.bookingId,
       client_id: report.clientId || null,
       unit_id: report.unitId || null,
-      type: report.type || 'Handover',
+      agent_id: report.agentId || null,
+      report_type: report.reportType || 'Handover',
       status: report.status || 'pending',
+      ref: report.ref || null,
     }),
   });
   return Array.isArray(created.data) ? created.data[0] : created.data;
@@ -284,7 +289,6 @@ module.exports = {
   getPaymentByIntentId,
   getActiveBookingsInRange,
   upsertDeveloper,
-  upsertArea,
   findOrCreateProject,
   insertUnit,
   findOrCreateAgent,
