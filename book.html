@@ -86,18 +86,22 @@
                     <label class="block text-xs uppercase tracking-wider text-vnGray font-medium mb-2">Property Type</label>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6" id="propertyTypeGroup">
                         <button type="button" data-type="Apartment" class="option-card active border border-neutral-200 rounded-xl p-3.5 text-left hover:border-neutral-400">
+                            <svg class="w-5 h-5 mb-2 text-vnDarkGray" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4M9 9v.01M9 12v.01M9 15v.01M9 18v.01"></path></svg>
                             <div class="font-urbanist font-semibold text-sm sm:text-base">Apartment</div>
                             <div class="text-xs text-vnGray mt-0.5">Studio – 3 Bed</div>
                         </button>
                         <button type="button" data-type="Townhouse" class="option-card border border-neutral-200 rounded-xl p-3.5 text-left hover:border-neutral-400">
+                            <svg class="w-5 h-5 mb-2 text-vnDarkGray" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1"></path></svg>
                             <div class="font-urbanist font-semibold text-sm sm:text-base">Townhouse</div>
                             <div class="text-xs text-vnGray mt-0.5">3–4 Bedrooms</div>
                         </button>
                         <button type="button" data-type="Villa" class="option-card border border-neutral-200 rounded-xl p-3.5 text-left hover:border-neutral-400">
+                            <svg class="w-5 h-5 mb-2 text-vnDarkGray" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M2 21h20M4 21V10l8-6 8 6v11M9 21v-6h6v6M12 7v.01"></path></svg>
                             <div class="font-urbanist font-semibold text-sm sm:text-base">Villa</div>
                             <div class="text-xs text-vnGray mt-0.5">4–5 Bedrooms</div>
                         </button>
                         <button type="button" data-type="Luxury" class="option-card border border-neutral-200 rounded-xl p-3.5 text-left hover:border-neutral-400">
+                            <svg class="w-5 h-5 mb-2 text-vnDarkGray" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5L12 3z"></path></svg>
                             <div class="font-urbanist font-semibold text-sm sm:text-base">Luxury</div>
                             <div class="text-xs text-vnGray mt-0.5">6+ Bed / 6,500+ sq ft</div>
                         </button>
@@ -129,12 +133,17 @@
                         <!-- Base Inspection + Add-ons -->
                         <div class="space-y-4">
                             <div class="border border-black rounded-xl p-4 bg-neutral-50/70 flex items-center justify-between gap-4">
-                                <div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="font-urbanist font-semibold text-base">Initial Inspection</span>
-                                        <span class="text-[11px] px-2 py-0.5 rounded-full bg-black text-white">Included</span>
+                                <div class="flex items-start gap-3">
+                                    <div class="w-9 h-9 rounded-lg bg-black text-white flex items-center justify-center shrink-0 mt-0.5">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
                                     </div>
-                                    <p class="text-xs text-vnGray mt-1">Comprehensive RERA-certified snagging &amp; interactive digital report within 24h.</p>
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-urbanist font-semibold text-base">Initial Inspection</span>
+                                            <span class="text-[11px] px-2 py-0.5 rounded-full bg-black text-white">Included</span>
+                                        </div>
+                                        <p class="text-xs text-vnGray mt-1">Comprehensive RERA-certified snagging &amp; interactive digital report within 24h.</p>
+                                    </div>
                                 </div>
                                 <div id="basePriceDisplay" class="font-urbanist font-bold text-lg whitespace-nowrap">1,100 AED</div>
                             </div>
@@ -204,7 +213,10 @@
 
                         <!-- Personal Info -->
                         <div>
-                            <h3 class="text-sm font-semibold uppercase tracking-wider text-vnGray mb-3">Personal Information</h3>
+                            <h3 class="text-sm font-semibold uppercase tracking-wider text-vnGray mb-3 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                Personal Information
+                            </h3>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-xs font-medium mb-1">Full Name *</label>
@@ -231,7 +243,10 @@
 
                         <!-- Unit Info -->
                         <div class="pt-4 border-t border-neutral-100">
-                            <h3 class="text-sm font-semibold uppercase tracking-wider text-vnGray mb-3">Unit Information</h3>
+                            <h3 class="text-sm font-semibold uppercase tracking-wider text-vnGray mb-3 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                Unit Information
+                            </h3>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-xs font-medium mb-1">Project / Building Name *</label>
@@ -407,7 +422,7 @@
             if (state.addFollowup && state.addFinal) {
                 return {
                     key: 'full_bundle',
-                    label: 'Full Package Bundle (All 3 Visits)',
+                    label: 'Full Package Bundle',
                     price: p.bundle,
                     savings: p.bundleSavings
                 };
@@ -415,7 +430,7 @@
             if (state.addFollowup) {
                 return {
                     key: 'initial_followup',
-                    label: 'Initial + Follow-Up Snag Check',
+                    label: 'Initial + Developer Follow-Up',
                     price: p.base + p.followupAddon,
                     savings: 0
                 };
@@ -423,7 +438,7 @@
             if (state.addFinal) {
                 return {
                     key: 'initial_final',
-                    label: 'Initial + Final Handover Sign-Off',
+                    label: 'Initial + Final Handover Inspection',
                     price: p.base + p.finalAddon,
                     savings: 0
                 };
@@ -478,17 +493,19 @@
             const addons = [
                 {
                     id: 'followup',
-                    title: 'Follow-Up Snag Check (+35%)',
-                    desc: 'Re-inspection after developer rectification.',
+                    title: 'Developer Follow-Up',
+                    desc: 'We follow up directly with the developer to ensure all reported defects are resolved.',
                     priceText: `+${p.followupAddon.toLocaleString()} AED`,
                     active: state.addFollowup,
+                    icon: `<svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>`
                 },
                 {
                     id: 'final',
-                    title: 'Final Handover Sign-Off (+50%)',
-                    desc: 'Final pre-key handover verification visit.',
+                    title: 'Final Handover Inspection',
+                    desc: 'On-site final inspection to confirm all rectification work was completed correctly before handover.',
                     priceText: `+${p.finalAddon.toLocaleString()} AED`,
                     active: state.addFinal,
+                    icon: `<svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>`
                 }
             ];
 
@@ -497,10 +514,13 @@
                 <div class="border ${a.active ? 'border-black bg-white shadow-sm' : 'border-neutral-200 bg-white'} rounded-xl p-4 flex flex-col justify-between gap-3 transition">
                     <div>
                         <div class="flex items-start justify-between gap-2">
-                            <span class="font-urbanist font-semibold text-sm">${a.title}</span>
+                            <div class="flex items-center gap-2 font-urbanist font-semibold text-sm">
+                                ${a.icon}
+                                <span>${a.title}</span>
+                            </div>
                             <span class="text-xs font-semibold text-vnDarkGray whitespace-nowrap">${a.priceText}</span>
                         </div>
-                        <p class="text-xs text-vnGray mt-1">${a.desc}</p>
+                        <p class="text-xs text-vnGray mt-1.5 leading-relaxed">${a.desc}</p>
                     </div>
                     <button type="button" data-addon="${a.id}"
                         class="w-full py-2 px-3 rounded-lg text-xs font-medium border transition ${a.active ? 'bg-black text-white border-black' : 'bg-vnBg text-black border-neutral-300 hover:border-black'}">
