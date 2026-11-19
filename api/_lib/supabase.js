@@ -1,7 +1,11 @@
 const crypto = require('crypto');
 
+function getSupabaseUrl() {
+  return process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+}
+
 function isSupabaseConfigured() {
-  return Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
+  return Boolean(getSupabaseUrl() && process.env.SUPABASE_SERVICE_ROLE_KEY);
 }
 
 function getHeaders(extra = {}) {
@@ -18,7 +22,7 @@ async function supabaseFetch(path, options = {}) {
   if (!isSupabaseConfigured()) {
     return { skipped: true, data: null };
   }
-  const baseUrl = process.env.SUPABASE_URL.replace(/\/+$/, '');
+  const baseUrl = getSupabaseUrl().replace(/\/+$/, '');
   const res = await fetch(`${baseUrl}/rest/v1/${path}`, {
     ...options,
     headers: getHeaders(options.headers),
