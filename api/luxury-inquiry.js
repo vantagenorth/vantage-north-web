@@ -77,28 +77,16 @@ module.exports = async function handler(req, res) {
         booking_reference: bookingReference,
         client_id: clientRes.data.id,
         status: 'quote_requested',
-        property_type: propertyType,
-        bedroom_tier: bedroomTier || '6+ Bed / >6,500 sq ft',
-        bua_sqft: buaSqft ? Number(buaSqft) : null,
         package_type: 'custom_quote',
         package_label: 'Luxury Home — Price on Request',
         price_aed: null,
         inspection_purpose: inspectionPurpose,
-        project_name: projectName.trim(),
-        area_community: areaCommunity.trim(),
-        unit_number: unitNumber.trim(),
-        address: address ? address.trim() : null,
-        developer: developer ? developer.trim() : 'Not specified',
-        dewa_connected: Boolean(dewaConnected),
-        access_instructions: accessInstructions ? accessInstructions.trim() : null,
-        agent_name: agentName ? agentName.trim() : null,
-        agent_agency: agentAgency ? agentAgency.trim() : null,
-        agent_email: agentEmail ? agentEmail.trim() : null,
-        agent_phone: agentPhone ? agentPhone.trim() : null,
         timezone: 'Asia/Dubai',
         terms_accepted: true,
         terms_accepted_at: new Date().toISOString(),
-        notes: notes ? notes.trim() : null,
+        notes: notes
+          ? notes.trim()
+          : `Luxury Villa (${bedroomTier || 'Custom'}${buaSqft ? `, ${buaSqft} sq ft` : ''}) — ${unitNumber}, ${projectName}, ${areaCommunity}`,
       });
       supabaseSynced = true;
     }
