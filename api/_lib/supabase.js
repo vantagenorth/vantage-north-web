@@ -63,6 +63,7 @@ async function upsertClient(client) {
     method: 'POST',
     headers: { Prefer: 'return=representation' },
     body: JSON.stringify({
+      id: crypto.randomUUID(),
       name: client.fullName,
       email: cleanEmail,
       phone: client.phone || null,
@@ -76,7 +77,7 @@ async function insertBooking(booking) {
   const res = await supabaseFetch('bookings', {
     method: 'POST',
     headers: { Prefer: 'return=representation' },
-    body: JSON.stringify(booking),
+    body: JSON.stringify({ id: crypto.randomUUID(), ...booking }),
   });
   return { skipped: false, data: Array.isArray(res.data) ? res.data[0] : res.data };
 }
@@ -107,7 +108,7 @@ async function insertPayment(payment) {
   const res = await supabaseFetch('payments', {
     method: 'POST',
     headers: { Prefer: 'return=representation' },
-    body: JSON.stringify(payment),
+    body: JSON.stringify({ id: crypto.randomUUID(), ...payment }),
   });
   return { skipped: false, data: Array.isArray(res.data) ? res.data[0] : res.data };
 }
@@ -157,7 +158,7 @@ async function upsertDeveloper(name) {
   const created = await supabaseFetch('developers', {
     method: 'POST',
     headers: { Prefer: 'return=representation' },
-    body: JSON.stringify({ name: clean }),
+    body: JSON.stringify({ id: crypto.randomUUID(), name: clean }),
   });
   return Array.isArray(created.data) ? created.data[0] : created.data;
 }
@@ -176,6 +177,7 @@ async function findOrCreateProject({ name, area, developerId }) {
     method: 'POST',
     headers: { Prefer: 'return=representation' },
     body: JSON.stringify({
+      id: crypto.randomUUID(),
       name: clean,
       area: area ? area.trim() : null,
       developer_id: developerId || null,
@@ -199,6 +201,7 @@ async function insertUnit(unit) {
     method: 'POST',
     headers: { Prefer: 'return=representation' },
     body: JSON.stringify({
+      id: crypto.randomUUID(),
       unit_no: unit.unitNo,
       type: unit.type || null,
       beds: unit.beds || null,
@@ -226,6 +229,7 @@ async function findOrCreateAgent(agent) {
     method: 'POST',
     headers: { Prefer: 'return=representation' },
     body: JSON.stringify({
+      id: crypto.randomUUID(),
       name: agent.fullName.trim(),
       agency_name: agent.agency ? agent.agency.trim() : null,
       email: agent.email ? agent.email.trim().toLowerCase() : null,
@@ -241,6 +245,7 @@ async function insertReport(report) {
     method: 'POST',
     headers: { Prefer: 'return=representation' },
     body: JSON.stringify({
+      id: crypto.randomUUID(),
       client_id: report.clientId || null,
       unit_id: report.unitId || null,
       agent_id: report.agentId || null,
