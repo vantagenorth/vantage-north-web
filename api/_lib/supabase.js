@@ -43,20 +43,34 @@ async function supabaseFetch(path, options = {}) {
 async function upsertClient(client) {
   if (!isSupabaseConfigured()) return { skipped: true, data: null };
   const cleanEmail = client.email.trim().toLowerCase();
-  const existing = await supabaseFetch(
-    `clients?email=eq.${encodeURIComponent(cleanEmail)}&limit=1`,
+  const cleanPhone = client.phone ? client.phone.trim() : '';
+
+  // 1. Case-insensitive email lookup
+  let existingRes = await supabaseFetch(
+    `clients?email=ilike.${encodeURIComponent(cleanEmail)}&limit=1`,
     { method: 'GET' }
   );
-  if (Array.isArray(existing.data) && existing.data[0]?.id) {
-    const updated = await supabaseFetch(`clients?id=eq.${encodeURIComponent(existing.data[0].id)}`, {
+
+  // 2. Fallback lookup by phone number if email didn't match
+  if ((!Array.isArray(existingRes.data) || !existingRes.data[0]?.id) && cleanPhone) {
+    existingRes = await supabaseFetch(
+      `clients?phone=eq.${encodeURIComponent(cleanPhone)}&limit=1`,
+      { method: 'GET' }
+    );
+  }
+
+  if (Array.isArray(existingRes.data) && existingRes.data[0]?.id) {
+    const existing = existingRes.data[0];
+    const updated = await supabaseFetch(`clients?id=eq.${encodeURIComponent(existing.id)}`, {
       method: 'PATCH',
       headers: { Prefer: 'return=representation' },
       body: JSON.stringify({
-        name: client.fullName,
-        phone: client.phone || existing.data[0].phone || null,
+        name: client.fullName || existing.name,
+        email: cleanEmail || existing.email,
+        phone: cleanPhone || existing.phone || null,
       }),
     });
-    return { skipped: false, data: Array.isArray(updated.data) ? updated.data[0] : existing.data[0] };
+    return { skipped: false, data: Array.isArray(updated.data) ? updated.data[0] : existing };
   }
 
   const created = await supabaseFetch('clients', {
@@ -66,7 +80,7 @@ async function upsertClient(client) {
       id: crypto.randomUUID(),
       name: client.fullName,
       email: cleanEmail,
-      phone: client.phone || null,
+      phone: cleanPhone || null,
     }),
   });
   return { skipped: false, data: Array.isArray(created.data) ? created.data[0] : created.data };
