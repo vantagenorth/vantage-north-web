@@ -174,47 +174,77 @@ module.exports = async function handler(req, res) {
     let calWarning = null;
     const calApiKey = process.env.CAL_API_KEY;
     if (calApiKey && b.calEventTypeId) {
+      const startUtc = new Date(b.scheduledStart).toISOString();
+      let cleanPhone = (b.phone || '').replace(/[^\d+]/g, '');
+      if (cleanPhone.startsWith('00')) cleanPhone = '+' + cleanPhone.slice(2);
+      else if (/^05\d{8}$/.test(cleanPhone)) cleanPhone = '+971' + cleanPhone.slice(1);
+      else if (/^971\d{8,9}$/.test(cleanPhone)) cleanPhone = '+' + cleanPhone;
+      const validE164 = /^\+\d{8,15}$/.test(cleanPhone) ? cleanPhone : null;
+
+      const baseCalPayload = {
+        start: startUtc,
+        eventTypeId: Number(b.calEventTypeId),
+        attendee: {
+          name: b.fullName,
+          email: b.email,
+          timeZone: 'Asia/Dubai',
+          ...(validE164 ? { phoneNumber: validE164 } : {}),
+        },
+        metadata: {
+          bookingReference: b.bookingReference,
+          packageType: b.packageType,
+          propertyType: b.propertyType,
+          bedroomTier: b.bedroomTier,
+          projectName: b.projectName,
+          areaCommunity: b.areaCommunity,
+        },
+      };
+
+      const fullCalPayload = {
+        ...baseCalPayload,
+        bookingFieldsResponses: {
+          notes: [
+            `Ref: ${b.bookingReference}`,
+            `Property: ${b.propertyType} — ${b.bedroomTier}`,
+            `Unit: ${b.unitNumber || 'TBD'}, ${b.projectName || ''}, ${b.areaCommunity || 'Dubai'}`,
+            `Package: ${b.packageLabel} (${b.priceAed} AED)`,
+            `Purpose: ${b.inspectionPurpose || 'Handover'}`,
+            `DEWA On: ${b.dewaConnected ? 'Yes' : 'No'}`,
+            `Developer: ${b.developer || 'Not specified'}`,
+            `Access: ${b.accessInstructions || 'N/A'}`,
+          ].join(' | '),
+        },
+      };
+
+      const calHeaders = {
+        Authorization: `Bearer ${calApiKey}`,
+        'cal-api-version': '2024-08-13',
+        'Content-Type': 'application/json',
+        'User-Agent': 'VantageNorthBooking/1.0',
+      };
+
       try {
-        const calRes = await fetch('https://api.cal.com/v2/bookings', {
+        let calRes = await fetch('https://api.cal.com/v2/bookings', {
           method: 'POST',
-          headers: {
-            Authorization: `Bearer ${calApiKey}`,
-            'cal-api-version': '2024-08-13',
-            'Content-Type': 'application/json',
-            'User-Agent': 'VantageNorthBooking/1.0',
-          },
-          body: JSON.stringify({
-            start: b.scheduledStart,
-            eventTypeId: Number(b.calEventTypeId),
-            attendee: {
-              name: b.fullName,
-              email: b.email,
-              timeZone: 'Asia/Dubai',
-              ...(b.phone ? { phoneNumber: b.phone.replace(/[^\d+]/g, '') } : {}),
-            },
-            bookingFieldsResponses: {
-              notes: [
-                `Ref: ${b.bookingReference}`,
-                `Property: ${b.propertyType} — ${b.bedroomTier}`,
-                `Unit: ${b.unitNumber || 'TBD'}, ${b.projectName || ''}, ${b.areaCommunity || 'Dubai'}`,
-                `Package: ${b.packageLabel} (${b.priceAed} AED)`,
-                `Purpose: ${b.inspectionPurpose || 'Handover'}`,
-                `DEWA On: ${b.dewaConnected ? 'Yes' : 'No'}`,
-                `Developer: ${b.developer || 'Not specified'}`,
-                `Access: ${b.accessInstructions || 'N/A'}`,
-              ].join(' | '),
-            },
-            metadata: {
-              bookingReference: b.bookingReference,
-              packageType: b.packageType,
-              propertyType: b.propertyType,
-              bedroomTier: b.bedroomTier,
-              projectName: b.projectName,
-              areaCommunity: b.areaCommunity,
-            },
-          }),
+          headers: calHeaders,
+          body: JSON.stringify(fullCalPayload),
         });
-        const calJson = await calRes.json();
+        let calJson = await calRes.json();
+
+        if (!calRes.ok || !calJson.data) {
+          // Retry with minimal payload (without phoneNumber or bookingFieldsResponses)
+          const minimalPayload = {
+            ...baseCalPayload,
+            attendee: { name: b.fullName, email: b.email, timeZone: 'Asia/Dubai' },
+          };
+          calRes = await fetch('https://api.cal.com/v2/bookings', {
+            method: 'POST',
+            headers: calHeaders,
+            body: JSON.stringify(minimalPayload),
+          });
+          calJson = await calRes.json();
+        }
+
         if (calRes.ok && calJson.data) {
           calBookingId = calJson.data.id || null;
           calBookingUid = calJson.data.uid || null;
