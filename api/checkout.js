@@ -4,6 +4,11 @@ const {
   upsertClient,
   insertBooking,
   insertPayment,
+  upsertDeveloper,
+  upsertArea,
+  findOrCreateProject,
+  insertUnit,
+  findOrCreateAgent,
   signBookingToken,
 } = require('./_lib/supabase');
 
@@ -156,19 +161,68 @@ module.exports = async function handler(req, res) {
       });
 
       const clientId = clientRes.data.id;
+
+      let developerId = null;
+      let areaId = null;
+      let projectId = null;
+      let unitId = null;
+      let agentId = null;
+
+      try {
+        if (bookingPayload.developer && bookingPayload.developer !== 'Not specified') {
+          const dev = await upsertDeveloper(bookingPayload.developer);
+          developerId = dev?.id || null;
+        }
+        const area = await upsertArea(bookingPayload.areaCommunity);
+        areaId = area?.id || null;
+
+        const project = await findOrCreateProject({
+          name: bookingPayload.projectName,
+          areaId,
+          developerId,
+        });
+        projectId = project?.id || null;
+
+        const unit = await insertUnit({
+          unitNumber: bookingPayload.unitNumber,
+          projectId,
+          areaId,
+          developerId,
+          clientId,
+          propertyType: bookingPayload.propertyType,
+          bedroomTier: bookingPayload.bedroomTier,
+          address: bookingPayload.address,
+          dewaConnected: bookingPayload.dewaConnected,
+          accessInstructions: bookingPayload.accessInstructions,
+        });
+        unitId = unit?.id || null;
+
+        if (bookingPayload.agentName) {
+          const agent = await findOrCreateAgent({
+            fullName: bookingPayload.agentName,
+            agency: bookingPayload.agentAgency,
+            email: bookingPayload.agentEmail,
+            phone: bookingPayload.agentPhone,
+          });
+          agentId = agent?.id || null;
+        }
+      } catch (normErr) {
+        console.warn('Normalized property/agent sync warning:', normErr.message);
+      }
+
       const bookingRes = await insertBooking({
         booking_reference: bookingReference,
         client_id: clientId,
+        unit_id: unitId,
+        agent_id: agentId,
         status: 'pending_payment',
         package_type: bookingPayload.packageType,
         package_label: bookingPayload.packageLabel,
         price_aed: bookingPayload.priceAed,
-        inspection_purpose: bookingPayload.inspectionPurpose,
         scheduled_date: bookingPayload.scheduledStart.slice(0, 10),
         scheduled_start: bookingPayload.scheduledStart,
         scheduled_end: bookingPayload.scheduledEnd,
         timezone: 'Asia/Dubai',
-        cal_event_type_id: bookingPayload.calEventTypeId,
         terms_accepted: true,
         terms_accepted_at: bookingPayload.termsAcceptedAt,
         notes: bookingPayload.notes,

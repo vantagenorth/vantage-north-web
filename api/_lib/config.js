@@ -11,7 +11,7 @@ const PRICING_TIERS = {
       packages: {
         initial: {
           key: 'initial',
-          label: 'Initial Inspection (Base)',
+          label: 'Initial Inspection',
           description: 'Full RERA-certified snagging inspection & interactive digital report within 24h.',
           priceAed: 1100,
           addonAed: 0,
@@ -54,7 +54,7 @@ const PRICING_TIERS = {
       packages: {
         initial: {
           key: 'initial',
-          label: 'Initial Inspection (Base)',
+          label: 'Initial Inspection',
           description: 'Full RERA-certified snagging inspection & interactive digital report within 24h.',
           priceAed: 2000,
           addonAed: 0,
@@ -97,7 +97,7 @@ const PRICING_TIERS = {
       packages: {
         initial: {
           key: 'initial',
-          label: 'Initial Inspection (Base)',
+          label: 'Initial Inspection',
           description: 'Full RERA-certified snagging inspection & interactive digital report within 24h.',
           priceAed: 3100,
           addonAed: 0,
@@ -140,7 +140,7 @@ const PRICING_TIERS = {
       packages: {
         initial: {
           key: 'initial',
-          label: 'Initial Inspection (Base)',
+          label: 'Initial Inspection',
           description: 'Full RERA-certified snagging inspection & interactive digital report within 24h.',
           priceAed: 4500,
           addonAed: 0,
@@ -185,7 +185,7 @@ const PRICING_TIERS = {
       packages: {
         initial: {
           key: 'initial',
-          label: 'Initial Inspection (Base)',
+          label: 'Initial Inspection',
           description: 'Full RERA-certified snagging inspection & interactive digital report within 24h.',
           priceAed: 6500,
           addonAed: 0,
@@ -230,7 +230,7 @@ const PRICING_TIERS = {
       packages: {
         initial: {
           key: 'initial',
-          label: 'Initial Inspection (Base)',
+          label: 'Initial Inspection',
           description: 'Full RERA-certified snagging inspection & interactive digital report within 24h.',
           priceAed: 10500,
           addonAed: 0,

@@ -119,6 +119,114 @@ async function getActiveBookingsInRange(startIso, endIso) {
   return { skipped: false, data: Array.isArray(res.data) ? res.data : [] };
 }
 
+async function findOrCreateByName(table, name) {
+  if (!isSupabaseConfigured() || !name) return null;
+  const clean = name.trim();
+  if (!clean) return null;
+  const existing = await supabaseFetch(`${table}?name=eq.${encodeURIComponent(clean)}&limit=1`, {
+    method: 'GET',
+  });
+  if (Array.isArray(existing.data) && existing.data[0]?.id) {
+    return existing.data[0];
+  }
+  const created = await supabaseFetch(table, {
+    method: 'POST',
+    headers: { Prefer: 'return=representation' },
+    body: JSON.stringify({ name: clean }),
+  });
+  return Array.isArray(created.data) ? created.data[0] : created.data;
+}
+
+async function upsertDeveloper(name) {
+  return findOrCreateByName('developers', name);
+}
+
+async function upsertArea(name) {
+  return findOrCreateByName('areas', name);
+}
+
+async function findOrCreateProject({ name, areaId, developerId }) {
+  if (!isSupabaseConfigured() || !name) return null;
+  const clean = name.trim();
+  const existing = await supabaseFetch(`projects?name=eq.${encodeURIComponent(clean)}&limit=1`, {
+    method: 'GET',
+  });
+  if (Array.isArray(existing.data) && existing.data[0]?.id) {
+    return existing.data[0];
+  }
+  const created = await supabaseFetch('projects', {
+    method: 'POST',
+    headers: { Prefer: 'return=representation' },
+    body: JSON.stringify({
+      name: clean,
+      area_id: areaId || null,
+      developer_id: developerId || null,
+    }),
+  });
+  return Array.isArray(created.data) ? created.data[0] : created.data;
+}
+
+async function insertUnit(unit) {
+  if (!isSupabaseConfigured()) return null;
+  const created = await supabaseFetch('units', {
+    method: 'POST',
+    headers: { Prefer: 'return=representation' },
+    body: JSON.stringify({
+      unit_number: unit.unitNumber,
+      project_id: unit.projectId || null,
+      area_id: unit.areaId || null,
+      developer_id: unit.developerId || null,
+      client_id: unit.clientId || null,
+      property_type: unit.propertyType || null,
+      bedroom_tier: unit.bedroomTier || null,
+      address: unit.address || null,
+      dewa_connected: Boolean(unit.dewaConnected),
+      access_instructions: unit.accessInstructions || null,
+    }),
+  });
+  return Array.isArray(created.data) ? created.data[0] : created.data;
+}
+
+async function findOrCreateAgent(agent) {
+  if (!isSupabaseConfigured() || !agent?.fullName) return null;
+  if (agent.email) {
+    const existing = await supabaseFetch(
+      `agents?email=eq.${encodeURIComponent(agent.email.trim().toLowerCase())}&limit=1`,
+      { method: 'GET' }
+    );
+    if (Array.isArray(existing.data) && existing.data[0]?.id) {
+      return existing.data[0];
+    }
+  }
+  const created = await supabaseFetch('agents', {
+    method: 'POST',
+    headers: { Prefer: 'return=representation' },
+    body: JSON.stringify({
+      full_name: agent.fullName.trim(),
+      agency: agent.agency ? agent.agency.trim() : null,
+      email: agent.email ? agent.email.trim().toLowerCase() : null,
+      phone: agent.phone ? agent.phone.trim() : null,
+    }),
+  });
+  return Array.isArray(created.data) ? created.data[0] : created.data;
+}
+
+async function insertReport(report) {
+  if (!isSupabaseConfigured()) return null;
+  const created = await supabaseFetch('reports', {
+    method: 'POST',
+    headers: { Prefer: 'return=representation' },
+    body: JSON.stringify({
+      booking_id: report.bookingId,
+      client_id: report.clientId || null,
+      unit_id: report.unitId || null,
+      type: report.type || 'Handover',
+      status: report.status || 'pending',
+    }),
+  });
+  return Array.isArray(created.data) ? created.data[0] : created.data;
+}
+
 function getSigningSecret() {
   return process.env.BOOKING_TOKEN_SECRET || process.env.ZIINA_API_KEY || 'vn-dev-fallback-secret';
 }
@@ -154,6 +262,12 @@ module.exports = {
   insertPayment,
   updatePaymentByIntentId,
   getActiveBookingsInRange,
+  upsertDeveloper,
+  upsertArea,
+  findOrCreateProject,
+  insertUnit,
+  findOrCreateAgent,
+  insertReport,
   signBookingToken,
   verifyBookingToken,
 };

@@ -3,6 +3,7 @@ const {
   getBookingByReference,
   updateBookingByReference,
   updatePaymentByIntentId,
+  insertReport,
   verifyBookingToken,
 } = require('./_lib/supabase');
 
@@ -169,16 +170,34 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: 'Missing paymentIntentId to verify payment' });
     }
 
-    // Update Supabase
+    // Update Supabase & create Report
     let supabaseSynced = false;
+    let reportId = dbBooking?.report_id || null;
     if (isSupabaseConfigured()) {
       await updatePaymentByIntentId(b.intentId, {
         status: 'paid',
         paid_at: new Date().toISOString(),
         raw_response: ziinaData,
       });
+
+      if (!reportId && dbBooking?.id) {
+        try {
+          const report = await insertReport({
+            bookingId: dbBooking.id,
+            clientId: dbBooking.client_id,
+            unitId: dbBooking.unit_id,
+            type: b.inspectionPurpose || 'Handover',
+            status: 'pending',
+          });
+          reportId = report?.id || null;
+        } catch (repErr) {
+          console.warn('Report creation warning:', repErr.message);
+        }
+      }
+
       await updateBookingByReference(b.bookingReference, {
         status: 'confirmed',
+        ...(reportId ? { report_id: reportId } : {}),
       });
       supabaseSynced = true;
     }
