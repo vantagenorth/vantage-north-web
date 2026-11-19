@@ -172,6 +172,15 @@ async function findOrCreateProject({ name, areaId, developerId }) {
 
 async function insertUnit(unit) {
   if (!isSupabaseConfigured()) return null;
+  if (unit.unitNumber && unit.projectId) {
+    const existing = await supabaseFetch(
+      `units?unit_number=eq.${encodeURIComponent(unit.unitNumber)}&project_id=eq.${encodeURIComponent(unit.projectId)}&limit=1`,
+      { method: 'GET' }
+    );
+    if (Array.isArray(existing.data) && existing.data[0]?.id) {
+      return existing.data[0];
+    }
+  }
   const created = await supabaseFetch('units', {
     method: 'POST',
     headers: { Prefer: 'return=representation' },

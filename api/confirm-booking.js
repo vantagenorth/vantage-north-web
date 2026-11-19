@@ -112,7 +112,7 @@ module.exports = async function handler(req, res) {
           packageType: dbBooking.package_type,
           packageLabel: dbBooking.package_label,
           priceAed: dbBooking.price_aed,
-          calEventTypeId: dbBooking.cal_event_type_id,
+          calEventTypeId: dbBooking.cal_event_type_id || tokenData?.calEventTypeId,
           calBookingId: dbBooking.cal_booking_id,
           calBookingUid: dbBooking.cal_booking_uid,
           scheduledStart: dbBooking.scheduled_start,
