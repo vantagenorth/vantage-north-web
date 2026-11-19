@@ -53,13 +53,11 @@ async function sendResendEmail({ to, subject, html }) {
 
 function buildConfirmationHtml(b, paymentStatus, calBookingUid) {
   const dubaiTime = formatDubaiTime(b.scheduledStart);
-  const manageLinks = calBookingUid
+  const manageButtons = calBookingUid
     ? `
-      <div style="margin:0 0 20px; padding:14px 16px; background:#FAFAFA; border:1px solid #E5E5E5; border-radius:8px; font-size:13px;">
-        Need to change your time?
-        <a href="https://cal.com/reschedule/${encodeURIComponent(calBookingUid)}" style="color:#000000; font-weight:600; text-decoration:underline; margin-left:6px;">Reschedule Inspection</a>
-        <span style="color:#CCCCCC; margin:0 8px;">|</span>
-        <a href="https://cal.com/booking/${encodeURIComponent(calBookingUid)}?cancel=true" style="color:#646464; text-decoration:underline;">Cancel Booking</a>
+      <div style="margin:24px 0 0; padding-top:20px; border-top:1px solid #E5E5E5;">
+        <a href="https://cal.com/reschedule/${encodeURIComponent(calBookingUid)}" style="display:inline-block; background:#000000; color:#FFFFFF; text-decoration:none; font-size:13px; font-weight:600; padding:11px 20px; border-radius:8px; margin-right:10px;">Reschedule</a>
+        <a href="https://cal.com/booking/${encodeURIComponent(calBookingUid)}?cancel=true" style="display:inline-block; background:#FFFFFF; color:#2B2B2B; text-decoration:none; font-size:13px; font-weight:600; padding:10px 20px; border-radius:8px; border:1px solid #D4D4D4;">Cancel</a>
       </div>`
     : '';
   return `
@@ -83,13 +81,14 @@ function buildConfirmationHtml(b, paymentStatus, calBookingUid) {
           <tr><td style="padding:10px 0 0; border-top:1px solid #E5E5E5; font-weight:600;">Amount Paid</td><td style="padding:10px 0 0; border-top:1px solid #E5E5E5; text-align:right; font-weight:600;">${Number(b.priceAed).toLocaleString()} AED (${paymentStatus})</td></tr>
         </table>
       </div>
-      ${manageLinks}
+
       <p style="font-size:13px; line-height:1.6; color:#646464; margin:0 0 16px;">
         Please ensure DEWA (electricity & water) and site access are arranged prior to the inspection. Your interactive digital report will be delivered within 24 hours of inspection completion.
       </p>
       <p style="font-size:13px; color:#646464; margin:0;">
         Questions? Reply to this email or WhatsApp us on <strong>+971 58 556 5311</strong>.
       </p>
+      ${manageButtons}
     </div>
   </div>`;
 }
