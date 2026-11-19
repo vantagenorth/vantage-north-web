@@ -180,7 +180,7 @@ module.exports = async function handler(req, res) {
               name: b.fullName,
               email: b.email,
               timeZone: 'Asia/Dubai',
-              ...(b.phone ? { phoneNumber: b.phone } : {}),
+              ...(b.phone ? { phoneNumber: b.phone.replace(/[^\d+]/g, '') } : {}),
             },
             bookingFieldsResponses: {
               'Apartment-number': b.unitNumber || 'TBD',
@@ -216,6 +216,8 @@ module.exports = async function handler(req, res) {
     // 3. Create all Supabase records ONLY now that payment is confirmed
     let supabaseSynced = false;
     let reportId = null;
+    let normWarning = null;
+    let reportWarning = null;
     if (isSupabaseConfigured()) {
       const clientRes = await upsertClient({
         fullName: b.fullName,
@@ -263,6 +265,7 @@ module.exports = async function handler(req, res) {
           agentId = agent?.id || null;
         }
       } catch (normErr) {
+        normWarning = normErr.message;
         console.warn('Normalized property/agent sync warning:', normErr.message);
       }
 
@@ -277,6 +280,7 @@ module.exports = async function handler(req, res) {
         });
         reportId = report?.id || null;
       } catch (repErr) {
+        reportWarning = repErr.message;
         console.warn('Report creation warning:', repErr.message);
       }
 
@@ -363,6 +367,8 @@ module.exports = async function handler(req, res) {
       isTest: Boolean(ziinaData?.is_test),
       supabaseSynced,
       calWarning,
+      normWarning,
+      reportWarning,
       emailResult: customerEmailResult,
     });
   } catch (err) {

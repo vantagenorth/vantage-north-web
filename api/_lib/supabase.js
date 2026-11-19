@@ -186,6 +186,15 @@ async function findOrCreateProject({ name, area, developerId }) {
   return Array.isArray(created.data) ? created.data[0] : created.data;
 }
 
+function parseBedsToInt(beds) {
+  if (typeof beds === 'number' && Number.isFinite(beds)) return beds;
+  if (!beds) return null;
+  const s = String(beds).toLowerCase();
+  if (s.includes('studio')) return 0;
+  const match = s.match(/\d+/);
+  return match ? Number(match[0]) : null;
+}
+
 async function insertUnit(unit) {
   if (!isSupabaseConfigured()) return null;
   if (unit.unitNo && unit.project) {
@@ -204,7 +213,7 @@ async function insertUnit(unit) {
       id: crypto.randomUUID(),
       unit_no: unit.unitNo,
       type: unit.type || null,
-      beds: unit.beds || null,
+      beds: parseBedsToInt(unit.beds),
       developer: unit.developer || null,
       project: unit.project || null,
       dewa_active: Boolean(unit.dewaActive),
