@@ -107,6 +107,18 @@ async function updatePaymentByIntentId(intentId, patch) {
   return { skipped: false, data: Array.isArray(res.data) ? res.data[0] : res.data };
 }
 
+async function getActiveBookingsInRange(startIso, endIso) {
+  if (!isSupabaseConfigured()) return { skipped: true, data: [] };
+  const params = new URLSearchParams({
+    select: 'scheduled_start,scheduled_end,status',
+    status: 'in.(pending_payment,confirmed)',
+    scheduled_start: `gte.${startIso}`,
+    scheduled_end: `lte.${endIso}`,
+  });
+  const res = await supabaseFetch(`bookings?${params.toString()}`, { method: 'GET' });
+  return { skipped: false, data: Array.isArray(res.data) ? res.data : [] };
+}
+
 function getSigningSecret() {
   return process.env.BOOKING_TOKEN_SECRET || process.env.ZIINA_API_KEY || 'vn-dev-fallback-secret';
 }
@@ -141,6 +153,7 @@ module.exports = {
   updateBookingByReference,
   insertPayment,
   updatePaymentByIntentId,
+  getActiveBookingsInRange,
   signBookingToken,
   verifyBookingToken,
 };

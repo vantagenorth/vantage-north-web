@@ -169,61 +169,6 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: 'Missing paymentIntentId to verify payment' });
     }
 
-    // Create Cal.com booking
-    let calBookingId = b.calBookingId || null;
-    let calBookingUid = b.calBookingUid || null;
-    let calWarning = null;
-
-    const calApiKey = process.env.CAL_API_KEY;
-    if (calApiKey && !calBookingUid) {
-      const calPayload = {
-        start: b.scheduledStart,
-        eventTypeId: Number(b.calEventTypeId),
-        attendee: {
-          name: b.fullName,
-          email: b.email,
-          timeZone: 'Asia/Dubai',
-          ...(b.phone ? { phoneNumber: b.phone } : {}),
-        },
-        bookingFieldsResponses: {
-          'Apartment-number': b.unitNumber || 'TBD',
-          'Kind-of-apartment': b.kindOfApartment || '1 Bedroom',
-          'Electricity--water-DEWA-are-on': Boolean(b.dewaConnected),
-          'Developer--if-known': b.developer || 'Not specified',
-          'On-site-access': b.accessInstructions || 'Will coordinate prior to inspection',
-          'Purpose-of-inspections': b.inspectionPurpose || 'Handover',
-          'I-agree-to-True-North-s-terms-of-service': true,
-        },
-        metadata: {
-          bookingReference: b.bookingReference,
-          packageType: b.packageType,
-          propertyType: b.propertyType,
-          bedroomTier: b.bedroomTier,
-          projectName: b.projectName,
-          areaCommunity: b.areaCommunity,
-        },
-      };
-
-      const calRes = await fetch('https://api.cal.com/v2/bookings', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${calApiKey}`,
-          'cal-api-version': '2024-08-13',
-          'Content-Type': 'application/json',
-          'User-Agent': 'VantageNorthBooking/1.0',
-        },
-        body: JSON.stringify(calPayload),
-      });
-      const calJson = await calRes.json();
-      if (calRes.ok && calJson.data) {
-        calBookingId = calJson.data.id || null;
-        calBookingUid = calJson.data.uid || null;
-      } else {
-        calWarning = calJson?.error?.message || JSON.stringify(calJson);
-        console.error('Cal.com booking creation warning:', calWarning);
-      }
-    }
-
     // Update Supabase
     let supabaseSynced = false;
     if (isSupabaseConfigured()) {
@@ -234,8 +179,6 @@ module.exports = async function handler(req, res) {
       });
       await updateBookingByReference(b.bookingReference, {
         status: 'confirmed',
-        cal_booking_id: calBookingId,
-        cal_booking_uid: calBookingUid,
       });
       supabaseSynced = true;
     }
@@ -262,12 +205,9 @@ module.exports = async function handler(req, res) {
       booking: {
         ...b,
         status: 'confirmed',
-        calBookingId,
-        calBookingUid,
       },
       isTest: Boolean(ziinaData?.is_test),
       supabaseSynced,
-      calWarning,
       emailResult: customerEmailResult,
     });
   } catch (err) {

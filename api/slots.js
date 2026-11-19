@@ -1,4 +1,15 @@
 const { resolveTierConfig } = require('./_lib/config');
+const { getActiveBookingsInRange } = require('./_lib/supabase');
+
+const DUBAI_OFFSET_MS = 4 * 60 * 60 * 1000;
+
+function getDubaiDateString(utcMs) {
+  const dubai = new Date(utcMs + DUBAI_OFFSET_MS);
+  const y = dubai.getUTCFullYear();
+  const m = String(dubai.getUTCMonth() + 1).padStart(2, '0');
+  const d = String(dubai.getUTCDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -6,49 +17,67 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const { propertyType, bedroomTier, start, end } = req.query || {};
+    const { propertyType, bedroomTier } = req.query || {};
     const tier = resolveTierConfig(propertyType, bedroomTier);
     if (!tier) {
       return res.status(400).json({ error: 'Invalid propertyType or bedroomTier' });
     }
 
-    const calApiKey = process.env.CAL_API_KEY;
-    if (!calApiKey) {
-      return res.status(500).json({ error: 'CAL_API_KEY is not configured on the server' });
+    const durationMs = tier.durationMinutes * 60 * 1000;
+    const nowMs = Date.now();
+    const minLeadMs = nowMs + 2 * 60 * 60 * 1000; // minimum 2 hours notice
+    const daysAhead = 14;
+
+    const rangeStartIso = new Date(nowMs).toISOString();
+    const rangeEndIso = new Date(nowMs + (daysAhead + 1) * 24 * 60 * 60 * 1000).toISOString();
+
+    let busyRanges = [];
+    try {
+      const activeRes = await getActiveBookingsInRange(rangeStartIso, rangeEndIso);
+      busyRanges = (activeRes.data || [])
+        .filter((b) => b.scheduled_start && b.scheduled_end)
+        .map((b) => ({
+          start: new Date(b.scheduled_start).getTime(),
+          end: new Date(b.scheduled_end).getTime(),
+        }));
+    } catch (e) {
+      console.warn('Could not query Supabase bookings for slot conflicts:', e.message);
     }
 
-    const startDate = start ? new Date(start) : new Date();
-    const endDate = end ? new Date(end) : new Date(startDate.getTime() + 14 * 24 * 60 * 60 * 1000);
+    const slots = {};
+    // Working hours: 09:00 to 18:00 Dubai time (last start depends on 120m vs 180m duration)
+    const lastStartHour = tier.durationMinutes <= 120 ? 16 : 15;
 
-    const params = new URLSearchParams({
-      eventTypeId: String(tier.calEventTypeId),
-      start: startDate.toISOString(),
-      end: endDate.toISOString(),
-      timeZone: 'Asia/Dubai',
-    });
+    for (let dayOffset = 0; dayOffset < daysAhead; dayOffset++) {
+      const dayMs = nowMs + dayOffset * 24 * 60 * 60 * 1000;
+      const dateStr = getDubaiDateString(dayMs);
+      const daySlots = [];
 
-    const calRes = await fetch(`https://api.cal.com/v2/slots?${params.toString()}`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${calApiKey}`,
-        'cal-api-version': '2024-09-04',
-        'User-Agent': 'VantageNorthBooking/1.0',
-      },
-    });
+      for (let hour = 9; hour <= lastStartHour; hour++) {
+        const hh = String(hour).padStart(2, '0');
+        const isoDubai = `${dateStr}T${hh}:00:00.000+04:00`;
+        const slotStart = new Date(isoDubai).getTime();
+        const slotEnd = slotStart + durationMs;
 
-    const data = await calRes.json();
-    if (!calRes.ok) {
-      return res.status(calRes.status).json({
-        error: 'Failed to fetch Cal.com slots',
-        details: data,
-      });
+        if (slotStart < minLeadMs) continue;
+
+        const overlaps = busyRanges.some(
+          (busy) => slotStart < busy.end && slotEnd > busy.start
+        );
+        if (!overlaps) {
+          daySlots.push({ start: isoDubai });
+        }
+      }
+
+      if (daySlots.length > 0) {
+        slots[dateStr] = daySlots;
+      }
     }
 
     return res.status(200).json({
-      eventTypeId: tier.calEventTypeId,
       durationMinutes: tier.durationMinutes,
       timeZone: 'Asia/Dubai',
-      slots: data.data || {},
+      slots,
     });
   } catch (err) {
     console.error('Error in /api/slots:', err);
