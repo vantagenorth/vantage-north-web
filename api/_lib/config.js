@@ -92,7 +92,7 @@ const PRICING_TIERS = {
       benchmarkSqft: 1250,
       effectiveRate: 2.48,
       calEventTypeId: 7742473,
-      durationMinutes: 120,
+      durationMinutes: 180,
       kindOfApartment: '1 Bedroom',
       packages: {
         initial: {
@@ -180,7 +180,7 @@ const PRICING_TIERS = {
       benchmarkSqft: 2600,
       effectiveRate: 2.5,
       calEventTypeId: 7742494,
-      durationMinutes: 180,
+      durationMinutes: 240,
       kindOfApartment: '1 Bedroom',
       packages: {
         initial: {
@@ -225,7 +225,7 @@ const PRICING_TIERS = {
       benchmarkSqft: 4200,
       effectiveRate: 2.5,
       calEventTypeId: 7742505,
-      durationMinutes: 180,
+      durationMinutes: 240,
       kindOfApartment: '1 Bedroom',
       packages: {
         initial: {

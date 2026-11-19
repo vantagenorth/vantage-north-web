@@ -64,8 +64,8 @@ module.exports = async function handler(req, res) {
     }
 
     const slots = {};
-    // Working hours: 09:00 to 18:00 Dubai time (last start depends on 120m vs 180m duration)
-    const lastStartHour = tier.durationMinutes <= 120 ? 16 : 15;
+    // Working hours: 09:00 to 18:00 Dubai time (last start depends on 2h / 3h / 4h duration)
+    const lastStartHour = Math.floor(18 - tier.durationMinutes / 60);
 
     for (let dayOffset = 0; dayOffset < daysAhead; dayOffset++) {
       const dayMs = nowMs + dayOffset * 24 * 60 * 60 * 1000;
