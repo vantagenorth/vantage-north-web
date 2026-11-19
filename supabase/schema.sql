@@ -1,65 +1,62 @@
 -- Vantage North Normalized Booking & Payment Schema for Supabase
--- Designed to integrate with existing tables in app.vantagenorth.ae:
---   clients, units, developers, agents, reports
--- Run this in your Supabase SQL Editor
+-- Safe / Idempotent: works whether bookings/payments already exist or are brand new.
+-- Integrates with existing tables in app.vantagenorth.ae: clients, units, agents, reports.
 
 create extension if not exists "pgcrypto";
 
 -- 1. BOOKINGS (Event & Schedule Data Only)
 create table if not exists public.bookings (
     id uuid primary key default gen_random_uuid(),
-    booking_reference text not null unique,
     created_at timestamptz not null default now(),
-    updated_at timestamptz not null default now(),
-
-    -- Foreign Keys to your core tables
-    client_id uuid not null references public.clients(id) on delete restrict,
-    unit_id uuid references public.units(id) on delete set null,
-    agent_id uuid references public.agents(id) on delete set null,
-    report_id uuid, -- link to reports(id) once inspection report is generated
-
-    -- Booking Status & Package
-    status text not null default 'pending_payment' check (status in ('pending_payment', 'confirmed', 'completed', 'cancelled', 'quote_requested')),
-    package_type text not null check (package_type in ('initial', 'initial_followup', 'initial_final', 'full_bundle', 'custom_quote')),
-    package_label text not null,
-    price_aed numeric(10, 2),
-    inspection_purpose text not null default 'Handover' check (inspection_purpose in ('Handover', 'Secondary purchase', 'Move out')),
-
-    -- Event Date & Time (Cal.com Sync)
-    scheduled_date date,
-    scheduled_start timestamptz,
-    scheduled_end timestamptz,
-    timezone text not null default 'Asia/Dubai',
-    cal_event_type_id bigint,
-    cal_booking_id bigint,
-    cal_booking_uid text,
-
-    -- Compliance & Notes
-    terms_accepted boolean not null default false,
-    terms_accepted_at timestamptz,
-    notes text
+    updated_at timestamptz not null default now()
 );
+
+alter table public.bookings
+    add column if not exists booking_reference text unique,
+    add column if not exists created_at timestamptz not null default now(),
+    add column if not exists updated_at timestamptz not null default now(),
+    add column if not exists client_id uuid references public.clients(id) on delete restrict,
+    add column if not exists unit_id uuid references public.units(id) on delete set null,
+    add column if not exists agent_id uuid references public.agents(id) on delete set null,
+    add column if not exists report_id uuid,
+    add column if not exists status text not null default 'pending_payment',
+    add column if not exists package_type text,
+    add column if not exists package_label text,
+    add column if not exists price_aed numeric(10, 2),
+    add column if not exists inspection_purpose text not null default 'Handover',
+    add column if not exists scheduled_date date,
+    add column if not exists scheduled_start timestamptz,
+    add column if not exists scheduled_end timestamptz,
+    add column if not exists timezone text not null default 'Asia/Dubai',
+    add column if not exists cal_event_type_id bigint,
+    add column if not exists cal_booking_id bigint,
+    add column if not exists cal_booking_uid text,
+    add column if not exists terms_accepted boolean not null default false,
+    add column if not exists terms_accepted_at timestamptz,
+    add column if not exists notes text;
 
 -- 2. PAYMENTS (Ziina Transactions)
 create table if not exists public.payments (
     id uuid primary key default gen_random_uuid(),
     created_at timestamptz not null default now(),
-    updated_at timestamptz not null default now(),
-
-    booking_id uuid not null references public.bookings(id) on delete cascade,
-    client_id uuid not null references public.clients(id) on delete restrict,
-
-    provider text not null default 'ziina',
-    ziina_payment_intent_id text unique,
-    amount_aed numeric(10, 2) not null,
-    amount_fils integer not null,
-    currency text not null default 'AED',
-    status text not null default 'pending' check (status in ('pending', 'paid', 'failed', 'cancelled', 'refunded')),
-    is_test boolean not null default false,
-    checkout_url text,
-    paid_at timestamptz,
-    raw_response jsonb
+    updated_at timestamptz not null default now()
 );
+
+alter table public.payments
+    add column if not exists created_at timestamptz not null default now(),
+    add column if not exists updated_at timestamptz not null default now(),
+    add column if not exists booking_id uuid references public.bookings(id) on delete cascade,
+    add column if not exists client_id uuid references public.clients(id) on delete restrict,
+    add column if not exists provider text not null default 'ziina',
+    add column if not exists ziina_payment_intent_id text unique,
+    add column if not exists amount_aed numeric(10, 2),
+    add column if not exists amount_fils integer,
+    add column if not exists currency text not null default 'AED',
+    add column if not exists status text not null default 'pending',
+    add column if not exists is_test boolean not null default false,
+    add column if not exists checkout_url text,
+    add column if not exists paid_at timestamptz,
+    add column if not exists raw_response jsonb;
 
 -- Indexes for fast lookups in app.vantagenorth.ae
 create index if not exists idx_bookings_client_id on public.bookings(client_id);
