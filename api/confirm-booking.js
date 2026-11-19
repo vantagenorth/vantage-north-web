@@ -51,8 +51,17 @@ async function sendResendEmail({ to, subject, html }) {
   return { sent: true, id: data.id };
 }
 
-function buildConfirmationHtml(b, paymentStatus) {
+function buildConfirmationHtml(b, paymentStatus, calBookingUid) {
   const dubaiTime = formatDubaiTime(b.scheduledStart);
+  const manageLinks = calBookingUid
+    ? `
+      <div style="margin:0 0 20px; padding:14px 16px; background:#FAFAFA; border:1px solid #E5E5E5; border-radius:8px; font-size:13px;">
+        Need to change your time?
+        <a href="https://cal.com/reschedule/${encodeURIComponent(calBookingUid)}" style="color:#000000; font-weight:600; text-decoration:underline; margin-left:6px;">Reschedule Inspection</a>
+        <span style="color:#CCCCCC; margin:0 8px;">|</span>
+        <a href="https://cal.com/booking/${encodeURIComponent(calBookingUid)}?cancel=true" style="color:#646464; text-decoration:underline;">Cancel Booking</a>
+      </div>`
+    : '';
   return `
   <div style="font-family: 'Helvetica Neue', Arial, sans-serif; background:#FAFAFA; padding:32px 16px; color:#000000;">
     <div style="max-width:600px; margin:0 auto; background:#FFFFFF; border:1px solid #E5E5E5; border-radius:12px; padding:32px;">
@@ -74,7 +83,7 @@ function buildConfirmationHtml(b, paymentStatus) {
           <tr><td style="padding:10px 0 0; border-top:1px solid #E5E5E5; font-weight:600;">Amount Paid</td><td style="padding:10px 0 0; border-top:1px solid #E5E5E5; text-align:right; font-weight:600;">${Number(b.priceAed).toLocaleString()} AED (${paymentStatus})</td></tr>
         </table>
       </div>
-
+      ${manageLinks}
       <p style="font-size:13px; line-height:1.6; color:#646464; margin:0 0 16px;">
         Please ensure DEWA (electricity & water) and site access are arranged prior to the inspection. Your interactive digital report will be delivered within 24 hours of inspection completion.
       </p>
@@ -124,6 +133,7 @@ module.exports = async function handler(req, res) {
           projectName: tokenData?.projectName || 'Dubai Property',
           areaCommunity: tokenData?.areaCommunity || 'Dubai',
           unitNumber: tokenData?.unitNumber || 'TBD',
+          calBookingUid: existingBooking.cal_booking_uid || null,
         },
         supabaseSynced: true,
       });
@@ -344,7 +354,7 @@ module.exports = async function handler(req, res) {
     }
 
     // 4. Send confirmation emails via Resend
-    const emailHtml = buildConfirmationHtml(b, ziinaData?.is_test ? 'Paid (Test Mode)' : 'Paid');
+    const emailHtml = buildConfirmationHtml(b, ziinaData?.is_test ? 'Paid (Test Mode)' : 'Paid', calBookingUid);
     const customerEmailResult = await sendResendEmail({
       to: b.email,
       subject: `Vantage North Booking Confirmed — ${b.bookingReference}`,

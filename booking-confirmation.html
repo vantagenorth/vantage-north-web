@@ -107,6 +107,12 @@
             </div>
 
             <p id="emailStatusNote" class="text-xs text-vnGray"></p>
+            <div id="manageBookingLinks" class="hidden text-xs text-vnGray flex flex-wrap items-center gap-3 pt-1">
+                <span>Need to adjust your appointment?</span>
+                <a id="cRescheduleLink" href="#" target="_blank" rel="noopener" class="text-black font-medium underline hover:opacity-75">Reschedule</a>
+                <span>·</span>
+                <a id="cCancelLink" href="#" target="_blank" rel="noopener" class="text-vnGray underline hover:text-black">Cancel Booking</a>
+            </div>
 
             <div class="pt-2 flex flex-wrap gap-3">
                 <a href="/" class="bg-black text-white px-6 py-3 rounded-xl text-sm font-medium hover:bg-neutral-800 transition">Return to Homepage</a>
@@ -184,6 +190,13 @@
                     emailNote.textContent = `A confirmation email with your booking and payment receipt has been sent to ${b.email}.`;
                 } else {
                     emailNote.textContent = `Booking confirmed for ${b.email}. (Email delivery note: ${data.emailResult?.reason || 'pending domain verification'})`;
+                }
+
+                if (b.calBookingUid) {
+                    const uid = encodeURIComponent(b.calBookingUid);
+                    document.getElementById('cRescheduleLink').href = `https://cal.com/reschedule/${uid}`;
+                    document.getElementById('cCancelLink').href = `https://cal.com/booking/${uid}?cancel=true`;
+                    document.getElementById('manageBookingLinks').classList.remove('hidden');
                 }
 
                 document.getElementById('loadingState').classList.add('hidden');
