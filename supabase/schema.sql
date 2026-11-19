@@ -104,6 +104,18 @@ alter table public.reports
     add column if not exists type text not null default 'Handover',
     add column if not exists status text not null default 'pending';
 
+-- Link bookings.report_id -> reports(id) safely if not already linked
+do $$
+begin
+    if not exists (
+        select 1 from pg_constraint where conname = 'fk_bookings_report'
+    ) then
+        alter table public.bookings
+            add constraint fk_bookings_report
+            foreign key (report_id) references public.reports(id) on delete set null;
+    end if;
+end $$;
+
 -- 8. PAYMENTS (Ziina Transactions)
 create table if not exists public.payments (
     id uuid primary key default gen_random_uuid(),
@@ -140,3 +152,38 @@ create index if not exists idx_reports_unit_id on public.reports(unit_id);
 create index if not exists idx_payments_booking_id on public.payments(booking_id);
 create index if not exists idx_payments_client_id on public.payments(client_id);
 create index if not exists idx_payments_status on public.payments(status);
+
+-- Auto-update updated_at trigger
+create or replace function public.set_updated_at()
+returns trigger
+language plpgsql
+as $$
+begin
+    new.updated_at = now();
+    return new;
+end;
+$$;
+
+do $$
+declare
+    t text;
+begin
+    foreach t in array array['clients', 'units', 'bookings', 'reports', 'payments']
+    loop
+        execute format('drop trigger if exists trg_%I_updated_at on public.%I;', t, t);
+        execute format('create trigger trg_%I_updated_at before update on public.%I for each row execute function public.set_updated_at();', t, t);
+    end loop;
+end $$;
+
+-- Row Level Security (blocks anonymous browser access; service_role & authenticated staff retain access)
+do $$
+declare
+    t text;
+begin
+    foreach t in array array['developers', 'areas', 'projects', 'units', 'agents', 'clients', 'bookings', 'reports', 'payments']
+    loop
+        execute format('alter table public.%I enable row level security;', t);
+        execute format('drop policy if exists "Authenticated staff full access" on public.%I;', t);
+        execute format('create policy "Authenticated staff full access" on public.%I for all to authenticated using (true) with check (true);', t);
+    end loop;
+end $$;

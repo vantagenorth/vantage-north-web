@@ -32,10 +32,17 @@ module.exports = async function handler(req, res) {
     const rangeEndIso = new Date(nowMs + (daysAhead + 1) * 24 * 60 * 60 * 1000).toISOString();
 
     let busyRanges = [];
+    const holdCutoffMs = nowMs - 20 * 60 * 1000;
     try {
       const activeRes = await getActiveBookingsInRange(rangeStartIso, rangeEndIso);
       busyRanges = (activeRes.data || [])
-        .filter((b) => b.scheduled_start && b.scheduled_end)
+        .filter((b) => {
+          if (!b.scheduled_start || !b.scheduled_end) return false;
+          if (b.status === 'confirmed') return true;
+          // Release abandoned pending_payment holds after 20 minutes
+          const createdMs = b.created_at ? new Date(b.created_at).getTime() : nowMs;
+          return createdMs >= holdCutoffMs;
+        })
         .map((b) => ({
           start: new Date(b.scheduled_start).getTime(),
           end: new Date(b.scheduled_end).getTime(),

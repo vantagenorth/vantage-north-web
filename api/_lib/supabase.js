@@ -114,13 +114,22 @@ async function updatePaymentByIntentId(intentId, patch) {
 async function getActiveBookingsInRange(startIso, endIso) {
   if (!isSupabaseConfigured()) return { skipped: true, data: [] };
   const params = new URLSearchParams({
-    select: 'scheduled_start,scheduled_end,status',
+    select: 'scheduled_start,scheduled_end,status,created_at',
     status: 'in.(pending_payment,confirmed)',
     scheduled_start: `gte.${startIso}`,
     scheduled_end: `lte.${endIso}`,
   });
   const res = await supabaseFetch(`bookings?${params.toString()}`, { method: 'GET' });
   return { skipped: false, data: Array.isArray(res.data) ? res.data : [] };
+}
+
+async function getPaymentByIntentId(intentId) {
+  if (!isSupabaseConfigured() || !intentId) return null;
+  const res = await supabaseFetch(
+    `payments?ziina_payment_intent_id=eq.${encodeURIComponent(intentId)}&select=*,bookings(*)&limit=1`,
+    { method: 'GET' }
+  );
+  return Array.isArray(res.data) ? res.data[0] || null : null;
 }
 
 async function findOrCreateByName(table, name) {
@@ -152,7 +161,8 @@ async function upsertArea(name) {
 async function findOrCreateProject({ name, areaId, developerId }) {
   if (!isSupabaseConfigured() || !name) return null;
   const clean = name.trim();
-  const existing = await supabaseFetch(`projects?name=eq.${encodeURIComponent(clean)}&limit=1`, {
+  const areaFilter = areaId ? `&area_id=eq.${encodeURIComponent(areaId)}` : '';
+  const existing = await supabaseFetch(`projects?name=eq.${encodeURIComponent(clean)}${areaFilter}&limit=1`, {
     method: 'GET',
   });
   if (Array.isArray(existing.data) && existing.data[0]?.id) {
@@ -274,6 +284,7 @@ module.exports = {
   updateBookingByReference,
   insertPayment,
   updatePaymentByIntentId,
+  getPaymentByIntentId,
   getActiveBookingsInRange,
   upsertDeveloper,
   upsertArea,
