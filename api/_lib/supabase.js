@@ -269,12 +269,11 @@ async function insertReport(report) {
     client_id: report.clientId || null,
     unit_id: report.unitId || null,
     agent_id: report.agentId || null,
-    ref: report.ref || null,
   };
 
   const attempts = [
-    { ...basePayload, report_type: report.reportType || 'Handover', status: report.status || 'pending' },
-    { ...basePayload, report_type: (report.reportType || 'handover').toLowerCase(), status: 'draft' },
+    { ...basePayload, report_type: report.reportType || 'Initial inspection', status: report.status || 'draft' },
+    { ...basePayload, report_type: 'Initial inspection', status: 'draft' },
     { ...basePayload, report_type: report.reportType || 'Handover' },
     basePayload,
   ];
