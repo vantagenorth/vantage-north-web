@@ -8,6 +8,7 @@ const {
   insertReport,
   insertBooking,
   insertPayment,
+  updatePaymentByIntentId,
   getBookingByReference,
   verifyBookingToken,
 } = require('./_lib/supabase');
@@ -309,7 +310,6 @@ module.exports = async function handler(req, res) {
       await insertPayment({
         booking_id: bookingRes.data.id,
         client_id: clientId,
-        ...(reportId ? { report_id: reportId } : {}),
         provider: 'ziina',
         ziina_payment_intent_id: b.intentId,
         total: b.priceAed,
@@ -322,6 +322,14 @@ module.exports = async function handler(req, res) {
         paid_at: new Date().toISOString(),
         raw_response: ziinaData,
       });
+
+      if (reportId) {
+        try {
+          await updatePaymentByIntentId(b.intentId, { report_id: reportId });
+        } catch (payRepErr) {
+          console.warn('Payment report_id link warning:', payRepErr.message);
+        }
+      }
 
       supabaseSynced = true;
     }
