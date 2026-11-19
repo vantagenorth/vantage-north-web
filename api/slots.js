@@ -26,7 +26,7 @@ module.exports = async function handler(req, res) {
     const durationMs = tier.durationMinutes * 60 * 1000;
     const nowMs = Date.now();
     const minLeadMs = nowMs + 2 * 60 * 60 * 1000; // minimum 2 hours notice
-    const daysAhead = 14;
+    const daysAhead = 60;
 
     const rangeStartIso = new Date(nowMs).toISOString();
     const rangeEndIso = new Date(nowMs + (daysAhead + 1) * 24 * 60 * 60 * 1000).toISOString();
@@ -42,6 +42,18 @@ module.exports = async function handler(req, res) {
         }));
     } catch (e) {
       console.warn('Could not query Supabase bookings for slot conflicts:', e.message);
+    }
+
+    // Deterministic pseudo-random block (~30% of slots) so the calendar looks naturally busy
+    function isSimulatedBooked(dateStr, hour, dayOffset) {
+      const str = `${dateStr}-${hour}`;
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        hash = (hash * 31 + str.charCodeAt(i)) | 0;
+      }
+      const mod = Math.abs(hash) % 10;
+      // Slightly busier in the first 7 days (~40% booked), ~20% thereafter
+      return dayOffset < 7 ? mod < 4 : mod < 2;
     }
 
     const slots = {};
@@ -60,6 +72,7 @@ module.exports = async function handler(req, res) {
         const slotEnd = slotStart + durationMs;
 
         if (slotStart < minLeadMs) continue;
+        if (isSimulatedBooked(dateStr, hour, dayOffset)) continue;
 
         const overlaps = busyRanges.some(
           (busy) => slotStart < busy.end && slotEnd > busy.start
