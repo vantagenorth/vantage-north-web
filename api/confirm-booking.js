@@ -184,13 +184,16 @@ module.exports = async function handler(req, res) {
               ...(b.phone ? { phoneNumber: b.phone.replace(/[^\d+]/g, '') } : {}),
             },
             bookingFieldsResponses: {
-              'Apartment-number': b.unitNumber || 'TBD',
-              'Kind-of-apartment': b.kindOfApartment || '1 Bedroom',
-              'Electricity--water-DEWA-are-on': Boolean(b.dewaConnected),
-              'Developer--if-known': b.developer || 'Not specified',
-              'On-site-access': b.accessInstructions || 'Will coordinate prior to inspection',
-              'Purpose-of-inspections': b.inspectionPurpose || 'Handover',
-              'I-agree-to-True-North-s-terms-of-service': true,
+              notes: [
+                `Ref: ${b.bookingReference}`,
+                `Property: ${b.propertyType} — ${b.bedroomTier}`,
+                `Unit: ${b.unitNumber || 'TBD'}, ${b.projectName || ''}, ${b.areaCommunity || 'Dubai'}`,
+                `Package: ${b.packageLabel} (${b.priceAed} AED)`,
+                `Purpose: ${b.inspectionPurpose || 'Handover'}`,
+                `DEWA On: ${b.dewaConnected ? 'Yes' : 'No'}`,
+                `Developer: ${b.developer || 'Not specified'}`,
+                `Access: ${b.accessInstructions || 'N/A'}`,
+              ].join(' | '),
             },
             metadata: {
               bookingReference: b.bookingReference,

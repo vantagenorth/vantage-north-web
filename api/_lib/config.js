@@ -5,7 +5,7 @@ const PRICING_TIERS = {
       label: 'Studio',
       benchmarkSqft: 450,
       effectiveRate: 2.44,
-      calEventTypeId: 7739308,
+      calEventTypeId: 7985836,
       durationMinutes: 120,
       kindOfApartment: 'Studio',
       packages: {
@@ -48,7 +48,7 @@ const PRICING_TIERS = {
       label: '1 Bedroom',
       benchmarkSqft: 800,
       effectiveRate: 2.5,
-      calEventTypeId: 7739308,
+      calEventTypeId: 7985836,
       durationMinutes: 120,
       kindOfApartment: '1 Bedroom',
       packages: {
@@ -91,7 +91,7 @@ const PRICING_TIERS = {
       label: '2 Bedroom',
       benchmarkSqft: 1250,
       effectiveRate: 2.48,
-      calEventTypeId: 7742473,
+      calEventTypeId: 7985837,
       durationMinutes: 180,
       kindOfApartment: '1 Bedroom',
       packages: {
@@ -134,7 +134,7 @@ const PRICING_TIERS = {
       label: '3 Bedroom',
       benchmarkSqft: 1800,
       effectiveRate: 2.5,
-      calEventTypeId: 7742486,
+      calEventTypeId: 7985837,
       durationMinutes: 180,
       kindOfApartment: '1 Bedroom',
       packages: {
@@ -179,7 +179,7 @@ const PRICING_TIERS = {
       label: 'Townhouse (3–4 Bed)',
       benchmarkSqft: 2600,
       effectiveRate: 2.5,
-      calEventTypeId: 7742494,
+      calEventTypeId: 7985838,
       durationMinutes: 240,
       kindOfApartment: '1 Bedroom',
       packages: {
@@ -224,7 +224,7 @@ const PRICING_TIERS = {
       label: 'Standard Villa (4–5 Bed)',
       benchmarkSqft: 4200,
       effectiveRate: 2.5,
-      calEventTypeId: 7742505,
+      calEventTypeId: 7985838,
       durationMinutes: 240,
       kindOfApartment: '1 Bedroom',
       packages: {
@@ -302,7 +302,7 @@ function calculateQuote({ propertyType, bedroomTier, buaSqft, packageType }) {
       packageLabel: 'Luxury Home — Price on Request',
       priceAed: null,
       amountFils: null,
-      calEventTypeId: 7742505,
+      calEventTypeId: 7985838,
       durationMinutes: 180,
       kindOfApartment: '1 Bedroom',
     };
