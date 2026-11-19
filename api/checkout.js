@@ -1,15 +1,5 @@
 const { calculateQuote, getSiteUrl } = require('./_lib/config');
-const {
-  isSupabaseConfigured,
-  upsertClient,
-  insertBooking,
-  insertPayment,
-  upsertDeveloper,
-  findOrCreateProject,
-  insertUnit,
-  findOrCreateAgent,
-  signBookingToken,
-} = require('./_lib/supabase');
+const { signBookingToken } = require('./_lib/supabase');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -28,8 +18,6 @@ module.exports = async function handler(req, res) {
       fullName,
       email,
       phone,
-      clientType = 'owner_buyer',
-      companyOrAgency,
       projectName,
       areaCommunity,
       unitNumber,
@@ -59,7 +47,7 @@ module.exports = async function handler(req, res) {
     }
     if (quote.isLuxuryQuote) {
       return res.status(400).json({
-        error: 'Luxury Homes (> 6,500 sq ft or 6+ bedrooms) require a custom quote via /api/luxury-inquiry.',
+        error: 'Luxury Homes require a custom quote.',
       });
     }
 
@@ -84,7 +72,6 @@ module.exports = async function handler(req, res) {
       propertyType: quote.propertyType,
       bedroomTier: quote.bedroomTier,
       tierLabel: quote.tierLabel,
-      buaSqft: buaSqft ? Number(buaSqft) : null,
       packageType: quote.packageType,
       packageLabel: quote.packageLabel,
       priceAed: quote.priceAed,
@@ -97,8 +84,6 @@ module.exports = async function handler(req, res) {
       fullName: fullName.trim(),
       email: email.trim().toLowerCase(),
       phone: phone.trim(),
-      clientType,
-      companyOrAgency: companyOrAgency || agentAgency || null,
       projectName: projectName.trim(),
       areaCommunity: areaCommunity.trim(),
       unitNumber: unitNumber.trim(),
@@ -123,7 +108,7 @@ module.exports = async function handler(req, res) {
     const cancelUrl = `${siteUrl}/book?cancelled=1&booking_ref=${encodeURIComponent(bookingReference)}`;
     const isTest = process.env.ZIINA_TEST_MODE === 'true';
 
-    // Create Ziina Payment Intent
+    // Create Ziina Payment Intent (no Supabase writes until payment is confirmed)
     const ziinaRes = await fetch('https://api-v2.ziina.com/api/payment_intent', {
       method: 'POST',
       headers: {
@@ -148,107 +133,12 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    let supabaseSynced = false;
-    if (isSupabaseConfigured()) {
-      const clientRes = await upsertClient({
-        fullName: bookingPayload.fullName,
-        email: bookingPayload.email,
-        phone: bookingPayload.phone,
-      });
-
-      const clientId = clientRes.data.id;
-
-      let developerId = null;
-      let projectId = null;
-      let unitId = null;
-      let agentId = null;
-
-      try {
-        if (bookingPayload.developer && bookingPayload.developer !== 'Not specified') {
-          const dev = await upsertDeveloper(bookingPayload.developer);
-          developerId = dev?.id || null;
-        }
-
-        const project = await findOrCreateProject({
-          name: bookingPayload.projectName,
-          area: bookingPayload.areaCommunity,
-          developerId,
-        });
-        projectId = project?.id || null;
-
-        const unit = await insertUnit({
-          unitNo: bookingPayload.unitNumber,
-          type: bookingPayload.propertyType,
-          beds: bookingPayload.bedroomTier,
-          developer: developerId || (bookingPayload.developer !== 'Not specified' ? bookingPayload.developer : null),
-          project: projectId || bookingPayload.projectName,
-          dewaActive: bookingPayload.dewaConnected,
-          accessNotes: bookingPayload.accessInstructions,
-        });
-        unitId = unit?.id || null;
-
-        if (bookingPayload.agentName) {
-          const agent = await findOrCreateAgent({
-            fullName: bookingPayload.agentName,
-            agency: bookingPayload.agentAgency,
-            email: bookingPayload.agentEmail,
-            phone: bookingPayload.agentPhone,
-          });
-          agentId = agent?.id || null;
-        }
-      } catch (normErr) {
-        console.warn('Normalized property/agent sync warning:', normErr.message);
-      }
-
-      const summaryNotes = [
-        `Package: ${bookingPayload.packageLabel} (${bookingPayload.priceAed} AED)`,
-        `Purpose: ${bookingPayload.inspectionPurpose}`,
-        bookingPayload.notes,
-      ]
-        .filter(Boolean)
-        .join(' | ');
-
-      const bookingRes = await insertBooking({
-        booking_reference: bookingReference,
-        client_id: clientId,
-        unit_id: unitId,
-        agent_id: agentId,
-        status: 'pending_payment',
-        scheduled_date: bookingPayload.scheduledStart.slice(0, 10),
-        scheduled_start: bookingPayload.scheduledStart,
-        scheduled_end: bookingPayload.scheduledEnd,
-        timezone: 'Asia/Dubai',
-        cal_event_type_id: bookingPayload.calEventTypeId,
-        terms_accepted: true,
-        terms_accepted_at: bookingPayload.termsAcceptedAt,
-        notes: summaryNotes,
-      });
-
-      await insertPayment({
-        booking_id: bookingRes.data.id,
-        client_id: clientId,
-        provider: 'ziina',
-        ziina_payment_intent_id: ziinaData.id,
-        total: bookingPayload.priceAed,
-        amount_aed: bookingPayload.priceAed,
-        amount_fils: bookingPayload.amountFils,
-        currency: 'AED',
-        status: 'pending',
-        is_test: isTest,
-        checkout_url: ziinaData.redirect_url,
-        raw_response: ziinaData,
-      });
-
-      supabaseSynced = true;
-    }
-
     return res.status(200).json({
       bookingReference,
       paymentIntentId: ziinaData.id,
       checkoutUrl: ziinaData.redirect_url,
       isTest,
       priceAed: quote.priceAed,
-      supabaseSynced,
     });
   } catch (err) {
     console.error('Error in /api/checkout:', err);

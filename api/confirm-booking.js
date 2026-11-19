@@ -1,9 +1,14 @@
 const {
   isSupabaseConfigured,
-  getBookingByReference,
-  updateBookingByReference,
-  updatePaymentByIntentId,
+  upsertClient,
+  upsertDeveloper,
+  findOrCreateProject,
+  insertUnit,
+  findOrCreateAgent,
   insertReport,
+  insertBooking,
+  insertPayment,
+  getBookingByReference,
   verifyBookingToken,
 } = require('./_lib/supabase');
 
@@ -92,55 +97,43 @@ module.exports = async function handler(req, res) {
     }
 
     const tokenData = token ? verifyBookingToken(token) : null;
-    let dbBooking = null;
+
+    // Idempotency check if booking already confirmed & persisted in Supabase
+    let existingBooking = null;
     if (isSupabaseConfigured()) {
       const dbRes = await getBookingByReference(bookingReference);
-      dbBooking = dbRes.data;
+      existingBooking = dbRes.data;
     }
 
-    if (!dbBooking && !tokenData) {
-      return res.status(404).json({ error: 'Booking not found or invalid booking token' });
-    }
-
-    // Normalize booking object from DB or signed token
-    const b = dbBooking
-      ? {
-          bookingReference: dbBooking.booking_reference,
-          status: dbBooking.status,
+    if (existingBooking && existingBooking.status === 'confirmed') {
+      return res.status(200).json({
+        alreadyConfirmed: true,
+        booking: {
+          bookingReference: existingBooking.booking_reference,
+          status: existingBooking.status,
           propertyType: tokenData?.propertyType || 'Property',
           bedroomTier: tokenData?.bedroomTier || '',
-          packageType: dbBooking.package_type,
-          packageLabel: dbBooking.package_label,
-          priceAed: dbBooking.price_aed,
-          calEventTypeId: dbBooking.cal_event_type_id || tokenData?.calEventTypeId,
-          calBookingId: dbBooking.cal_booking_id,
-          calBookingUid: dbBooking.cal_booking_uid,
-          scheduledStart: dbBooking.scheduled_start,
-          scheduledEnd: dbBooking.scheduled_end,
-          fullName: dbBooking.clients?.name || tokenData?.fullName,
-          email: dbBooking.clients?.email || tokenData?.email,
-          phone: dbBooking.clients?.phone || tokenData?.phone,
+          packageLabel: tokenData?.packageLabel || 'Initial Inspection',
+          priceAed: tokenData?.priceAed || existingBooking.payments?.[0]?.amount_aed || 0,
+          scheduledStart: existingBooking.scheduled_start,
+          scheduledEnd: existingBooking.scheduled_end,
+          fullName: existingBooking.clients?.name || tokenData?.fullName,
+          email: existingBooking.clients?.email || tokenData?.email,
           projectName: tokenData?.projectName || 'Dubai Property',
           areaCommunity: tokenData?.areaCommunity || 'Dubai',
           unitNumber: tokenData?.unitNumber || 'TBD',
-          developer: tokenData?.developer || 'Not specified',
-          dewaConnected: tokenData?.dewaConnected ?? true,
-          inspectionPurpose: tokenData?.inspectionPurpose || 'Handover',
-          accessInstructions: tokenData?.accessInstructions || 'Will coordinate prior to inspection',
-          kindOfApartment: tokenData?.kindOfApartment || '1 Bedroom',
-          intentId: paymentIntentId || dbBooking.payments?.[0]?.ziina_payment_intent_id,
-        }
-      : {
-          ...tokenData,
-          status: 'pending_payment',
-          intentId: paymentIntentId,
-        };
-
-    if (b.status === 'confirmed' && b.calBookingUid) {
-      return res.status(200).json({
-        alreadyConfirmed: true,
-        booking: b,
+        },
+        supabaseSynced: true,
       });
+    }
+
+    if (!tokenData) {
+      return res.status(404).json({ error: 'Invalid or missing booking token' });
+    }
+
+    const b = { ...tokenData, intentId: paymentIntentId };
+    if (!b.intentId) {
+      return res.status(400).json({ error: 'Missing paymentIntentId to verify payment' });
     }
 
     const ziinaKey = process.env.ZIINA_API_KEY;
@@ -148,34 +141,28 @@ module.exports = async function handler(req, res) {
       return res.status(500).json({ error: 'ZIINA_API_KEY is not configured' });
     }
 
-    let ziinaStatus = 'completed';
-    let ziinaData = null;
-    if (b.intentId) {
-      const ziinaRes = await fetch(`https://api-v2.ziina.com/api/payment_intent/${encodeURIComponent(b.intentId)}`, {
-        method: 'GET',
-        headers: { Authorization: `Bearer ${ziinaKey}` },
+    // 1. Verify Ziina payment is completed BEFORE creating any Supabase records
+    const ziinaRes = await fetch(`https://api-v2.ziina.com/api/payment_intent/${encodeURIComponent(b.intentId)}`, {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${ziinaKey}` },
+    });
+    const ziinaData = await ziinaRes.json();
+    if (!ziinaRes.ok) {
+      return res.status(ziinaRes.status).json({ error: 'Failed to verify Ziina payment', details: ziinaData });
+    }
+    if (ziinaData.status !== 'completed') {
+      return res.status(402).json({
+        error: `Payment is not completed yet (status: ${ziinaData.status})`,
+        paymentStatus: ziinaData.status,
       });
-      ziinaData = await ziinaRes.json();
-      if (!ziinaRes.ok) {
-        return res.status(ziinaRes.status).json({ error: 'Failed to verify Ziina payment', details: ziinaData });
-      }
-      ziinaStatus = ziinaData.status;
-      if (ziinaStatus !== 'completed') {
-        return res.status(402).json({
-          error: `Payment is not completed yet (status: ${ziinaStatus})`,
-          paymentStatus: ziinaStatus,
-        });
-      }
-    } else {
-      return res.status(400).json({ error: 'Missing paymentIntentId to verify payment' });
     }
 
-    // Optional Cal.com booking creation (if CAL_API_KEY is configured on Vercel)
-    let calBookingId = b.calBookingId || null;
-    let calBookingUid = b.calBookingUid || null;
+    // 2. Optional Cal.com booking creation (if CAL_API_KEY is configured on Vercel)
+    let calBookingId = null;
+    let calBookingUid = null;
     let calWarning = null;
     const calApiKey = process.env.CAL_API_KEY;
-    if (calApiKey && !calBookingUid && b.calEventTypeId) {
+    if (calApiKey && b.calEventTypeId) {
       try {
         const calRes = await fetch('https://api.cal.com/v2/bookings', {
           method: 'POST',
@@ -225,48 +212,121 @@ module.exports = async function handler(req, res) {
       }
     }
 
-    // Update Supabase & create Report
+    // 3. Create all Supabase records ONLY now that payment is confirmed
     let supabaseSynced = false;
-    let reportId = dbBooking?.report_id || null;
-    let reportWarning = null;
+    let reportId = null;
     if (isSupabaseConfigured()) {
-      await updatePaymentByIntentId(b.intentId, {
+      const clientRes = await upsertClient({
+        fullName: b.fullName,
+        email: b.email,
+        phone: b.phone,
+      });
+      const clientId = clientRes.data.id;
+
+      let developerId = null;
+      let projectId = null;
+      let unitId = null;
+      let agentId = null;
+
+      try {
+        if (b.developer && b.developer !== 'Not specified') {
+          const dev = await upsertDeveloper(b.developer);
+          developerId = dev?.id || null;
+        }
+
+        const project = await findOrCreateProject({
+          name: b.projectName,
+          area: b.areaCommunity,
+          developerId,
+        });
+        projectId = project?.id || null;
+
+        const unit = await insertUnit({
+          unitNo: b.unitNumber,
+          type: b.propertyType,
+          beds: b.bedroomTier,
+          developer: developerId || (b.developer !== 'Not specified' ? b.developer : null),
+          project: projectId || b.projectName,
+          dewaActive: b.dewaConnected,
+          accessNotes: b.accessInstructions,
+        });
+        unitId = unit?.id || null;
+
+        if (b.agentName) {
+          const agent = await findOrCreateAgent({
+            fullName: b.agentName,
+            agency: b.agentAgency,
+            email: b.agentEmail,
+            phone: b.agentPhone,
+          });
+          agentId = agent?.id || null;
+        }
+      } catch (normErr) {
+        console.warn('Normalized property/agent sync warning:', normErr.message);
+      }
+
+      try {
+        const report = await insertReport({
+          clientId,
+          unitId,
+          agentId,
+          reportType: b.inspectionPurpose || 'Handover',
+          status: 'pending',
+          ref: b.bookingReference,
+        });
+        reportId = report?.id || null;
+      } catch (repErr) {
+        console.warn('Report creation warning:', repErr.message);
+      }
+
+      const summaryNotes = [
+        `Package: ${b.packageLabel} (${b.priceAed} AED)`,
+        `Purpose: ${b.inspectionPurpose}`,
+        b.notes,
+      ]
+        .filter(Boolean)
+        .join(' | ');
+
+      const bookingRes = await insertBooking({
+        booking_reference: b.bookingReference,
+        client_id: clientId,
+        unit_id: unitId,
+        agent_id: agentId,
+        report_id: reportId,
+        status: 'confirmed',
+        scheduled_date: b.scheduledStart.slice(0, 10),
+        scheduled_start: b.scheduledStart,
+        scheduled_end: b.scheduledEnd,
+        timezone: 'Asia/Dubai',
+        cal_event_type_id: b.calEventTypeId,
+        cal_booking_id: calBookingId,
+        cal_booking_uid: calBookingUid,
+        terms_accepted: true,
+        terms_accepted_at: b.termsAcceptedAt,
+        notes: summaryNotes,
+      });
+
+      await insertPayment({
+        booking_id: bookingRes.data.id,
+        client_id: clientId,
+        ...(reportId ? { report_id: reportId } : {}),
+        provider: 'ziina',
+        ziina_payment_intent_id: b.intentId,
+        total: b.priceAed,
+        amount_aed: b.priceAed,
+        amount_fils: b.amountFils,
+        currency: 'AED',
         status: 'paid',
+        is_test: Boolean(ziinaData?.is_test),
+        checkout_url: ziinaData?.redirect_url || null,
         paid_at: new Date().toISOString(),
         raw_response: ziinaData,
       });
 
-      await updateBookingByReference(b.bookingReference, {
-        status: 'confirmed',
-        ...(calBookingId ? { cal_booking_id: calBookingId } : {}),
-        ...(calBookingUid ? { cal_booking_uid: calBookingUid } : {}),
-      });
-
-      if (!reportId && dbBooking?.id) {
-        try {
-          const report = await insertReport({
-            clientId: dbBooking.client_id,
-            unitId: dbBooking.unit_id,
-            agentId: dbBooking.agent_id,
-            reportType: b.inspectionPurpose || 'Handover',
-            status: 'pending',
-            ref: b.bookingReference,
-          });
-          reportId = report?.id || null;
-          if (reportId) {
-            await updateBookingByReference(b.bookingReference, { report_id: reportId });
-            await updatePaymentByIntentId(b.intentId, { report_id: reportId });
-          }
-        } catch (repErr) {
-          reportWarning = repErr.message;
-          console.warn('Report creation/link warning:', repErr.message);
-        }
-      }
-
       supabaseSynced = true;
     }
 
-    // Send confirmation emails via Resend
+    // 4. Send confirmation emails via Resend
     const emailHtml = buildConfirmationHtml(b, ziinaData?.is_test ? 'Paid (Test Mode)' : 'Paid');
     const customerEmailResult = await sendResendEmail({
       to: b.email,
@@ -288,9 +348,13 @@ module.exports = async function handler(req, res) {
       booking: {
         ...b,
         status: 'confirmed',
+        calBookingId,
+        calBookingUid,
+        reportId,
       },
       isTest: Boolean(ziinaData?.is_test),
       supabaseSynced,
+      calWarning,
       emailResult: customerEmailResult,
     });
   } catch (err) {
