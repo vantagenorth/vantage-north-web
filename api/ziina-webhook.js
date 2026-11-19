@@ -42,6 +42,18 @@ module.exports = async function handler(req, res) {
       const booking = paymentRow?.bookings;
       let reportId = booking?.report_id || null;
 
+      await updatePaymentByIntentId(intentId, {
+        status: 'paid',
+        paid_at: new Date().toISOString(),
+        raw_response: ziinaData,
+      });
+
+      if (booking && booking.status !== 'confirmed') {
+        await updateBookingByReference(booking.booking_reference, {
+          status: 'confirmed',
+        });
+      }
+
       if (booking && !reportId) {
         try {
           const report = await insertReport({
@@ -53,23 +65,13 @@ module.exports = async function handler(req, res) {
             ref: booking.booking_reference,
           });
           reportId = report?.id || null;
+          if (reportId) {
+            await updateBookingByReference(booking.booking_reference, { report_id: reportId });
+            await updatePaymentByIntentId(intentId, { report_id: reportId });
+          }
         } catch (e) {
-          console.warn('Webhook report creation warning:', e.message);
+          console.warn('Webhook report creation/link warning:', e.message);
         }
-      }
-
-      await updatePaymentByIntentId(intentId, {
-        status: 'paid',
-        paid_at: new Date().toISOString(),
-        raw_response: ziinaData,
-        ...(reportId ? { report_id: reportId } : {}),
-      });
-
-      if (booking && booking.status !== 'confirmed') {
-        await updateBookingByReference(booking.booking_reference, {
-          status: 'confirmed',
-          ...(reportId ? { report_id: reportId } : {}),
-        });
       }
     } else if (ziinaData.status === 'failed' || ziinaData.status === 'canceled') {
       await updatePaymentByIntentId(intentId, {

@@ -228,7 +228,20 @@ module.exports = async function handler(req, res) {
     // Update Supabase & create Report
     let supabaseSynced = false;
     let reportId = dbBooking?.report_id || null;
+    let reportWarning = null;
     if (isSupabaseConfigured()) {
+      await updatePaymentByIntentId(b.intentId, {
+        status: 'paid',
+        paid_at: new Date().toISOString(),
+        raw_response: ziinaData,
+      });
+
+      await updateBookingByReference(b.bookingReference, {
+        status: 'confirmed',
+        ...(calBookingId ? { cal_booking_id: calBookingId } : {}),
+        ...(calBookingUid ? { cal_booking_uid: calBookingUid } : {}),
+      });
+
       if (!reportId && dbBooking?.id) {
         try {
           const report = await insertReport({
@@ -240,24 +253,16 @@ module.exports = async function handler(req, res) {
             ref: b.bookingReference,
           });
           reportId = report?.id || null;
+          if (reportId) {
+            await updateBookingByReference(b.bookingReference, { report_id: reportId });
+            await updatePaymentByIntentId(b.intentId, { report_id: reportId });
+          }
         } catch (repErr) {
-          console.warn('Report creation warning:', repErr.message);
+          reportWarning = repErr.message;
+          console.warn('Report creation/link warning:', repErr.message);
         }
       }
 
-      await updatePaymentByIntentId(b.intentId, {
-        status: 'paid',
-        paid_at: new Date().toISOString(),
-        raw_response: ziinaData,
-        ...(reportId ? { report_id: reportId } : {}),
-      });
-
-      await updateBookingByReference(b.bookingReference, {
-        status: 'confirmed',
-        ...(reportId ? { report_id: reportId } : {}),
-        ...(calBookingId ? { cal_booking_id: calBookingId } : {}),
-        ...(calBookingUid ? { cal_booking_uid: calBookingUid } : {}),
-      });
       supabaseSynced = true;
     }
 
