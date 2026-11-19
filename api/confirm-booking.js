@@ -314,6 +314,7 @@ module.exports = async function handler(req, res) {
       await insertPayment({
         booking_id: bookingRes.data.id,
         client_id: clientId,
+        report_id: null,
         provider: 'ziina',
         ziina_payment_intent_id: b.intentId,
         total: b.priceAed,

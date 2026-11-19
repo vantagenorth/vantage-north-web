@@ -282,7 +282,14 @@ function isLuxuryHome(propertyType, bedroomTier, buaSqft) {
 function resolveTierConfig(propertyType, bedroomTier) {
   const byType = PRICING_TIERS[propertyType];
   if (!byType) return null;
-  return byType[bedroomTier] || null;
+  if (byType[bedroomTier]) return byType[bedroomTier];
+  if (propertyType === 'Townhouse' && (bedroomTier === '3 Bedrooms' || bedroomTier === '4 Bedrooms')) {
+    return byType['3–4 Bed'];
+  }
+  if (propertyType === 'Villa' && (bedroomTier === '4 Bedrooms' || bedroomTier === '5 Bedrooms')) {
+    return byType['4–5 Bed'];
+  }
+  return null;
 }
 
 function calculateQuote({ propertyType, bedroomTier, buaSqft, packageType }) {
@@ -314,7 +321,7 @@ function calculateQuote({ propertyType, bedroomTier, buaSqft, packageType }) {
   return {
     isLuxuryQuote: false,
     propertyType,
-    bedroomTier: tier.tierKey,
+    bedroomTier: bedroomTier || tier.tierKey,
     tierLabel: tier.label,
     packageType: pkg.key,
     packageLabel: pkg.label,
