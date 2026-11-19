@@ -3,6 +3,11 @@
 
 create extension if not exists "pgcrypto";
 
+-- 0. CLIENTS cleanup (remove legacy type/client_type columns)
+alter table if exists public.clients
+    drop column if exists client_type,
+    drop column if exists type;
+
 -- 1. DEVELOPERS
 create table if not exists public.developers (
     id uuid primary key default gen_random_uuid(),

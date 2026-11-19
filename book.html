@@ -217,7 +217,7 @@
                                 <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                                 Personal Information
                             </h3>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                 <div>
                                     <label class="block text-xs font-medium mb-1">Full Name *</label>
                                     <input id="fullName" type="text" required placeholder="John Smith" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
@@ -229,14 +229,6 @@
                                 <div>
                                     <label class="block text-xs font-medium mb-1">Phone / WhatsApp *</label>
                                     <input id="phone" type="tel" required placeholder="+971 50 123 4567" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-medium mb-1">I am a *</label>
-                                    <select id="clientType" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:border-black">
-                                        <option value="owner_buyer">Homeowner / Buyer</option>
-                                        <option value="agent">Real Estate Agent</option>
-                                        <option value="property_manager">Property Manager</option>
-                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -737,7 +729,6 @@
                 fullName: document.getElementById('fullName').value.trim(),
                 email: document.getElementById('email').value.trim(),
                 phone: document.getElementById('phone').value.trim(),
-                clientType: document.getElementById('clientType').value,
                 projectName: document.getElementById('projectName').value.trim(),
                 areaCommunity: document.getElementById('areaCommunity').value.trim(),
                 unitNumber: document.getElementById('unitNumber').value.trim(),

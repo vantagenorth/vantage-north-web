@@ -155,9 +155,6 @@ module.exports = async function handler(req, res) {
         fullName: bookingPayload.fullName,
         email: bookingPayload.email,
         phone: bookingPayload.phone,
-        clientType: bookingPayload.clientType,
-        companyOrAgency: bookingPayload.companyOrAgency,
-        source: 'website_booking',
       });
 
       const clientId = clientRes.data.id;

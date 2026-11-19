@@ -46,9 +46,6 @@ async function upsertClient(client) {
     full_name: client.fullName,
     email: client.email.trim().toLowerCase(),
     phone: client.phone || null,
-    client_type: client.clientType || 'owner_buyer',
-    company_or_agency: client.companyOrAgency || null,
-    source: client.source || 'website_booking',
     updated_at: new Date().toISOString(),
   };
   const res = await supabaseFetch('clients?on_conflict=email', {

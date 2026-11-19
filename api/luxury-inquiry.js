@@ -68,9 +68,6 @@ module.exports = async function handler(req, res) {
         fullName: fullName.trim(),
         email: email.trim().toLowerCase(),
         phone: phone.trim(),
-        clientType,
-        companyOrAgency: companyOrAgency || agentAgency || null,
-        source: 'website_luxury_quote',
       });
 
       await insertBooking({
