@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmation | Vantage North Dubai</title>
+    <meta name="theme-color" content="#FAFAFA">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@300;400;500;600&family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        vnBg: '#FAFAFA',
+                        vnGray: '#646464',
+                        vnDarkGray: '#2B2B2B',
+                        vnBlack: '#000000',
+                        vnWhite: '#FFFFFF',
+                    },
+                    fontFamily: {
+                        urbanist: ['"Urbanist"', 'sans-serif'],
+                        epilogue: ['"Epilogue"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #FAFAFA; color: #000000; font-family: 'Epilogue', sans-serif; }
+        h1, h2, h3 { font-family: 'Urbanist', sans-serif; }
+    </style>
+</head>
+<body class="bg-vnBg text-vnBlack min-h-screen flex flex-col">
+
+    <header class="w-full border-b border-neutral-200 bg-vnBg">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-3">
+                <img src="/logo/vantage_north_logo_light.png" alt="Vantage North" class="h-7 w-auto" onerror="this.style.display='none'">
+                <span class="font-urbanist font-semibold text-lg tracking-tight">Vantage North</span>
+            </a>
+            <a href="https://wa.me/971585565311" target="_blank" rel="noopener" class="text-sm px-3.5 py-1.5 rounded-full border border-neutral-300 hover:border-black transition font-medium">
+                WhatsApp Us
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-2xl mx-auto w-full px-4 sm:px-6 py-12 flex-1">
+        <!-- Loading -->
+        <div id="loadingState" class="bg-white border border-neutral-200 rounded-2xl p-8 text-center">
+            <div class="w-10 h-10 border-2 border-neutral-300 border-t-black rounded-full animate-spin mx-auto mb-4"></div>
+            <h1 class="text-xl font-semibold">Confirming Your Payment &amp; Inspection Slot...</h1>
+            <p class="text-sm text-vnGray mt-2">Please wait a moment while we finalize your booking with Cal.com and send your confirmation email.</p>
+        </div>
+
+        <!-- Error -->
+        <div id="errorState" class="hidden bg-white border border-red-200 rounded-2xl p-8">
+            <h1 class="text-2xl font-semibold text-red-700 mb-2">Unable to Confirm Booking</h1>
+            <p id="errorMessage" class="text-sm text-vnDarkGray mb-6"></p>
+            <div class="flex flex-wrap gap-3">
+                <a href="/book" class="bg-black text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-neutral-800 transition">Back to Booking</a>
+                <a href="https://wa.me/971585565311" target="_blank" rel="noopener" class="border border-neutral-300 px-5 py-2.5 rounded-xl text-sm font-medium hover:border-black transition">Contact Support</a>
+            </div>
+        </div>
+
+        <!-- Success -->
+        <div id="successState" class="hidden bg-white border border-neutral-200 rounded-2xl p-8 space-y-6">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <div class="w-11 h-11 rounded-full bg-black text-white flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    </div>
+                    <h1 class="text-2xl sm:text-3xl font-semibold">Booking Confirmed</h1>
+                    <p class="text-sm text-vnGray mt-1">Your inspection is scheduled and payment has been received.</p>
+                </div>
+                <span id="testBadge" class="hidden text-xs uppercase tracking-wider bg-amber-100 text-amber-800 px-3 py-1 rounded-full font-medium">Test Mode</span>
+            </div>
+
+            <div class="bg-vnBg border border-neutral-200 rounded-xl p-5 space-y-3 text-sm">
+                <div class="flex justify-between gap-4">
+                    <span class="text-vnGray">Booking Reference</span>
+                    <span id="cRef" class="font-semibold"></span>
+                </div>
+                <div class="flex justify-between gap-4">
+                    <span class="text-vnGray">Inspection Date &amp; Time</span>
+                    <span id="cTime" class="font-semibold text-right"></span>
+                </div>
+                <div class="flex justify-between gap-4">
+                    <span class="text-vnGray">Property</span>
+                    <span id="cProperty" class="text-right"></span>
+                </div>
+                <div class="flex justify-between gap-4">
+                    <span class="text-vnGray">Package</span>
+                    <span id="cPackage" class="text-right"></span>
+                </div>
+                <div class="flex justify-between gap-4">
+                    <span class="text-vnGray">Unit &amp; Project</span>
+                    <span id="cUnit" class="text-right"></span>
+                </div>
+                <div class="flex justify-between gap-4 pt-3 border-t border-neutral-200">
+                    <span class="font-semibold">Amount Paid</span>
+                    <span id="cAmount" class="font-bold text-base"></span>
+                </div>
+            </div>
+
+            <p id="emailStatusNote" class="text-xs text-vnGray"></p>
+
+            <div class="pt-2 flex flex-wrap gap-3">
+                <a href="/" class="bg-black text-white px-6 py-3 rounded-xl text-sm font-medium hover:bg-neutral-800 transition">Return to Homepage</a>
+                <a href="/book" class="border border-neutral-300 px-6 py-3 rounded-xl text-sm font-medium hover:border-black transition">Book Another Property</a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function formatDubai(iso) {
+            if (!iso) return 'Scheduled';
+            return new Intl.DateTimeFormat('en-AE', {
+                timeZone: 'Asia/Dubai',
+                weekday: 'short',
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true,
+            }).format(new Date(iso)) + ' (Dubai)';
+        }
+
+        async function confirmBooking() {
+            const params = new URLSearchParams(window.location.search);
+            const bookingReference = params.get('booking_ref');
+            const token = params.get('token');
+            let paymentIntentId = params.get('payment_intent_id');
+
+            if (!paymentIntentId && bookingReference) {
+                try {
+                    paymentIntentId = localStorage.getItem(`vn_intent_${bookingReference}`);
+                } catch {}
+            }
+
+            if (!bookingReference) {
+                document.getElementById('loadingState').classList.add('hidden');
+                document.getElementById('errorMessage').textContent = 'Missing booking reference in URL.';
+                document.getElementById('errorState').classList.remove('hidden');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/confirm-booking', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ bookingReference, paymentIntentId, token }),
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    throw new Error(data.error || 'Could not confirm booking.');
+                }
+
+                const b = data.booking;
+                document.getElementById('cRef').textContent = b.bookingReference;
+                document.getElementById('cTime').textContent = formatDubai(b.scheduledStart);
+                document.getElementById('cProperty').textContent = `${b.propertyType} — ${b.bedroomTier}`;
+                document.getElementById('cPackage').textContent = b.packageLabel;
+                document.getElementById('cUnit').textContent = `${b.unitNumber}, ${b.projectName} (${b.areaCommunity})`;
+                document.getElementById('cAmount').textContent = `${Number(b.priceAed).toLocaleString()} AED`;
+
+                if (data.isTest) {
+                    document.getElementById('testBadge').classList.remove('hidden');
+                }
+
+                const emailNote = document.getElementById('emailStatusNote');
+                if (data.emailResult?.sent) {
+                    emailNote.textContent = `A confirmation email with your booking and payment receipt has been sent to ${b.email}.`;
+                } else {
+                    emailNote.textContent = `Booking confirmed for ${b.email}. (Email delivery note: ${data.emailResult?.reason || 'pending domain verification'})`;
+                }
+
+                document.getElementById('loadingState').classList.add('hidden');
+                document.getElementById('successState').classList.remove('hidden');
+            } catch (err) {
+                document.getElementById('loadingState').classList.add('hidden');
+                document.getElementById('errorMessage').textContent = err.message;
+                document.getElementById('errorState').classList.remove('hidden');
+            }
+        }
+
+        confirmBooking();
+    </script>
+</body>
+</html>

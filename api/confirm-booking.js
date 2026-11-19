@@ -1,0 +1,277 @@
+const {
+  isSupabaseConfigured,
+  getBookingByReference,
+  updateBookingByReference,
+  updatePaymentByIntentId,
+  verifyBookingToken,
+} = require('./_lib/supabase');
+
+function formatDubaiTime(iso) {
+  try {
+    return new Intl.DateTimeFormat('en-AE', {
+      timeZone: 'Asia/Dubai',
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    }).format(new Date(iso));
+  } catch {
+    return iso;
+  }
+}
+
+async function sendResendEmail({ to, subject, html }) {
+  const resendKey = process.env.RESEND_API_KEY;
+  if (!resendKey || !to) {
+    return { sent: false, reason: 'RESEND_API_KEY or recipient missing' };
+  }
+  const from = process.env.RESEND_FROM_EMAIL || 'Vantage North <bookings@vantagenorth.ae>';
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${resendKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ from, to: Array.isArray(to) ? to : [to], subject, html }),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    return { sent: false, reason: data?.message || JSON.stringify(data) };
+  }
+  return { sent: true, id: data.id };
+}
+
+function buildConfirmationHtml(b, paymentStatus) {
+  const dubaiTime = formatDubaiTime(b.scheduledStart);
+  return `
+  <div style="font-family: 'Helvetica Neue', Arial, sans-serif; background:#FAFAFA; padding:32px 16px; color:#000000;">
+    <div style="max-width:600px; margin:0 auto; background:#FFFFFF; border:1px solid #E5E5E5; border-radius:12px; padding:32px;">
+      <p style="font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:#646464; margin:0 0 8px;">Vantage North — Booking Confirmed</p>
+      <h1 style="font-size:24px; margin:0 0 16px; font-weight:600;">Your Property Inspection is Booked</h1>
+      <p style="font-size:15px; line-height:1.6; color:#2B2B2B; margin:0 0 24px;">
+        Hi ${b.fullName}, thank you for booking with Vantage North. Your payment has been confirmed and your inspection slot is reserved.
+      </p>
+
+      <div style="background:#FAFAFA; border:1px solid #E5E5E5; border-radius:8px; padding:20px; margin-bottom:24px;">
+        <table style="width:100%; border-collapse:collapse; font-size:14px;">
+          <tr><td style="padding:6px 0; color:#646464;">Booking Reference</td><td style="padding:6px 0; text-align:right; font-weight:600;">${b.bookingReference}</td></tr>
+          <tr><td style="padding:6px 0; color:#646464;">Inspection Date & Time</td><td style="padding:6px 0; text-align:right; font-weight:600;">${dubaiTime} (Dubai)</td></tr>
+          <tr><td style="padding:6px 0; color:#646464;">Property</td><td style="padding:6px 0; text-align:right;">${b.propertyType} — ${b.bedroomTier}</td></tr>
+          <tr><td style="padding:6px 0; color:#646464;">Package</td><td style="padding:6px 0; text-align:right;">${b.packageLabel}</td></tr>
+          <tr><td style="padding:6px 0; color:#646464;">Unit / Project</td><td style="padding:6px 0; text-align:right;">${b.unitNumber}, ${b.projectName} (${b.areaCommunity})</td></tr>
+          <tr><td style="padding:6px 0; color:#646464;">Purpose</td><td style="padding:6px 0; text-align:right;">${b.inspectionPurpose}</td></tr>
+          <tr><td style="padding:10px 0 0; border-top:1px solid #E5E5E5; font-weight:600;">Amount Paid</td><td style="padding:10px 0 0; border-top:1px solid #E5E5E5; text-align:right; font-weight:600;">${Number(b.priceAed).toLocaleString()} AED (${paymentStatus})</td></tr>
+        </table>
+      </div>
+
+      <p style="font-size:13px; line-height:1.6; color:#646464; margin:0 0 16px;">
+        Please ensure DEWA (electricity & water) and site access are arranged prior to the inspection. Your interactive digital report will be delivered within 24 hours of inspection completion.
+      </p>
+      <p style="font-size:13px; color:#646464; margin:0;">
+        Questions? Reply to this email or WhatsApp us on <strong>+971 58 556 5311</strong>.
+      </p>
+    </div>
+  </div>`;
+}
+
+module.exports = async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  try {
+    const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {};
+    const { bookingReference, paymentIntentId, token } = body;
+
+    if (!bookingReference) {
+      return res.status(400).json({ error: 'bookingReference is required' });
+    }
+
+    const tokenData = token ? verifyBookingToken(token) : null;
+    let dbBooking = null;
+    if (isSupabaseConfigured()) {
+      const dbRes = await getBookingByReference(bookingReference);
+      dbBooking = dbRes.data;
+    }
+
+    if (!dbBooking && !tokenData) {
+      return res.status(404).json({ error: 'Booking not found or invalid booking token' });
+    }
+
+    // Normalize booking object from DB or signed token
+    const b = dbBooking
+      ? {
+          bookingReference: dbBooking.booking_reference,
+          status: dbBooking.status,
+          propertyType: dbBooking.property_type,
+          bedroomTier: dbBooking.bedroom_tier,
+          packageType: dbBooking.package_type,
+          packageLabel: dbBooking.package_label,
+          priceAed: dbBooking.price_aed,
+          calEventTypeId: dbBooking.cal_event_type_id,
+          calBookingId: dbBooking.cal_booking_id,
+          calBookingUid: dbBooking.cal_booking_uid,
+          scheduledStart: dbBooking.scheduled_start,
+          scheduledEnd: dbBooking.scheduled_end,
+          fullName: dbBooking.clients?.full_name || tokenData?.fullName,
+          email: dbBooking.clients?.email || tokenData?.email,
+          phone: dbBooking.clients?.phone || tokenData?.phone,
+          projectName: dbBooking.project_name,
+          areaCommunity: dbBooking.area_community,
+          unitNumber: dbBooking.unit_number,
+          developer: dbBooking.developer,
+          dewaConnected: dbBooking.dewa_connected,
+          inspectionPurpose: dbBooking.inspection_purpose,
+          accessInstructions: dbBooking.access_instructions,
+          kindOfApartment: tokenData?.kindOfApartment || (dbBooking.bedroom_tier === 'Studio' ? 'Studio' : '1 Bedroom'),
+          intentId: paymentIntentId || dbBooking.payments?.[0]?.ziina_payment_intent_id,
+        }
+      : {
+          ...tokenData,
+          status: 'pending_payment',
+          intentId: paymentIntentId,
+        };
+
+    if (b.status === 'confirmed' && b.calBookingUid) {
+      return res.status(200).json({
+        alreadyConfirmed: true,
+        booking: b,
+      });
+    }
+
+    const ziinaKey = process.env.ZIINA_API_KEY;
+    if (!ziinaKey) {
+      return res.status(500).json({ error: 'ZIINA_API_KEY is not configured' });
+    }
+
+    let ziinaStatus = 'completed';
+    let ziinaData = null;
+    if (b.intentId) {
+      const ziinaRes = await fetch(`https://api-v2.ziina.com/api/payment_intent/${encodeURIComponent(b.intentId)}`, {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${ziinaKey}` },
+      });
+      ziinaData = await ziinaRes.json();
+      if (!ziinaRes.ok) {
+        return res.status(ziinaRes.status).json({ error: 'Failed to verify Ziina payment', details: ziinaData });
+      }
+      ziinaStatus = ziinaData.status;
+      if (ziinaStatus !== 'completed') {
+        return res.status(402).json({
+          error: `Payment is not completed yet (status: ${ziinaStatus})`,
+          paymentStatus: ziinaStatus,
+        });
+      }
+    } else {
+      return res.status(400).json({ error: 'Missing paymentIntentId to verify payment' });
+    }
+
+    // Create Cal.com booking
+    let calBookingId = b.calBookingId || null;
+    let calBookingUid = b.calBookingUid || null;
+    let calWarning = null;
+
+    const calApiKey = process.env.CAL_API_KEY;
+    if (calApiKey && !calBookingUid) {
+      const calPayload = {
+        start: b.scheduledStart,
+        eventTypeId: Number(b.calEventTypeId),
+        attendee: {
+          name: b.fullName,
+          email: b.email,
+          timeZone: 'Asia/Dubai',
+          ...(b.phone ? { phoneNumber: b.phone } : {}),
+        },
+        bookingFieldsResponses: {
+          'Apartment-number': b.unitNumber || 'TBD',
+          'Kind-of-apartment': b.kindOfApartment || '1 Bedroom',
+          'Electricity--water-DEWA-are-on': Boolean(b.dewaConnected),
+          'Developer--if-known': b.developer || 'Not specified',
+          'On-site-access': b.accessInstructions || 'Will coordinate prior to inspection',
+          'Purpose-of-inspections': b.inspectionPurpose || 'Handover',
+          'I-agree-to-True-North-s-terms-of-service': true,
+        },
+        metadata: {
+          bookingReference: b.bookingReference,
+          packageType: b.packageType,
+          propertyType: b.propertyType,
+          bedroomTier: b.bedroomTier,
+          projectName: b.projectName,
+          areaCommunity: b.areaCommunity,
+        },
+      };
+
+      const calRes = await fetch('https://api.cal.com/v2/bookings', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${calApiKey}`,
+          'cal-api-version': '2024-08-13',
+          'Content-Type': 'application/json',
+          'User-Agent': 'VantageNorthBooking/1.0',
+        },
+        body: JSON.stringify(calPayload),
+      });
+      const calJson = await calRes.json();
+      if (calRes.ok && calJson.data) {
+        calBookingId = calJson.data.id || null;
+        calBookingUid = calJson.data.uid || null;
+      } else {
+        calWarning = calJson?.error?.message || JSON.stringify(calJson);
+        console.error('Cal.com booking creation warning:', calWarning);
+      }
+    }
+
+    // Update Supabase
+    let supabaseSynced = false;
+    if (isSupabaseConfigured()) {
+      await updatePaymentByIntentId(b.intentId, {
+        status: 'paid',
+        paid_at: new Date().toISOString(),
+        raw_response: ziinaData,
+      });
+      await updateBookingByReference(b.bookingReference, {
+        status: 'confirmed',
+        cal_booking_id: calBookingId,
+        cal_booking_uid: calBookingUid,
+      });
+      supabaseSynced = true;
+    }
+
+    // Send confirmation emails via Resend
+    const emailHtml = buildConfirmationHtml(b, ziinaData?.is_test ? 'Paid (Test Mode)' : 'Paid');
+    const customerEmailResult = await sendResendEmail({
+      to: b.email,
+      subject: `Vantage North Booking Confirmed — ${b.bookingReference}`,
+      html: emailHtml,
+    });
+
+    const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL;
+    if (adminEmail && adminEmail.toLowerCase() !== b.email.toLowerCase()) {
+      await sendResendEmail({
+        to: adminEmail,
+        subject: `[New Paid Booking] ${b.bookingReference} — ${b.projectName} (${b.priceAed} AED)`,
+        html: emailHtml,
+      });
+    }
+
+    return res.status(200).json({
+      confirmed: true,
+      booking: {
+        ...b,
+        status: 'confirmed',
+        calBookingId,
+        calBookingUid,
+      },
+      isTest: Boolean(ziinaData?.is_test),
+      supabaseSynced,
+      calWarning,
+      emailResult: customerEmailResult,
+    });
+  } catch (err) {
+    console.error('Error in /api/confirm-booking:', err);
+    return res.status(500).json({ error: err.message || 'Internal server error' });
+  }
+};

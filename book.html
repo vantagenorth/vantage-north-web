@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book an Inspection | Vantage North Dubai</title>
+    <meta name="description" content="Book your RERA-certified property handover inspection or snagging service in Dubai. Instant pricing, live calendar slots, and secure online payment.">
+    <meta name="theme-color" content="#FAFAFA">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@300;400;500;600&family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        vnBg: '#FAFAFA',
+                        vnGray: '#646464',
+                        vnDarkGray: '#2B2B2B',
+                        vnBlack: '#000000',
+                        vnWhite: '#FFFFFF',
+                    },
+                    fontFamily: {
+                        urbanist: ['"Urbanist"', 'sans-serif'],
+                        epilogue: ['"Epilogue"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #FAFAFA; color: #000000; font-family: 'Epilogue', sans-serif; }
+        h1, h2, h3, h4 { font-family: 'Urbanist', sans-serif; }
+        .option-card { transition: all 0.15s ease; }
+        .option-card.active { border-color: #000000; background-color: #FFFFFF; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+    </style>
+</head>
+<body class="bg-vnBg text-vnBlack min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="w-full border-b border-neutral-200 bg-vnBg/90 backdrop-blur-sm sticky top-0 z-30">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-3">
+                <img src="/logo/vantage_north_logo_light.png" alt="Vantage North" class="h-7 w-auto" onerror="this.style.display='none'">
+                <span class="font-urbanist font-semibold text-lg tracking-tight">Vantage North</span>
+            </a>
+            <div class="flex items-center gap-4 text-sm">
+                <a href="/" class="text-vnGray hover:text-vnBlack transition">Home</a>
+                <a href="https://wa.me/971585565311" target="_blank" rel="noopener" class="px-3.5 py-1.5 rounded-full border border-neutral-300 hover:border-black transition font-medium">
+                    WhatsApp Us
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Cancelled Banner -->
+    <div id="cancelledBanner" class="hidden bg-amber-50 border-b border-amber-200 text-amber-900 text-sm py-3 px-4 text-center">
+        Your payment was cancelled. Your details are still below — you can select a slot and try again anytime.
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto w-full px-4 sm:px-6 py-8 sm:py-12 flex-1">
+        <div class="mb-8">
+            <p class="text-xs uppercase tracking-widest text-vnGray font-medium mb-2">RERA-Certified Property Snagging</p>
+            <h1 class="text-3xl sm:text-4xl font-semibold tracking-tight">Book Your Inspection</h1>
+            <p class="text-vnGray mt-2 max-w-2xl text-sm sm:text-base">
+                Select your property size, choose an available Dubai inspection slot, and complete your booking online. Interactive digital report delivered within 24 hours.
+            </p>
+        </div>
+
+        <!-- Luxury Quote Confirmation State -->
+        <div id="luxurySuccessView" class="hidden bg-white border border-neutral-200 rounded-2xl p-8 max-w-2xl">
+            <div class="w-12 h-12 rounded-full bg-black text-white flex items-center justify-center mb-4">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <h2 class="text-2xl font-semibold mb-2">Luxury Home Quote Request Received</h2>
+            <p class="text-vnGray text-sm mb-4">
+                Reference: <strong id="luxRef" class="text-black"></strong>
+            </p>
+            <p class="text-vnDarkGray text-sm leading-relaxed mb-6">
+                Because your villa exceeds 6,500 sq ft or 5 bedrooms, our senior inspection team will review your property details and send a tailored scope and quote within 2 business hours. A confirmation email has been sent to your inbox.
+            </p>
+            <a href="/" class="inline-block bg-black text-white px-6 py-3 rounded-lg text-sm font-medium hover:bg-neutral-800 transition">Return to Homepage</a>
+        </div>
+
+        <!-- Booking Grid -->
+        <div id="bookingLayout" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <!-- Left Form Column -->
+            <div class="lg:col-span-8 space-y-8">
+
+                <!-- 1. Property & Pricing -->
+                <section class="bg-white border border-neutral-200 rounded-2xl p-6 sm:p-8">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="w-7 h-7 rounded-full bg-black text-white text-xs font-semibold flex items-center justify-center">1</span>
+                        <h2 class="text-xl font-semibold">Property Type &amp; Package</h2>
+                    </div>
+
+                    <!-- Property Type -->
+                    <label class="block text-xs uppercase tracking-wider text-vnGray font-medium mb-2">Property Type</label>
+                    <div class="grid grid-cols-3 gap-3 mb-6" id="propertyTypeGroup">
+                        <button type="button" data-type="Apartment" class="option-card active border border-neutral-200 rounded-xl p-3.5 text-left hover:border-neutral-400">
+                            <div class="font-urbanist font-semibold text-sm sm:text-base">Apartment</div>
+                            <div class="text-xs text-vnGray mt-0.5">Studio – 3 Bed</div>
+                        </button>
+                        <button type="button" data-type="Townhouse" class="option-card border border-neutral-200 rounded-xl p-3.5 text-left hover:border-neutral-400">
+                            <div class="font-urbanist font-semibold text-sm sm:text-base">Townhouse</div>
+                            <div class="text-xs text-vnGray mt-0.5">3–4 Bedrooms</div>
+                        </button>
+                        <button type="button" data-type="Villa" class="option-card border border-neutral-200 rounded-xl p-3.5 text-left hover:border-neutral-400">
+                            <div class="font-urbanist font-semibold text-sm sm:text-base">Villa</div>
+                            <div class="text-xs text-vnGray mt-0.5">4–5 Bed / Luxury</div>
+                        </button>
+                    </div>
+
+                    <!-- Bedroom Tier & BUA -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <label class="block text-xs uppercase tracking-wider text-vnGray font-medium mb-2">Size / Bedrooms</label>
+                            <div id="bedroomOptions" class="grid grid-cols-2 gap-2.5"></div>
+                        </div>
+                        <div>
+                            <label for="buaSqft" class="block text-xs uppercase tracking-wider text-vnGray font-medium mb-2">
+                                Built-Up Area (sq ft) <span class="normal-case font-normal text-neutral-400">(optional)</span>
+                            </label>
+                            <input id="buaSqft" type="number" min="200" max="100000" placeholder="e.g. 1250"
+                                class="w-full border border-neutral-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-black">
+                            <p id="buaHint" class="text-xs text-vnGray mt-1.5">Villas over 6,500 sq ft are quoted as Luxury Homes.</p>
+                        </div>
+                    </div>
+
+                    <!-- Luxury Home Notice -->
+                    <div id="luxuryNotice" class="hidden bg-neutral-900 text-white rounded-xl p-5 mb-2">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <span class="inline-block text-[11px] uppercase tracking-widest bg-white/15 px-2.5 py-0.5 rounded-full mb-2">Luxury Home</span>
+                                <h3 class="text-lg font-semibold">Price on Request</h3>
+                                <p class="text-xs text-neutral-300 mt-1 leading-relaxed">
+                                    Villas exceeding 6,500 sq ft or 5 bedrooms require a bespoke inspection team and tailored quote. Complete your property details below and we will respond within 2 business hours.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Package Options -->
+                    <div id="packageSection">
+                        <label class="block text-xs uppercase tracking-wider text-vnGray font-medium mb-2">Inspection Package</label>
+                        <div id="packageOptions" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+                    </div>
+                </section>
+
+                <!-- 2. Date & Time Slot (hidden for Luxury Quote) -->
+                <section id="scheduleSection" class="bg-white border border-neutral-200 rounded-2xl p-6 sm:p-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-3">
+                            <span class="w-7 h-7 rounded-full bg-black text-white text-xs font-semibold flex items-center justify-center">2</span>
+                            <h2 class="text-xl font-semibold">Select Inspection Slot</h2>
+                        </div>
+                        <span class="text-xs text-vnGray">Dubai Time (GST / UTC+4)</span>
+                    </div>
+
+                    <div id="slotsLoading" class="text-sm text-vnGray py-6 text-center">Loading live availability from calendar...</div>
+                    <div id="slotsError" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl p-4"></div>
+
+                    <div id="slotsContainer" class="hidden space-y-5">
+                        <div>
+                            <label class="block text-xs uppercase tracking-wider text-vnGray font-medium mb-2">Available Dates</label>
+                            <div id="dateList" class="flex flex-wrap gap-2"></div>
+                        </div>
+                        <div>
+                            <label class="block text-xs uppercase tracking-wider text-vnGray font-medium mb-2">Available Times</label>
+                            <div id="timeList" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. Client & Unit Details -->
+                <section class="bg-white border border-neutral-200 rounded-2xl p-6 sm:p-8 space-y-6">
+                    <div class="flex items-center gap-3">
+                        <span id="step3Badge" class="w-7 h-7 rounded-full bg-black text-white text-xs font-semibold flex items-center justify-center">3</span>
+                        <h2 class="text-xl font-semibold">Your Details &amp; Property Info</h2>
+                    </div>
+
+                    <!-- Personal Info -->
+                    <div>
+                        <h3 class="text-sm font-semibold uppercase tracking-wider text-vnGray mb-3">Personal Information</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium mb-1">Full Name *</label>
+                                <input id="fullName" type="text" required placeholder="John Smith" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium mb-1">Email Address *</label>
+                                <input id="email" type="email" required placeholder="john@example.com" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium mb-1">Phone / WhatsApp *</label>
+                                <input id="phone" type="tel" required placeholder="+971 50 123 4567" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium mb-1">I am a *</label>
+                                <select id="clientType" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:border-black">
+                                    <option value="owner_buyer">Homeowner / Buyer</option>
+                                    <option value="agent">Real Estate Agent</option>
+                                    <option value="property_manager">Property Manager</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Unit Info -->
+                    <div class="pt-4 border-t border-neutral-100">
+                        <h3 class="text-sm font-semibold uppercase tracking-wider text-vnGray mb-3">Unit Information</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium mb-1">Project / Building Name *</label>
+                                <input id="projectName" type="text" required placeholder="e.g. Creekside 18, Tower A" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium mb-1">Area / Community *</label>
+                                <input id="areaCommunity" type="text" required placeholder="e.g. Dubai Creek Harbour" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium mb-1">Unit / Villa Number *</label>
+                                <input id="unitNumber" type="text" required placeholder="e.g. Apt 1402 / Villa 24" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium mb-1">Developer (if known)</label>
+                                <input id="developer" type="text" placeholder="e.g. Emaar, Nakheel, Sobha" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium mb-1">Street Address / Makani (optional)</label>
+                                <input id="address" type="text" placeholder="Street or building address" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium mb-1">Purpose of Inspection *</label>
+                                <select id="inspectionPurpose" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:border-black">
+                                    <option value="Handover">Handover</option>
+                                    <option value="Secondary purchase">Secondary purchase</option>
+                                    <option value="Move out">Move out</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium mb-1">Is DEWA (Electricity &amp; Water) On? *</label>
+                                <select id="dewaConnected" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:border-black">
+                                    <option value="true">Yes — Electricity &amp; water are on</option>
+                                    <option value="false">No — Not yet connected</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium mb-1">On-Site Access Instructions</label>
+                                <input id="accessInstructions" type="text" placeholder="e.g. Key with concierge / NOC ready" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Optional Agent Info -->
+                    <div class="pt-4 border-t border-neutral-100">
+                        <details class="group">
+                            <summary class="cursor-pointer list-none flex items-center justify-between text-sm font-semibold uppercase tracking-wider text-vnGray">
+                                <span>Agent / Referral Details (Optional)</span>
+                                <span class="text-xs font-normal normal-case text-neutral-400 group-open:hidden">+ Add agent info</span>
+                                <span class="text-xs font-normal normal-case text-neutral-400 hidden group-open:inline">− Hide</span>
+                            </summary>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                                <div>
+                                    <label class="block text-xs font-medium mb-1">Agent Name</label>
+                                    <input id="agentName" type="text" placeholder="Agent full name" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium mb-1">Agency / Brokerage</label>
+                                    <input id="agentAgency" type="text" placeholder="Brokerage name" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium mb-1">Agent Email</label>
+                                    <input id="agentEmail" type="email" placeholder="agent@agency.ae" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium mb-1">Agent Phone</label>
+                                    <input id="agentPhone" type="tel" placeholder="+971 50 ..." class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
+                                </div>
+                            </div>
+                        </details>
+                    </div>
+
+                    <!-- Terms -->
+                    <div class="pt-4 border-t border-neutral-100">
+                        <label class="flex items-start gap-3 cursor-pointer text-sm text-vnDarkGray">
+                            <input id="termsAccepted" type="checkbox" class="mt-1 w-4 h-4 rounded border-neutral-300 text-black focus:ring-black">
+                            <span>
+                                I agree to Vantage North's <a href="/terms" target="_blank" class="underline font-medium text-black">Terms of Service</a> and confirm that property access details are accurate.
+                            </span>
+                        </label>
+                    </div>
+
+                    <div id="formError" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl p-3.5"></div>
+                </section>
+            </div>
+
+            <!-- Right Sticky Summary -->
+            <aside class="lg:col-span-4 lg:sticky lg:top-24 bg-white border border-neutral-200 rounded-2xl p-6 space-y-5">
+                <h2 class="text-lg font-semibold border-b border-neutral-100 pb-3">Booking Summary</h2>
+
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between gap-2">
+                        <span class="text-vnGray">Property</span>
+                        <span id="sumProperty" class="font-medium text-right">Apartment — Studio</span>
+                    </div>
+                    <div class="flex justify-between gap-2">
+                        <span class="text-vnGray">Package</span>
+                        <span id="sumPackage" class="font-medium text-right">Initial Inspection (Base)</span>
+                    </div>
+                    <div id="sumSlotRow" class="flex justify-between gap-2">
+                        <span class="text-vnGray">Slot (Dubai)</span>
+                        <span id="sumSlot" class="font-medium text-right text-amber-600">Select a slot</span>
+                    </div>
+                </div>
+
+                <div class="border-t border-neutral-200 pt-4">
+                    <div class="flex items-baseline justify-between">
+                        <span class="text-sm text-vnGray">Total</span>
+                        <span id="sumTotal" class="text-2xl font-urbanist font-bold">1,100 AED</span>
+                    </div>
+                    <p id="sumSavings" class="text-xs text-emerald-700 text-right mt-1 hidden"></p>
+                </div>
+
+                <button id="submitBtn" type="button"
+                    class="w-full bg-black text-white py-3.5 px-5 rounded-xl font-medium text-sm hover:bg-neutral-800 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                    Proceed to Payment
+                </button>
+
+                <p class="text-[11px] text-vnGray text-center leading-relaxed">
+                    Secure checkout powered by Ziina (Apple Pay, Visa, Mastercard). Instant confirmation &amp; email receipt.
+                </p>
+            </aside>
+        </div>
+    </main>
+
+    <script>
+        const PRICING = {
+            Apartment: {
+                'Studio': {
+                    label: 'Studio (~450 sq ft)',
+                    packages: [
+                        { key: 'initial', label: 'Initial Inspection (Base)', sub: 'RERA snagging & 24h digital report', price: 1100, badge: '' },
+                        { key: 'initial_followup', label: 'Initial + Follow-Up Check', sub: 'Includes +35% follow-up snag check (+375 AED)', price: 1475, badge: '+375 AED' },
+                        { key: 'initial_final', label: 'Initial + Final Handover', sub: 'Includes +50% final handover sign-off (+550 AED)', price: 1650, badge: '+550 AED' },
+                        { key: 'full_bundle', label: 'Full Package Bundle', sub: 'All 3 visits: Initial + Follow-Up + Final', price: 1900, badge: 'Save 125 AED', savings: 125 },
+                    ]
+                },
+                '1 Bedroom': {
+                    label: '1 Bedroom (~800 sq ft)',
+                    packages: [
+                        { key: 'initial', label: 'Initial Inspection (Base)', sub: 'RERA snagging & 24h digital report', price: 2000, badge: '' },
+                        { key: 'initial_followup', label: 'Initial + Follow-Up Check', sub: 'Includes +35% follow-up snag check (+700 AED)', price: 2700, badge: '+700 AED' },
+                        { key: 'initial_final', label: 'Initial + Final Handover', sub: 'Includes +50% final handover sign-off (+1,000 AED)', price: 3000, badge: '+1,000 AED' },
+                        { key: 'full_bundle', label: 'Full Package Bundle', sub: 'All 3 visits: Initial + Follow-Up + Final', price: 3500, badge: 'Save 200 AED', savings: 200 },
+                    ]
+                },
+                '2 Bedroom': {
+                    label: '2 Bedroom (~1,250 sq ft)',
+                    packages: [
+                        { key: 'initial', label: 'Initial Inspection (Base)', sub: 'RERA snagging & 24h digital report', price: 3100, badge: '' },
+                        { key: 'initial_followup', label: 'Initial + Follow-Up Check', sub: 'Includes +35% follow-up snag check (+1,075 AED)', price: 4175, badge: '+1,075 AED' },
+                        { key: 'initial_final', label: 'Initial + Final Handover', sub: 'Includes +50% final handover sign-off (+1,550 AED)', price: 4650, badge: '+1,550 AED' },
+                        { key: 'full_bundle', label: 'Full Package Bundle', sub: 'All 3 visits: Initial + Follow-Up + Final', price: 5400, badge: 'Save 325 AED', savings: 325 },
+                    ]
+                },
+                '3 Bedroom': {
+                    label: '3 Bedroom (~1,800 sq ft)',
+                    packages: [
+                        { key: 'initial', label: 'Initial Inspection (Base)', sub: 'RERA snagging & 24h digital report', price: 4500, badge: '' },
+                        { key: 'initial_followup', label: 'Initial + Follow-Up Check', sub: 'Includes +35% follow-up snag check (+1,575 AED)', price: 6075, badge: '+1,575 AED' },
+                        { key: 'initial_final', label: 'Initial + Final Handover', sub: 'Includes +50% final handover sign-off (+2,250 AED)', price: 6750, badge: '+2,250 AED' },
+                        { key: 'full_bundle', label: 'Full Package Bundle', sub: 'All 3 visits: Initial + Follow-Up + Final', price: 7900, badge: 'Save 425 AED', savings: 425 },
+                    ]
+                }
+            },
+            Townhouse: {
+                '3–4 Bed': {
+                    label: 'Townhouse 3–4 Bed (~2,600 sq ft)',
+                    packages: [
+                        { key: 'initial', label: 'Initial Inspection (Base)', sub: 'RERA snagging & 24h digital report', price: 6500, badge: '' },
+                        { key: 'initial_followup', label: 'Initial + Follow-Up Check', sub: 'Includes +35% follow-up snag check (+2,275 AED)', price: 8775, badge: '+2,275 AED' },
+                        { key: 'initial_final', label: 'Initial + Final Handover', sub: 'Includes +50% final handover sign-off (+3,250 AED)', price: 9750, badge: '+3,250 AED' },
+                        { key: 'full_bundle', label: 'Full Package Bundle', sub: 'All 3 visits: Initial + Follow-Up + Final', price: 11400, badge: 'Save 625 AED', savings: 625 },
+                    ]
+                }
+            },
+            Villa: {
+                '4–5 Bed': {
+                    label: 'Standard Villa 4–5 Bed (~4,200 sq ft)',
+                    packages: [
+                        { key: 'initial', label: 'Initial Inspection (Base)', sub: 'RERA snagging & 24h digital report', price: 10500, badge: '' },
+                        { key: 'initial_followup', label: 'Initial + Follow-Up Check', sub: 'Includes +35% follow-up snag check (+3,675 AED)', price: 14175, badge: '+3,675 AED' },
+                        { key: 'initial_final', label: 'Initial + Final Handover', sub: 'Includes +50% final handover sign-off (+5,250 AED)', price: 15750, badge: '+5,250 AED' },
+                        { key: 'full_bundle', label: 'Full Package Bundle', sub: 'All 3 visits: Initial + Follow-Up + Final', price: 18400, badge: 'Save 1,025 AED', savings: 1025 },
+                    ]
+                },
+                '6+ Bed': {
+                    label: 'Luxury Villa (6+ Bed)',
+                    luxury: true,
+                    packages: []
+                }
+            }
+        };
+
+        const state = {
+            propertyType: 'Apartment',
+            bedroomTier: 'Studio',
+            packageType: 'initial',
+            buaSqft: '',
+            slotsByDate: {},
+            selectedDate: null,
+            selectedSlot: null,
+        };
+
+        if (new URLSearchParams(window.location.search).get('cancelled') === '1') {
+            document.getElementById('cancelledBanner').classList.remove('hidden');
+        }
+
+        function isLuxuryMode() {
+            if (state.propertyType !== 'Villa') return false;
+            if (state.bedroomTier === '6+ Bed') return true;
+            const sqft = Number(state.buaSqft);
+            return Number.isFinite(sqft) && sqft > 6500;
+        }
+
+        function renderBedrooms() {
+            const container = document.getElementById('bedroomOptions');
+            const tiers = Object.keys(PRICING[state.propertyType]);
+            if (!tiers.includes(state.bedroomTier)) {
+                state.bedroomTier = tiers[0];
+            }
+            container.innerHTML = tiers.map(t => {
+                const active = t === state.bedroomTier;
+                return `<button type="button" data-tier="${t}" class="option-card ${active ? 'active' : ''} border border-neutral-200 rounded-xl px-3 py-2.5 text-sm font-medium text-left hover:border-neutral-400">${t}</button>`;
+            }).join('');
+
+            container.querySelectorAll('button').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    state.bedroomTier = btn.dataset.tier;
+                    renderBedrooms();
+                    renderPackagesAndMode();
+                    if (!isLuxuryMode()) loadSlots();
+                });
+            });
+        }
+
+        function renderPackagesAndMode() {
+            const luxury = isLuxuryMode();
+            document.getElementById('luxuryNotice').classList.toggle('hidden', !luxury);
+            document.getElementById('packageSection').classList.toggle('hidden', luxury);
+            document.getElementById('scheduleSection').classList.toggle('hidden', luxury);
+            document.getElementById('sumSlotRow').classList.toggle('hidden', luxury);
+            document.getElementById('step3Badge').textContent = luxury ? '2' : '3';
+
+            if (!luxury) {
+                const tierObj = PRICING[state.propertyType][state.bedroomTier];
+                const container = document.getElementById('packageOptions');
+                container.innerHTML = tierObj.packages.map(pkg => {
+                    const active = pkg.key === state.packageType;
+                    return `
+                        <button type="button" data-pkg="${pkg.key}" class="option-card ${active ? 'active' : ''} border border-neutral-200 rounded-xl p-4 text-left hover:border-neutral-400 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between gap-2 mb-1">
+                                    <span class="font-urbanist font-semibold text-sm">${pkg.label}</span>
+                                    ${pkg.badge ? `<span class="text-[11px] px-2 py-0.5 rounded-full ${pkg.savings ? 'bg-emerald-50 text-emerald-700 font-medium' : 'bg-neutral-100 text-vnGray'}">${pkg.badge}</span>` : ''}
+                                </div>
+                                <p class="text-xs text-vnGray leading-relaxed">${pkg.sub}</p>
+                            </div>
+                            <div class="mt-3 font-urbanist font-bold text-base">${pkg.price.toLocaleString()} AED</div>
+                        </button>
+                    `;
+                }).join('');
+
+                container.querySelectorAll('button').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        state.packageType = btn.dataset.pkg;
+                        renderPackagesAndMode();
+                    });
+                });
+            }
+            updateSummary();
+        }
+
+        function updateSummary() {
+            const luxury = isLuxuryMode();
+            document.getElementById('sumProperty').textContent = `${state.propertyType} — ${state.bedroomTier}`;
+            const submitBtn = document.getElementById('submitBtn');
+
+            if (luxury) {
+                document.getElementById('sumPackage').textContent = 'Luxury Home (Custom Scope)';
+                document.getElementById('sumTotal').textContent = 'Price on Request';
+                document.getElementById('sumSavings').classList.add('hidden');
+                submitBtn.textContent = 'Request Custom Quote';
+                return;
+            }
+
+            const tierObj = PRICING[state.propertyType][state.bedroomTier];
+            const pkg = tierObj.packages.find(p => p.key === state.packageType) || tierObj.packages[0];
+            document.getElementById('sumPackage').textContent = pkg.label;
+            document.getElementById('sumTotal').textContent = `${pkg.price.toLocaleString()} AED`;
+
+            const savingsEl = document.getElementById('sumSavings');
+            if (pkg.savings) {
+                savingsEl.textContent = `You save ${pkg.savings.toLocaleString()} AED with the bundle`;
+                savingsEl.classList.remove('hidden');
+            } else {
+                savingsEl.classList.add('hidden');
+            }
+
+            const slotEl = document.getElementById('sumSlot');
+            if (state.selectedSlot) {
+                slotEl.textContent = formatDubaiDateTime(state.selectedSlot);
+                slotEl.classList.remove('text-amber-600');
+            } else {
+                slotEl.textContent = 'Select a slot';
+                slotEl.classList.add('text-amber-600');
+            }
+
+            submitBtn.textContent = `Proceed to Payment (${pkg.price.toLocaleString()} AED)`;
+        }
+
+        function formatDateLabel(dateStr) {
+            const d = new Date(`${dateStr}T12:00:00+04:00`);
+            return new Intl.DateTimeFormat('en-AE', { timeZone: 'Asia/Dubai', weekday: 'short', day: 'numeric', month: 'short' }).format(d);
+        }
+
+        function formatTimeLabel(iso) {
+            return new Intl.DateTimeFormat('en-AE', { timeZone: 'Asia/Dubai', hour: '2-digit', minute: '2-digit', hour12: true }).format(new Date(iso));
+        }
+
+        function formatDubaiDateTime(iso) {
+            return new Intl.DateTimeFormat('en-AE', { timeZone: 'Asia/Dubai', weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: true }).format(new Date(iso));
+        }
+
+        async function loadSlots() {
+            const loading = document.getElementById('slotsLoading');
+            const errorEl = document.getElementById('slotsError');
+            const container = document.getElementById('slotsContainer');
+
+            loading.classList.remove('hidden');
+            errorEl.classList.add('hidden');
+            container.classList.add('hidden');
+            state.selectedSlot = null;
+            updateSummary();
+
+            try {
+                const params = new URLSearchParams({
+                    propertyType: state.propertyType,
+                    bedroomTier: state.bedroomTier,
+                });
+                const res = await fetch(`/api/slots?${params.toString()}`);
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Could not load slots');
+
+                state.slotsByDate = data.slots || {};
+                const dates = Object.keys(state.slotsByDate).filter(d => Array.isArray(state.slotsByDate[d]) && state.slotsByDate[d].length > 0);
+                loading.classList.add('hidden');
+
+                if (dates.length === 0) {
+                    errorEl.textContent = 'No available slots in the next 14 days. Please WhatsApp us on +971 58 556 5311 for urgent scheduling.';
+                    errorEl.classList.remove('hidden');
+                    return;
+                }
+
+                state.selectedDate = dates[0];
+                renderDatesAndTimes(dates);
+                container.classList.remove('hidden');
+            } catch (err) {
+                loading.classList.add('hidden');
+                errorEl.textContent = err.message;
+                errorEl.classList.remove('hidden');
+            }
+        }
+
+        function renderDatesAndTimes(dates) {
+            const dateList = document.getElementById('dateList');
+            dateList.innerHTML = dates.map(d => {
+                const active = d === state.selectedDate;
+                return `<button type="button" data-date="${d}" class="px-3.5 py-2 rounded-xl border text-xs sm:text-sm font-medium transition ${active ? 'bg-black text-white border-black' : 'bg-white border-neutral-200 hover:border-black'}">${formatDateLabel(d)}</button>`;
+            }).join('');
+
+            dateList.querySelectorAll('button').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    state.selectedDate = btn.dataset.date;
+                    state.selectedSlot = null;
+                    renderDatesAndTimes(dates);
+                    updateSummary();
+                });
+            });
+
+            const timeList = document.getElementById('timeList');
+            const slots = state.slotsByDate[state.selectedDate] || [];
+            timeList.innerHTML = slots.map(s => {
+                const active = s.start === state.selectedSlot;
+                return `<button type="button" data-start="${s.start}" class="px-3 py-2.5 rounded-xl border text-xs sm:text-sm font-medium transition ${active ? 'bg-black text-white border-black' : 'bg-white border-neutral-200 hover:border-black'}">${formatTimeLabel(s.start)}</button>`;
+            }).join('');
+
+            timeList.querySelectorAll('button').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    state.selectedSlot = btn.dataset.start;
+                    renderDatesAndTimes(dates);
+                    updateSummary();
+                });
+            });
+        }
+
+        document.querySelectorAll('#propertyTypeGroup button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('#propertyTypeGroup button').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.propertyType = btn.dataset.type;
+                renderBedrooms();
+                renderPackagesAndMode();
+                if (!isLuxuryMode()) loadSlots();
+            });
+        });
+
+        document.getElementById('buaSqft').addEventListener('input', (e) => {
+            const wasLux = isLuxuryMode();
+            state.buaSqft = e.target.value;
+            const nowLux = isLuxuryMode();
+            renderPackagesAndMode();
+            if (wasLux && !nowLux) loadSlots();
+        });
+
+        document.getElementById('submitBtn').addEventListener('click', async () => {
+            const errorEl = document.getElementById('formError');
+            errorEl.classList.add('hidden');
+
+            const luxury = isLuxuryMode();
+            const payload = {
+                propertyType: state.propertyType,
+                bedroomTier: state.bedroomTier,
+                buaSqft: state.buaSqft ? Number(state.buaSqft) : null,
+                packageType: state.packageType,
+                scheduledStart: state.selectedSlot,
+                fullName: document.getElementById('fullName').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                clientType: document.getElementById('clientType').value,
+                projectName: document.getElementById('projectName').value.trim(),
+                areaCommunity: document.getElementById('areaCommunity').value.trim(),
+                unitNumber: document.getElementById('unitNumber').value.trim(),
+                developer: document.getElementById('developer').value.trim(),
+                address: document.getElementById('address').value.trim(),
+                inspectionPurpose: document.getElementById('inspectionPurpose').value,
+                dewaConnected: document.getElementById('dewaConnected').value === 'true',
+                accessInstructions: document.getElementById('accessInstructions').value.trim(),
+                agentName: document.getElementById('agentName').value.trim(),
+                agentAgency: document.getElementById('agentAgency').value.trim(),
+                agentEmail: document.getElementById('agentEmail').value.trim(),
+                agentPhone: document.getElementById('agentPhone').value.trim(),
+                termsAccepted: document.getElementById('termsAccepted').checked,
+            };
+
+            if (!payload.fullName || !payload.email || !payload.phone || !payload.projectName || !payload.areaCommunity || !payload.unitNumber) {
+                errorEl.textContent = 'Please fill in all required (*) personal and unit fields.';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            if (!luxury && !payload.scheduledStart) {
+                errorEl.textContent = 'Please select an available inspection date and time slot.';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            if (!payload.termsAccepted) {
+                errorEl.textContent = 'Please accept the Vantage North Terms of Service to continue.';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            const btn = document.getElementById('submitBtn');
+            const origText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = luxury ? 'Submitting Quote Request...' : 'Preparing Ziina Checkout...';
+
+            try {
+                if (luxury) {
+                    const res = await fetch('/api/luxury-inquiry', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload),
+                    });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.error || 'Failed to submit quote request');
+
+                    document.getElementById('luxRef').textContent = data.bookingReference;
+                    document.getElementById('bookingLayout').classList.add('hidden');
+                    document.getElementById('luxurySuccessView').classList.remove('hidden');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    return;
+                }
+
+                const res = await fetch('/api/checkout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Checkout failed');
+
+                try {
+                    localStorage.setItem(`vn_intent_${data.bookingReference}`, data.paymentIntentId);
+                } catch {}
+
+                window.location.href = data.checkoutUrl;
+            } catch (err) {
+                errorEl.textContent = err.message;
+                errorEl.classList.remove('hidden');
+                btn.disabled = false;
+                btn.textContent = origText;
+            }
+        });
+
+        // Initialize
+        renderBedrooms();
+        renderPackagesAndMode();
+        loadSlots();
+    </script>
+</body>
+</html>
