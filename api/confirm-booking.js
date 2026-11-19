@@ -170,6 +170,61 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: 'Missing paymentIntentId to verify payment' });
     }
 
+    // Optional Cal.com booking creation (if CAL_API_KEY is configured on Vercel)
+    let calBookingId = b.calBookingId || null;
+    let calBookingUid = b.calBookingUid || null;
+    let calWarning = null;
+    const calApiKey = process.env.CAL_API_KEY;
+    if (calApiKey && !calBookingUid && b.calEventTypeId) {
+      try {
+        const calRes = await fetch('https://api.cal.com/v2/bookings', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${calApiKey}`,
+            'cal-api-version': '2024-08-13',
+            'Content-Type': 'application/json',
+            'User-Agent': 'VantageNorthBooking/1.0',
+          },
+          body: JSON.stringify({
+            start: b.scheduledStart,
+            eventTypeId: Number(b.calEventTypeId),
+            attendee: {
+              name: b.fullName,
+              email: b.email,
+              timeZone: 'Asia/Dubai',
+              ...(b.phone ? { phoneNumber: b.phone } : {}),
+            },
+            bookingFieldsResponses: {
+              'Apartment-number': b.unitNumber || 'TBD',
+              'Kind-of-apartment': b.kindOfApartment || '1 Bedroom',
+              'Electricity--water-DEWA-are-on': Boolean(b.dewaConnected),
+              'Developer--if-known': b.developer || 'Not specified',
+              'On-site-access': b.accessInstructions || 'Will coordinate prior to inspection',
+              'Purpose-of-inspections': b.inspectionPurpose || 'Handover',
+              'I-agree-to-True-North-s-terms-of-service': true,
+            },
+            metadata: {
+              bookingReference: b.bookingReference,
+              packageType: b.packageType,
+              propertyType: b.propertyType,
+              bedroomTier: b.bedroomTier,
+              projectName: b.projectName,
+              areaCommunity: b.areaCommunity,
+            },
+          }),
+        });
+        const calJson = await calRes.json();
+        if (calRes.ok && calJson.data) {
+          calBookingId = calJson.data.id || null;
+          calBookingUid = calJson.data.uid || null;
+        } else {
+          calWarning = calJson?.error?.message || JSON.stringify(calJson);
+        }
+      } catch (calErr) {
+        calWarning = calErr.message;
+      }
+    }
+
     // Update Supabase & create Report
     let supabaseSynced = false;
     let reportId = dbBooking?.report_id || null;
@@ -198,6 +253,8 @@ module.exports = async function handler(req, res) {
       await updateBookingByReference(b.bookingReference, {
         status: 'confirmed',
         ...(reportId ? { report_id: reportId } : {}),
+        ...(calBookingId ? { cal_booking_id: calBookingId } : {}),
+        ...(calBookingUid ? { cal_booking_uid: calBookingUid } : {}),
       });
       supabaseSynced = true;
     }
