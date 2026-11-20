@@ -47,9 +47,8 @@
                 <img src="/logo/vantage_north_logo_light.png" alt="Vantage North" class="h-7 w-auto">
             </a>
             <div class="flex items-center gap-4 text-sm">
-                <a href="/" class="text-vnGray hover:text-vnBlack transition">Home</a>
                 <a href="https://wa.me/971585565311" target="_blank" rel="noopener" class="px-3.5 py-1.5 rounded-full border border-neutral-300 hover:border-black transition font-medium">
-                    Let's Chat
+                    Got questions?
                 </a>
             </div>
         </div>
@@ -134,7 +133,7 @@
                             <div class="border border-neutral-200 rounded-xl p-4 flex items-center justify-between gap-3">
                                 <div>
                                     <label for="bedroomsInput" class="block font-urbanist font-semibold text-sm">Bedrooms</label>
-                                    <p id="bedroomsHint" class="text-[11px] text-vnGray mt-0.5">1 included · +350 AED / extra</p>
+                                    <p id="bedroomsHint" class="text-[11px] text-vnGray mt-0.5">1 included</p>
                                 </div>
                                 <div class="flex items-center gap-1.5">
                                     <button id="bedMinusBtn" type="button" aria-label="Decrease bedrooms" class="w-8 h-8 rounded-lg border border-neutral-300 flex items-center justify-center text-base font-medium hover:border-black disabled:opacity-35 disabled:cursor-not-allowed transition">−</button>
@@ -146,7 +145,7 @@
                             <div class="border border-neutral-200 rounded-xl p-4 flex items-center justify-between gap-3">
                                 <div>
                                     <label for="bathroomsInput" class="block font-urbanist font-semibold text-sm">Bathrooms</label>
-                                    <p id="bathroomsHint" class="text-[11px] text-vnGray mt-0.5">2 included · +500 AED / extra</p>
+                                    <p id="bathroomsHint" class="text-[11px] text-vnGray mt-0.5">2 included</p>
                                 </div>
                                 <div class="flex items-center gap-1.5">
                                     <button id="bathMinusBtn" type="button" aria-label="Decrease bathrooms" class="w-8 h-8 rounded-lg border border-neutral-300 flex items-center justify-center text-base font-medium hover:border-black disabled:opacity-35 disabled:cursor-not-allowed transition">−</button>
@@ -175,14 +174,14 @@
                             </div>
 
                             <div>
-                                <div class="flex items-center justify-between mb-2">
-                                    <label class="block text-xs uppercase tracking-wider text-vnGray font-medium">Optional Add-Ons</label>
-                                    <button id="bundleQuickBtn" type="button" class="text-xs font-medium underline text-black hover:text-vnGray transition">
-                                        Add Both Add-Ons
-                                    </button>
-                                </div>
+                                <label class="block text-xs uppercase tracking-wider text-vnGray font-medium mb-2">Optional Add-Ons</label>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="addonOptions">
                                     <!-- Populated by JS -->
+                                </div>
+                                <div class="mt-3 flex justify-end">
+                                    <button id="bundleQuickBtn" type="button" class="text-xs font-medium px-3.5 py-2 rounded-lg border border-neutral-300 bg-neutral-50 text-black hover:border-black transition">
+                                        Select Full Package Bundle (Save 10%)
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -283,10 +282,6 @@
                                     <input id="developer" type="text" placeholder="e.g. Emaar, Nakheel, Sobha" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-medium mb-1">Street Address / Makani (optional)</label>
-                                    <input id="address" type="text" placeholder="Street or building address" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
-                                </div>
-                                <div>
                                     <label class="block text-xs font-medium mb-1">Purpose of Inspection *</label>
                                     <select id="inspectionPurpose" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:border-black">
                                         <option value="Handover">Handover</option>
@@ -369,6 +364,10 @@
                         <span class="text-vnGray">Slot (Dubai)</span>
                         <span id="sumSlot" class="font-medium text-right text-amber-600">Select a slot</span>
                     </div>
+                    <div id="sumInspectorRow" class="hidden flex justify-between gap-2">
+                        <span class="text-vnGray">Inspector</span>
+                        <span class="font-medium text-right">Andy Hopkins 🇦🇺</span>
+                    </div>
                 </div>
 
                 <div class="border-t border-neutral-200 pt-4">
@@ -427,14 +426,16 @@
             const finalAddon = Math.round(cfg.base * 0.50);
 
             if (state.addFollowup && state.addFinal) {
+                const subtotal = baseWithExtras + followupAddon + finalAddon;
+                const price = Math.round(subtotal * 0.9);
                 return {
                     key: 'full_bundle',
-                    label: 'Full Package Bundle',
+                    label: 'Full Package Bundle (10% Off)',
                     baseWithExtras,
                     followupAddon,
                     finalAddon,
-                    price: baseWithExtras + followupAddon + finalAddon,
-                    savings: 0
+                    price,
+                    savings: subtotal - price
                 };
             }
             if (state.addFollowup) {
@@ -500,16 +501,10 @@
             document.getElementById('bathMinusBtn').disabled = state.bathrooms <= cfg.minBaths;
             document.getElementById('bathPlusBtn').disabled = state.bathrooms >= 15;
 
-            const extraBeds = Math.max(0, state.bedrooms - cfg.includedBeds);
-            const extraBaths = Math.max(0, state.bathrooms - cfg.includedBaths);
             document.getElementById('bedroomsHint').textContent = cfg.maxBeds === 0
                 ? 'Studio (0 bedrooms)'
-                : extraBeds > 0
-                    ? `${cfg.includedBeds} included · +${(extraBeds * EXTRA_BED_AED).toLocaleString()} AED (${extraBeds} extra)`
-                    : `${cfg.includedBeds} included · +350 AED / extra`;
-            document.getElementById('bathroomsHint').textContent = extraBaths > 0
-                ? `${cfg.includedBaths} included · +${(extraBaths * EXTRA_BATH_AED).toLocaleString()} AED (${extraBaths} extra)`
-                : `${cfg.includedBaths} included · +500 AED / extra`;
+                : `${cfg.includedBeds} included`;
+            document.getElementById('bathroomsHint').textContent = `${cfg.includedBaths} included`;
         }
 
         function renderAddons() {
@@ -519,7 +514,10 @@
 
             const quickBtn = document.getElementById('bundleQuickBtn');
             const bothActive = state.addFollowup && state.addFinal;
-            quickBtn.textContent = bothActive ? 'Both Add-Ons Applied ✓' : 'Add Both Add-Ons';
+            quickBtn.textContent = bothActive ? 'Full Package Bundle Applied (10% Off) ✓' : 'Select Full Package Bundle (Save 10%)';
+            quickBtn.className = bothActive
+                ? 'text-xs font-medium px-3.5 py-2 rounded-lg border border-black bg-black text-white transition'
+                : 'text-xs font-medium px-3.5 py-2 rounded-lg border border-neutral-300 bg-neutral-50 text-black hover:border-black transition';
 
             const addons = [
                 {
@@ -578,15 +576,25 @@
             document.getElementById('sumProperty').textContent = `${state.propertyType} — ${bedText}, ${state.bathrooms} Bath`;
             document.getElementById('sumPackage').textContent = pkg.label;
             document.getElementById('sumTotal').textContent = `${pkg.price.toLocaleString()} AED`;
-            document.getElementById('sumSavings').classList.add('hidden');
+
+            const savingsEl = document.getElementById('sumSavings');
+            if (pkg.savings > 0) {
+                savingsEl.textContent = `You save ${pkg.savings.toLocaleString()} AED (10% Full Package discount)`;
+                savingsEl.classList.remove('hidden');
+            } else {
+                savingsEl.classList.add('hidden');
+            }
 
             const slotEl = document.getElementById('sumSlot');
+            const inspectorRow = document.getElementById('sumInspectorRow');
             if (state.selectedSlot) {
                 slotEl.textContent = formatDubaiDateTime(state.selectedSlot);
                 slotEl.classList.remove('text-amber-600');
+                inspectorRow.classList.remove('hidden');
             } else {
                 slotEl.textContent = 'Select a slot';
                 slotEl.classList.add('text-amber-600');
+                inspectorRow.classList.add('hidden');
             }
         }
 
@@ -807,7 +815,6 @@
                 areaCommunity: document.getElementById('areaCommunity').value.trim(),
                 unitNumber: document.getElementById('unitNumber').value.trim(),
                 developer: document.getElementById('developer').value.trim(),
-                address: document.getElementById('address').value.trim(),
                 inspectionPurpose: document.getElementById('inspectionPurpose').value,
                 dewaConnected: document.getElementById('dewaConnected').value === 'true',
                 accessInstructions: document.getElementById('accessInstructions').value.trim(),

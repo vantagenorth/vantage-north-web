@@ -129,8 +129,9 @@ function calculateQuote({ propertyType, bedrooms, bathrooms, bedroomTier, buaSqf
     priceAed = baseWithExtras + finalAddon;
     packageLabel = 'Initial + Final Handover Inspection';
   } else if (packageType === 'full_bundle') {
-    priceAed = baseWithExtras + followupAddon + finalAddon;
-    packageLabel = 'Full Package Bundle';
+    const subtotal = baseWithExtras + followupAddon + finalAddon;
+    priceAed = Math.round(subtotal * 0.9);
+    packageLabel = 'Full Package Bundle (10% Off)';
   } else if (packageType && packageType !== 'initial') {
     return { error: `Unsupported packageType: ${packageType}` };
   }
