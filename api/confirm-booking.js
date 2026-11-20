@@ -290,7 +290,7 @@ module.exports = async function handler(req, res) {
         const unit = await insertUnit({
           unitNo: b.unitNumber,
           type: b.propertyType,
-          beds: b.bedroomTier,
+          beds: b.bedrooms ?? b.bedroomTier,
           developer: developerId || (b.developer !== 'Not specified' ? b.developer : null),
           project: projectId || b.projectName,
           dewaActive: b.dewaConnected,

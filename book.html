@@ -82,28 +82,33 @@
                         <h2 class="text-xl font-semibold">Property Type &amp; Package</h2>
                     </div>
 
-                    <!-- Property Type (4 options including Luxury) -->
+                    <!-- Property Type (5 options including Studio & Luxury) -->
                     <label class="block text-xs uppercase tracking-wider text-vnGray font-medium mb-2">Property Type</label>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6" id="propertyTypeGroup">
-                        <button type="button" data-type="Apartment" class="option-card active border border-neutral-200 rounded-xl p-3.5 text-left hover:border-neutral-400">
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5 mb-6" id="propertyTypeGroup">
+                        <button type="button" data-type="Studio" class="option-card border border-neutral-200 rounded-xl p-3 text-left hover:border-neutral-400">
+                            <svg class="w-5 h-5 mb-2 text-vnDarkGray" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M4 21V9l8-5 8 5v12M9 21v-6h6v6"></path></svg>
+                            <div class="font-urbanist font-semibold text-sm sm:text-base">Studio</div>
+                            <div class="text-xs text-vnGray mt-0.5">From 1,100 AED</div>
+                        </button>
+                        <button type="button" data-type="Apartment" class="option-card active border border-neutral-200 rounded-xl p-3 text-left hover:border-neutral-400">
                             <svg class="w-5 h-5 mb-2 text-vnDarkGray" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4M9 9v.01M9 12v.01M9 15v.01M9 18v.01"></path></svg>
                             <div class="font-urbanist font-semibold text-sm sm:text-base">Apartment</div>
-                            <div class="text-xs text-vnGray mt-0.5">Studio – 3 Bed</div>
+                            <div class="text-xs text-vnGray mt-0.5">From 1,800 AED</div>
                         </button>
-                        <button type="button" data-type="Townhouse" class="option-card border border-neutral-200 rounded-xl p-3.5 text-left hover:border-neutral-400">
+                        <button type="button" data-type="Townhouse" class="option-card border border-neutral-200 rounded-xl p-3 text-left hover:border-neutral-400">
                             <svg class="w-5 h-5 mb-2 text-vnDarkGray" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1"></path></svg>
                             <div class="font-urbanist font-semibold text-sm sm:text-base">Townhouse</div>
-                            <div class="text-xs text-vnGray mt-0.5">3–4 Bedrooms</div>
+                            <div class="text-xs text-vnGray mt-0.5">From 3,200 AED</div>
                         </button>
-                        <button type="button" data-type="Villa" class="option-card border border-neutral-200 rounded-xl p-3.5 text-left hover:border-neutral-400">
+                        <button type="button" data-type="Villa" class="option-card border border-neutral-200 rounded-xl p-3 text-left hover:border-neutral-400">
                             <svg class="w-5 h-5 mb-2 text-vnDarkGray" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M2 21h20M4 21V10l8-6 8 6v11M9 21v-6h6v6M12 7v.01"></path></svg>
                             <div class="font-urbanist font-semibold text-sm sm:text-base">Villa</div>
-                            <div class="text-xs text-vnGray mt-0.5">4–5 Bedrooms</div>
+                            <div class="text-xs text-vnGray mt-0.5">From 6,500 AED</div>
                         </button>
-                        <button type="button" data-type="Luxury" class="option-card border border-neutral-200 rounded-xl p-3.5 text-left hover:border-neutral-400">
+                        <button type="button" data-type="Luxury" class="option-card border border-neutral-200 rounded-xl p-3 text-left hover:border-neutral-400 col-span-2 sm:col-span-1">
                             <svg class="w-5 h-5 mb-2 text-vnDarkGray" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5L12 3z"></path></svg>
                             <div class="font-urbanist font-semibold text-sm sm:text-base">Luxury</div>
-                            <div class="text-xs text-vnGray mt-0.5">6+ Bed / 6,500+ sq ft</div>
+                            <div class="text-xs text-vnGray mt-0.5">By request</div>
                         </button>
                     </div>
 
@@ -112,7 +117,7 @@
                         <span class="inline-block text-[11px] uppercase tracking-widest bg-white/15 px-3 py-1 rounded-full">Luxury Homes</span>
                         <h3 class="text-2xl font-semibold">Contact us for pricing</h3>
                         <p class="text-sm text-neutral-300 max-w-md mx-auto leading-relaxed">
-                            Villas exceeding 6,500 sq ft or 5 bedrooms receive a tailored multi-inspector scope and bespoke pricing. Chat with our team directly on WhatsApp.
+                            Luxury properties receive a tailored multi-inspector scope and bespoke pricing. Chat with our team directly on WhatsApp.
                         </p>
                         <div class="pt-2">
                             <a href="https://wa.me/971585565311?text=Hi%20Vantage%20North%2C%20I%20would%20like%20pricing%20for%20a%20Luxury%20Home%20inspection." target="_blank" rel="noopener"
@@ -124,35 +129,56 @@
 
                     <!-- Standard Property Size & Packages -->
                     <div id="standardPropertyConfig">
-                        <!-- Bedroom Tier -->
-                        <div class="mb-6">
-                            <label class="block text-xs uppercase tracking-wider text-vnGray font-medium mb-2">Size / Bedrooms</label>
-                            <div id="bedroomOptions" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5"></div>
+                        <!-- Bedrooms & Bathrooms Steppers -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                            <div class="border border-neutral-200 rounded-xl p-4 flex items-center justify-between gap-3">
+                                <div>
+                                    <label for="bedroomsInput" class="block font-urbanist font-semibold text-sm">Bedrooms</label>
+                                    <p id="bedroomsHint" class="text-[11px] text-vnGray mt-0.5">1 included · +350 AED / extra</p>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <button id="bedMinusBtn" type="button" aria-label="Decrease bedrooms" class="w-8 h-8 rounded-lg border border-neutral-300 flex items-center justify-center text-base font-medium hover:border-black disabled:opacity-35 disabled:cursor-not-allowed transition">−</button>
+                                    <input id="bedroomsInput" type="number" min="0" max="15" value="1" class="w-12 text-center font-urbanist font-bold text-base border border-neutral-200 rounded-lg py-1 focus:outline-none focus:border-black">
+                                    <button id="bedPlusBtn" type="button" aria-label="Increase bedrooms" class="w-8 h-8 rounded-lg border border-neutral-300 flex items-center justify-center text-base font-medium hover:border-black disabled:opacity-35 disabled:cursor-not-allowed transition">+</button>
+                                </div>
+                            </div>
+
+                            <div class="border border-neutral-200 rounded-xl p-4 flex items-center justify-between gap-3">
+                                <div>
+                                    <label for="bathroomsInput" class="block font-urbanist font-semibold text-sm">Bathrooms</label>
+                                    <p id="bathroomsHint" class="text-[11px] text-vnGray mt-0.5">2 included · +500 AED / extra</p>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <button id="bathMinusBtn" type="button" aria-label="Decrease bathrooms" class="w-8 h-8 rounded-lg border border-neutral-300 flex items-center justify-center text-base font-medium hover:border-black disabled:opacity-35 disabled:cursor-not-allowed transition">−</button>
+                                    <input id="bathroomsInput" type="number" min="1" max="15" value="2" class="w-12 text-center font-urbanist font-bold text-base border border-neutral-200 rounded-lg py-1 focus:outline-none focus:border-black">
+                                    <button id="bathPlusBtn" type="button" aria-label="Increase bathrooms" class="w-8 h-8 rounded-lg border border-neutral-300 flex items-center justify-center text-base font-medium hover:border-black disabled:opacity-35 disabled:cursor-not-allowed transition">+</button>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Base Inspection + Add-ons -->
+                        <!-- Base Inspection (Pre-Selected Dark Card) + Add-ons -->
                         <div class="space-y-4">
-                            <div class="border border-black rounded-xl p-4 bg-neutral-50/70 flex items-center justify-between gap-4">
+                            <div class="border border-neutral-900 rounded-xl p-4 sm:p-5 bg-neutral-900 text-white flex items-center justify-between gap-4 shadow-sm">
                                 <div class="flex items-start gap-3">
-                                    <div class="w-9 h-9 rounded-lg bg-black text-white flex items-center justify-center shrink-0 mt-0.5">
+                                    <div class="w-9 h-9 rounded-lg bg-white text-black flex items-center justify-center shrink-0 mt-0.5">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
                                     </div>
                                     <div>
-                                        <div class="flex items-center gap-2">
+                                        <div class="flex flex-wrap items-center gap-2">
                                             <span class="font-urbanist font-semibold text-base">Initial Inspection</span>
-                                            <span class="text-[11px] px-2 py-0.5 rounded-full bg-black text-white">Included</span>
+                                            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-white/15 text-white font-medium">Selected</span>
                                         </div>
-                                        <p class="text-xs text-vnGray mt-1">Comprehensive RERA-certified snagging &amp; interactive digital report within 24h.</p>
+                                        <p class="text-xs text-neutral-300 mt-1">Comprehensive RERA-certified snagging &amp; interactive digital report within 24h.</p>
                                     </div>
                                 </div>
-                                <div id="basePriceDisplay" class="font-urbanist font-bold text-lg whitespace-nowrap">1,100 AED</div>
+                                <div id="basePriceDisplay" class="font-urbanist font-bold text-lg whitespace-nowrap">1,800 AED</div>
                             </div>
 
                             <div>
                                 <div class="flex items-center justify-between mb-2">
                                     <label class="block text-xs uppercase tracking-wider text-vnGray font-medium">Optional Add-Ons</label>
                                     <button id="bundleQuickBtn" type="button" class="text-xs font-medium underline text-black hover:text-vnGray transition">
-                                        Add Full Bundle (Save 125 AED)
+                                        Add Both Add-Ons
                                     </button>
                                 </div>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="addonOptions">
@@ -367,41 +393,18 @@
 
     <script>
         const PRICING = {
-            Apartment: {
-                'Studio': {
-                    base: 1100, followupAddon: 375, finalAddon: 550, bundle: 1900, bundleSavings: 125
-                },
-                '1 Bedroom': {
-                    base: 2000, followupAddon: 700, finalAddon: 1000, bundle: 3500, bundleSavings: 200
-                },
-                '2 Bedroom': {
-                    base: 3100, followupAddon: 1075, finalAddon: 1550, bundle: 5400, bundleSavings: 325
-                },
-                '3 Bedroom': {
-                    base: 4500, followupAddon: 1575, finalAddon: 2250, bundle: 7900, bundleSavings: 425
-                }
-            },
-            Townhouse: {
-                '3 Bedrooms': {
-                    base: 6500, followupAddon: 2275, finalAddon: 3250, bundle: 11400, bundleSavings: 625
-                },
-                '4 Bedrooms': {
-                    base: 6500, followupAddon: 2275, finalAddon: 3250, bundle: 11400, bundleSavings: 625
-                }
-            },
-            Villa: {
-                '4 Bedrooms': {
-                    base: 10500, followupAddon: 3675, finalAddon: 5250, bundle: 18400, bundleSavings: 1025
-                },
-                '5 Bedrooms': {
-                    base: 10500, followupAddon: 3675, finalAddon: 5250, bundle: 18400, bundleSavings: 1025
-                }
-            }
+            Studio: { base: 1100, includedBeds: 0, includedBaths: 1, minBeds: 0, maxBeds: 0, minBaths: 1 },
+            Apartment: { base: 1800, includedBeds: 1, includedBaths: 2, minBeds: 1, maxBeds: 15, minBaths: 1 },
+            Townhouse: { base: 3200, includedBeds: 3, includedBaths: 3, minBeds: 1, maxBeds: 15, minBaths: 1 },
+            Villa: { base: 6500, includedBeds: 4, includedBaths: 4, minBeds: 1, maxBeds: 15, minBaths: 1 }
         };
+        const EXTRA_BED_AED = 350;
+        const EXTRA_BATH_AED = 500;
 
         const state = {
             propertyType: 'Apartment',
-            bedroomTier: 'Studio',
+            bedrooms: 1,
+            bathrooms: 2,
             addFollowup: false,
             addFinal: false,
             slotsByDate: {},
@@ -416,20 +419,32 @@
         }
 
         function getPackageSelection() {
-            const p = PRICING[state.propertyType][state.bedroomTier];
+            const cfg = PRICING[state.propertyType];
+            const extraBeds = Math.max(0, state.bedrooms - cfg.includedBeds);
+            const extraBaths = Math.max(0, state.bathrooms - cfg.includedBaths);
+            const baseWithExtras = cfg.base + extraBeds * EXTRA_BED_AED + extraBaths * EXTRA_BATH_AED;
+            const followupAddon = Math.round(cfg.base * 0.40);
+            const finalAddon = Math.round(cfg.base * 0.50);
+
             if (state.addFollowup && state.addFinal) {
                 return {
                     key: 'full_bundle',
                     label: 'Full Package Bundle',
-                    price: p.bundle,
-                    savings: p.bundleSavings
+                    baseWithExtras,
+                    followupAddon,
+                    finalAddon,
+                    price: baseWithExtras + followupAddon + finalAddon,
+                    savings: 0
                 };
             }
             if (state.addFollowup) {
                 return {
                     key: 'initial_followup',
                     label: 'Initial + Developer Follow-Up',
-                    price: p.base + p.followupAddon,
+                    baseWithExtras,
+                    followupAddon,
+                    finalAddon,
+                    price: baseWithExtras + followupAddon,
                     savings: 0
                 };
             }
@@ -437,14 +452,20 @@
                 return {
                     key: 'initial_final',
                     label: 'Initial + Final Handover Inspection',
-                    price: p.base + p.finalAddon,
+                    baseWithExtras,
+                    followupAddon,
+                    finalAddon,
+                    price: baseWithExtras + finalAddon,
                     savings: 0
                 };
             }
             return {
                 key: 'initial',
                 label: 'Initial Inspection',
-                price: p.base,
+                baseWithExtras,
+                followupAddon,
+                finalAddon,
+                price: baseWithExtras,
                 savings: 0
             };
         }
@@ -457,51 +478,63 @@
             document.getElementById('summaryAside').classList.toggle('hidden', isLuxury);
         }
 
-        function renderBedrooms() {
+        function renderSteppers() {
             if (state.propertyType === 'Luxury') return;
-            const container = document.getElementById('bedroomOptions');
-            const tiers = Object.keys(PRICING[state.propertyType]);
-            if (!tiers.includes(state.bedroomTier)) {
-                state.bedroomTier = tiers[0];
-            }
-            container.innerHTML = tiers.map(t => {
-                const active = t === state.bedroomTier;
-                return `<button type="button" data-tier="${t}" class="option-card ${active ? 'active' : ''} border border-neutral-200 rounded-xl px-3 py-2.5 text-sm font-medium text-left hover:border-neutral-400">${t}</button>`;
-            }).join('');
+            const cfg = PRICING[state.propertyType];
+            state.bedrooms = Math.max(cfg.minBeds, Math.min(cfg.maxBeds, state.bedrooms));
+            state.bathrooms = Math.max(cfg.minBaths, Math.min(15, state.bathrooms));
 
-            container.querySelectorAll('button').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    state.bedroomTier = btn.dataset.tier;
-                    renderBedrooms();
-                    renderAddons();
-                    loadSlots();
-                });
-            });
+            const bedInput = document.getElementById('bedroomsInput');
+            const bathInput = document.getElementById('bathroomsInput');
+            bedInput.min = cfg.minBeds;
+            bedInput.max = cfg.maxBeds;
+            bedInput.value = state.bedrooms;
+            bedInput.disabled = cfg.maxBeds === 0;
+
+            bathInput.min = cfg.minBaths;
+            bathInput.max = 15;
+            bathInput.value = state.bathrooms;
+
+            document.getElementById('bedMinusBtn').disabled = state.bedrooms <= cfg.minBeds;
+            document.getElementById('bedPlusBtn').disabled = state.bedrooms >= cfg.maxBeds;
+            document.getElementById('bathMinusBtn').disabled = state.bathrooms <= cfg.minBaths;
+            document.getElementById('bathPlusBtn').disabled = state.bathrooms >= 15;
+
+            const extraBeds = Math.max(0, state.bedrooms - cfg.includedBeds);
+            const extraBaths = Math.max(0, state.bathrooms - cfg.includedBaths);
+            document.getElementById('bedroomsHint').textContent = cfg.maxBeds === 0
+                ? 'Studio (0 bedrooms)'
+                : extraBeds > 0
+                    ? `${cfg.includedBeds} included · +${(extraBeds * EXTRA_BED_AED).toLocaleString()} AED (${extraBeds} extra)`
+                    : `${cfg.includedBeds} included · +350 AED / extra`;
+            document.getElementById('bathroomsHint').textContent = extraBaths > 0
+                ? `${cfg.includedBaths} included · +${(extraBaths * EXTRA_BATH_AED).toLocaleString()} AED (${extraBaths} extra)`
+                : `${cfg.includedBaths} included · +500 AED / extra`;
         }
 
         function renderAddons() {
             if (state.propertyType === 'Luxury') return;
-            const p = PRICING[state.propertyType][state.bedroomTier];
-            document.getElementById('basePriceDisplay').textContent = `${p.base.toLocaleString()} AED`;
+            const pkg = getPackageSelection();
+            document.getElementById('basePriceDisplay').textContent = `${pkg.baseWithExtras.toLocaleString()} AED`;
 
             const quickBtn = document.getElementById('bundleQuickBtn');
             const bothActive = state.addFollowup && state.addFinal;
-            quickBtn.textContent = bothActive ? 'Full Bundle Applied ✓' : `Add Full Bundle (Save ${p.bundleSavings.toLocaleString()} AED)`;
+            quickBtn.textContent = bothActive ? 'Both Add-Ons Applied ✓' : 'Add Both Add-Ons';
 
             const addons = [
                 {
                     id: 'followup',
-                    title: 'Developer Follow-Up',
+                    title: 'Developer Follow-Up (40%)',
                     desc: 'We follow up directly with the developer to ensure all reported defects are resolved.',
-                    priceText: `+${p.followupAddon.toLocaleString()} AED`,
+                    priceText: `+${pkg.followupAddon.toLocaleString()} AED`,
                     active: state.addFollowup,
                     icon: `<svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>`
                 },
                 {
                     id: 'final',
-                    title: 'Final Handover Inspection',
+                    title: 'Final Handover Inspection (50%)',
                     desc: 'On-site final inspection to confirm all rectification work was completed correctly before handover.',
-                    priceText: `+${p.finalAddon.toLocaleString()} AED`,
+                    priceText: `+${pkg.finalAddon.toLocaleString()} AED`,
                     active: state.addFinal,
                     icon: `<svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>`
                 }
@@ -541,17 +574,11 @@
         function updateSummary() {
             if (state.propertyType === 'Luxury') return;
             const pkg = getPackageSelection();
-            document.getElementById('sumProperty').textContent = `${state.propertyType} — ${state.bedroomTier}`;
+            const bedText = state.propertyType === 'Studio' ? 'Studio' : `${state.bedrooms} Bed`;
+            document.getElementById('sumProperty').textContent = `${state.propertyType} — ${bedText}, ${state.bathrooms} Bath`;
             document.getElementById('sumPackage').textContent = pkg.label;
             document.getElementById('sumTotal').textContent = `${pkg.price.toLocaleString()} AED`;
-
-            const savingsEl = document.getElementById('sumSavings');
-            if (pkg.savings > 0) {
-                savingsEl.textContent = `You save ${pkg.savings.toLocaleString()} AED with the Full Bundle`;
-                savingsEl.classList.remove('hidden');
-            } else {
-                savingsEl.classList.add('hidden');
-            }
+            document.getElementById('sumSavings').classList.add('hidden');
 
             const slotEl = document.getElementById('sumSlot');
             if (state.selectedSlot) {
@@ -591,7 +618,7 @@
             try {
                 const params = new URLSearchParams({
                     propertyType: state.propertyType,
-                    bedroomTier: state.bedroomTier,
+                    bedrooms: String(state.bedrooms),
                 });
                 const res = await fetch(`/api/slots?${params.toString()}`);
                 const data = await res.json();
@@ -708,14 +735,54 @@
             renderAddons();
         });
 
+        document.getElementById('bedMinusBtn').addEventListener('click', () => {
+            state.bedrooms -= 1;
+            renderSteppers();
+            renderAddons();
+            loadSlots();
+        });
+        document.getElementById('bedPlusBtn').addEventListener('click', () => {
+            state.bedrooms += 1;
+            renderSteppers();
+            renderAddons();
+            loadSlots();
+        });
+        document.getElementById('bedroomsInput').addEventListener('change', (e) => {
+            state.bedrooms = parseInt(e.target.value, 10) || 0;
+            renderSteppers();
+            renderAddons();
+            loadSlots();
+        });
+
+        document.getElementById('bathMinusBtn').addEventListener('click', () => {
+            state.bathrooms -= 1;
+            renderSteppers();
+            renderAddons();
+        });
+        document.getElementById('bathPlusBtn').addEventListener('click', () => {
+            state.bathrooms += 1;
+            renderSteppers();
+            renderAddons();
+        });
+        document.getElementById('bathroomsInput').addEventListener('change', (e) => {
+            state.bathrooms = parseInt(e.target.value, 10) || 1;
+            renderSteppers();
+            renderAddons();
+        });
+
         document.querySelectorAll('#propertyTypeGroup button').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('#propertyTypeGroup button').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 state.propertyType = btn.dataset.type;
+                if (state.propertyType !== 'Luxury') {
+                    const cfg = PRICING[state.propertyType];
+                    state.bedrooms = cfg.includedBeds;
+                    state.bathrooms = cfg.includedBaths;
+                }
                 renderPropertyMode();
                 if (state.propertyType !== 'Luxury') {
-                    renderBedrooms();
+                    renderSteppers();
                     renderAddons();
                     loadSlots();
                 }
@@ -729,7 +796,8 @@
             const pkg = getPackageSelection();
             const payload = {
                 propertyType: state.propertyType,
-                bedroomTier: state.bedroomTier,
+                bedrooms: state.bedrooms,
+                bathrooms: state.bathrooms,
                 packageType: pkg.key,
                 scheduledStart: state.selectedSlot,
                 fullName: document.getElementById('fullName').value.trim(),
@@ -794,7 +862,7 @@
 
         // Initialize
         renderPropertyMode();
-        renderBedrooms();
+        renderSteppers();
         renderAddons();
         loadSlots();
     </script>

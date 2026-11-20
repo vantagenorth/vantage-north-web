@@ -6,8 +6,8 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const { propertyType, bedroomTier } = req.query || {};
-    const tier = resolveTierConfig(propertyType, bedroomTier);
+    const { propertyType, bedroomTier, bedrooms } = req.query || {};
+    const tier = resolveTierConfig(propertyType, bedrooms ?? bedroomTier);
     if (!tier) {
       return res.status(400).json({ error: 'Invalid propertyType or bedroomTier' });
     }

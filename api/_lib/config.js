@@ -1,273 +1,44 @@
-const PRICING_TIERS = {
+const BASE_RATES = {
+  Studio: {
+    baseRate: 1100,
+    includedBedrooms: 0,
+    includedBathrooms: 1,
+    minBedrooms: 0,
+    maxBedrooms: 0,
+    minBathrooms: 1,
+  },
   Apartment: {
-    Studio: {
-      tierKey: 'Studio',
-      label: 'Studio',
-      benchmarkSqft: 450,
-      effectiveRate: 2.44,
-      calEventTypeId: 7985836,
-      durationMinutes: 120,
-      kindOfApartment: 'Studio',
-      packages: {
-        initial: {
-          key: 'initial',
-          label: 'Initial Inspection',
-          description: 'Full RERA-certified snagging inspection & interactive digital report within 24h.',
-          priceAed: 1100,
-          addonAed: 0,
-          savingsAed: 0,
-        },
-        initial_followup: {
-          key: 'initial_followup',
-          label: 'Initial + Developer Follow-Up',
-          description: 'Initial inspection plus direct follow-up with the developer to ensure defects are resolved.',
-          priceAed: 1475,
-          addonAed: 375,
-          savingsAed: 0,
-        },
-        initial_final: {
-          key: 'initial_final',
-          label: 'Initial + Final Handover Inspection',
-          description: 'Initial inspection plus final on-site inspection to confirm rectification work was completed correctly.',
-          priceAed: 1650,
-          addonAed: 550,
-          savingsAed: 0,
-        },
-        full_bundle: {
-          key: 'full_bundle',
-          label: 'Full Package Bundle',
-          description: 'Initial Inspection + Developer Follow-Up + Final Handover Inspection.',
-          priceAed: 1900,
-          addonAed: 0,
-          savingsAed: 125,
-        },
-      },
-    },
-    '1 Bedroom': {
-      tierKey: '1 Bedroom',
-      label: '1 Bedroom',
-      benchmarkSqft: 800,
-      effectiveRate: 2.5,
-      calEventTypeId: 7985836,
-      durationMinutes: 120,
-      kindOfApartment: '1 Bedroom',
-      packages: {
-        initial: {
-          key: 'initial',
-          label: 'Initial Inspection',
-          description: 'Full RERA-certified snagging inspection & interactive digital report within 24h.',
-          priceAed: 2000,
-          addonAed: 0,
-          savingsAed: 0,
-        },
-        initial_followup: {
-          key: 'initial_followup',
-          label: 'Initial + Developer Follow-Up',
-          description: 'Initial inspection plus direct follow-up with the developer to ensure defects are resolved.',
-          priceAed: 2700,
-          addonAed: 700,
-          savingsAed: 0,
-        },
-        initial_final: {
-          key: 'initial_final',
-          label: 'Initial + Final Handover Inspection',
-          description: 'Initial inspection plus final on-site inspection to confirm rectification work was completed correctly.',
-          priceAed: 3000,
-          addonAed: 1000,
-          savingsAed: 0,
-        },
-        full_bundle: {
-          key: 'full_bundle',
-          label: 'Full Package Bundle',
-          description: 'Initial Inspection + Developer Follow-Up + Final Handover Inspection.',
-          priceAed: 3500,
-          addonAed: 0,
-          savingsAed: 200,
-        },
-      },
-    },
-    '2 Bedroom': {
-      tierKey: '2 Bedroom',
-      label: '2 Bedroom',
-      benchmarkSqft: 1250,
-      effectiveRate: 2.48,
-      calEventTypeId: 7985837,
-      durationMinutes: 180,
-      kindOfApartment: '1 Bedroom',
-      packages: {
-        initial: {
-          key: 'initial',
-          label: 'Initial Inspection',
-          description: 'Full RERA-certified snagging inspection & interactive digital report within 24h.',
-          priceAed: 3100,
-          addonAed: 0,
-          savingsAed: 0,
-        },
-        initial_followup: {
-          key: 'initial_followup',
-          label: 'Initial + Developer Follow-Up',
-          description: 'Initial inspection plus direct follow-up with the developer to ensure defects are resolved.',
-          priceAed: 4175,
-          addonAed: 1075,
-          savingsAed: 0,
-        },
-        initial_final: {
-          key: 'initial_final',
-          label: 'Initial + Final Handover Inspection',
-          description: 'Initial inspection plus final on-site inspection to confirm rectification work was completed correctly.',
-          priceAed: 4650,
-          addonAed: 1550,
-          savingsAed: 0,
-        },
-        full_bundle: {
-          key: 'full_bundle',
-          label: 'Full Package Bundle',
-          description: 'Initial Inspection + Developer Follow-Up + Final Handover Inspection.',
-          priceAed: 5400,
-          addonAed: 0,
-          savingsAed: 325,
-        },
-      },
-    },
-    '3 Bedroom': {
-      tierKey: '3 Bedroom',
-      label: '3 Bedroom',
-      benchmarkSqft: 1800,
-      effectiveRate: 2.5,
-      calEventTypeId: 7985837,
-      durationMinutes: 180,
-      kindOfApartment: '1 Bedroom',
-      packages: {
-        initial: {
-          key: 'initial',
-          label: 'Initial Inspection',
-          description: 'Full RERA-certified snagging inspection & interactive digital report within 24h.',
-          priceAed: 4500,
-          addonAed: 0,
-          savingsAed: 0,
-        },
-        initial_followup: {
-          key: 'initial_followup',
-          label: 'Initial + Developer Follow-Up',
-          description: 'Initial inspection plus direct follow-up with the developer to ensure defects are resolved.',
-          priceAed: 6075,
-          addonAed: 1575,
-          savingsAed: 0,
-        },
-        initial_final: {
-          key: 'initial_final',
-          label: 'Initial + Final Handover Inspection',
-          description: 'Initial inspection plus final on-site inspection to confirm rectification work was completed correctly.',
-          priceAed: 6750,
-          addonAed: 2250,
-          savingsAed: 0,
-        },
-        full_bundle: {
-          key: 'full_bundle',
-          label: 'Full Package Bundle',
-          description: 'Initial Inspection + Developer Follow-Up + Final Handover Inspection.',
-          priceAed: 7900,
-          addonAed: 0,
-          savingsAed: 425,
-        },
-      },
-    },
+    baseRate: 1800,
+    includedBedrooms: 1,
+    includedBathrooms: 2,
+    minBedrooms: 1,
+    maxBedrooms: 15,
+    minBathrooms: 1,
   },
   Townhouse: {
-    '3–4 Bed': {
-      tierKey: '3–4 Bed',
-      label: 'Townhouse (3–4 Bed)',
-      benchmarkSqft: 2600,
-      effectiveRate: 2.5,
-      calEventTypeId: 7985838,
-      durationMinutes: 240,
-      kindOfApartment: '1 Bedroom',
-      packages: {
-        initial: {
-          key: 'initial',
-          label: 'Initial Inspection',
-          description: 'Full RERA-certified snagging inspection & interactive digital report within 24h.',
-          priceAed: 6500,
-          addonAed: 0,
-          savingsAed: 0,
-        },
-        initial_followup: {
-          key: 'initial_followup',
-          label: 'Initial + Developer Follow-Up',
-          description: 'Initial inspection plus direct follow-up with the developer to ensure defects are resolved.',
-          priceAed: 8775,
-          addonAed: 2275,
-          savingsAed: 0,
-        },
-        initial_final: {
-          key: 'initial_final',
-          label: 'Initial + Final Handover Inspection',
-          description: 'Initial inspection plus final on-site inspection to confirm rectification work was completed correctly.',
-          priceAed: 9750,
-          addonAed: 3250,
-          savingsAed: 0,
-        },
-        full_bundle: {
-          key: 'full_bundle',
-          label: 'Full Package Bundle',
-          description: 'Initial Inspection + Developer Follow-Up + Final Handover Inspection.',
-          priceAed: 11400,
-          addonAed: 0,
-          savingsAed: 625,
-        },
-      },
-    },
+    baseRate: 3200,
+    includedBedrooms: 3,
+    includedBathrooms: 3,
+    minBedrooms: 1,
+    maxBedrooms: 15,
+    minBathrooms: 1,
   },
   Villa: {
-    '4–5 Bed': {
-      tierKey: '4–5 Bed',
-      label: 'Standard Villa (4–5 Bed)',
-      benchmarkSqft: 4200,
-      effectiveRate: 2.5,
-      calEventTypeId: 7985838,
-      durationMinutes: 240,
-      kindOfApartment: '1 Bedroom',
-      packages: {
-        initial: {
-          key: 'initial',
-          label: 'Initial Inspection',
-          description: 'Full RERA-certified snagging inspection & interactive digital report within 24h.',
-          priceAed: 10500,
-          addonAed: 0,
-          savingsAed: 0,
-        },
-        initial_followup: {
-          key: 'initial_followup',
-          label: 'Initial + Developer Follow-Up',
-          description: 'Initial inspection plus direct follow-up with the developer to ensure defects are resolved.',
-          priceAed: 14175,
-          addonAed: 3675,
-          savingsAed: 0,
-        },
-        initial_final: {
-          key: 'initial_final',
-          label: 'Initial + Final Handover Inspection',
-          description: 'Initial inspection plus final on-site inspection to confirm rectification work was completed correctly.',
-          priceAed: 15750,
-          addonAed: 5250,
-          savingsAed: 0,
-        },
-        full_bundle: {
-          key: 'full_bundle',
-          label: 'Full Package Bundle (All 3 Visits)',
-          description: 'Initial Inspection + Follow-Up Snag Check + Final Handover Sign-Off.',
-          priceAed: 18400,
-          addonAed: 0,
-          savingsAed: 1025,
-        },
-      },
-    },
+    baseRate: 6500,
+    includedBedrooms: 4,
+    includedBathrooms: 4,
+    minBedrooms: 1,
+    maxBedrooms: 15,
+    minBathrooms: 1,
   },
 };
 
+const EXTRA_BEDROOM_AED = 350;
+const EXTRA_BATHROOM_AED = 500;
 const LUXURY_VILLA_MAX_SQFT = 6500;
 
 function isLuxuryHome(propertyType, bedroomTier, buaSqft) {
+  if (propertyType === 'Luxury') return true;
   if (propertyType !== 'Villa') return false;
   if (bedroomTier === '6+ Bed' || bedroomTier === '6+ Bedrooms' || bedroomTier === 'Luxury Home') {
     return true;
@@ -279,58 +50,109 @@ function isLuxuryHome(propertyType, bedroomTier, buaSqft) {
   return false;
 }
 
-function resolveTierConfig(propertyType, bedroomTier) {
-  const byType = PRICING_TIERS[propertyType];
-  if (!byType) return null;
-  if (byType[bedroomTier]) return byType[bedroomTier];
-  if (propertyType === 'Townhouse' && (bedroomTier === '3 Bedrooms' || bedroomTier === '4 Bedrooms')) {
-    return byType['3–4 Bed'];
+function getCalEventConfig(propertyType, bedrooms) {
+  const beds = Number(bedrooms) || 0;
+  if (propertyType === 'Studio' || (propertyType === 'Apartment' && beds <= 1)) {
+    return { calEventTypeId: 7985836, durationMinutes: 120 };
   }
-  if (propertyType === 'Villa' && (bedroomTier === '4 Bedrooms' || bedroomTier === '5 Bedrooms')) {
-    return byType['4–5 Bed'];
+  if (propertyType === 'Apartment') {
+    return { calEventTypeId: 7985837, durationMinutes: 180 };
   }
-  return null;
+  return { calEventTypeId: 7985838, durationMinutes: 240 };
 }
 
-function calculateQuote({ propertyType, bedroomTier, buaSqft, packageType }) {
+function resolveTierConfig(propertyType, bedroomTierOrBeds) {
+  const cfg = BASE_RATES[propertyType];
+  if (!cfg) return null;
+  let beds = cfg.includedBedrooms;
+  if (bedroomTierOrBeds !== undefined && bedroomTierOrBeds !== null && bedroomTierOrBeds !== '') {
+    const num = Number(bedroomTierOrBeds);
+    if (Number.isFinite(num)) {
+      beds = num;
+    } else if (String(bedroomTierOrBeds).toLowerCase().includes('studio')) {
+      beds = 0;
+    } else {
+      const m = String(bedroomTierOrBeds).match(/\d+/);
+      if (m) beds = Number(m[0]);
+    }
+  }
+  const cal = getCalEventConfig(propertyType, beds);
+  return {
+    ...cfg,
+    ...cal,
+  };
+}
+
+function calculateQuote({ propertyType, bedrooms, bathrooms, bedroomTier, buaSqft, packageType }) {
   if (isLuxuryHome(propertyType, bedroomTier, buaSqft)) {
     return {
       isLuxuryQuote: true,
       propertyType,
-      bedroomTier,
+      bedroomTier: 'Luxury',
       packageType: 'custom_quote',
       packageLabel: 'Luxury Home — Price on Request',
       priceAed: null,
       amountFils: null,
       calEventTypeId: 7985838,
-      durationMinutes: 180,
-      kindOfApartment: '1 Bedroom',
+      durationMinutes: 240,
+      kindOfApartment: 'Luxury',
     };
   }
 
-  const tier = resolveTierConfig(propertyType, bedroomTier);
-  if (!tier) {
-    return { error: `Unsupported propertyType/bedroomTier: ${propertyType} / ${bedroomTier}` };
+  const cfg = BASE_RATES[propertyType];
+  if (!cfg) {
+    return { error: `Unsupported propertyType: ${propertyType}` };
   }
 
-  const pkg = tier.packages[packageType];
-  if (!pkg) {
+  const beds = Math.max(
+    cfg.minBedrooms,
+    Math.min(cfg.maxBedrooms, Number.isFinite(Number(bedrooms)) ? Number(bedrooms) : cfg.includedBedrooms)
+  );
+  const baths = Math.max(
+    cfg.minBathrooms,
+    Math.min(15, Number.isFinite(Number(bathrooms)) ? Number(bathrooms) : cfg.includedBathrooms)
+  );
+
+  const extraBedrooms = Math.max(0, beds - cfg.includedBedrooms);
+  const extraBathrooms = Math.max(0, baths - cfg.includedBathrooms);
+  const baseWithExtras = cfg.baseRate + extraBedrooms * EXTRA_BEDROOM_AED + extraBathrooms * EXTRA_BATHROOM_AED;
+
+  const followupAddon = Math.round(cfg.baseRate * 0.4);
+  const finalAddon = Math.round(cfg.baseRate * 0.5);
+
+  let priceAed = baseWithExtras;
+  let packageLabel = 'Initial Inspection';
+  if (packageType === 'initial_followup') {
+    priceAed = baseWithExtras + followupAddon;
+    packageLabel = 'Initial + Developer Follow-Up';
+  } else if (packageType === 'initial_final') {
+    priceAed = baseWithExtras + finalAddon;
+    packageLabel = 'Initial + Final Handover Inspection';
+  } else if (packageType === 'full_bundle') {
+    priceAed = baseWithExtras + followupAddon + finalAddon;
+    packageLabel = 'Full Package Bundle';
+  } else if (packageType && packageType !== 'initial') {
     return { error: `Unsupported packageType: ${packageType}` };
   }
+
+  const cal = getCalEventConfig(propertyType, beds);
+  const bedLabel = propertyType === 'Studio' ? 'Studio' : `${beds} Bed`;
+  const sizeLabel = `${bedLabel}, ${baths} Bath`;
 
   return {
     isLuxuryQuote: false,
     propertyType,
-    bedroomTier: bedroomTier || tier.tierKey,
-    tierLabel: tier.label,
-    packageType: pkg.key,
-    packageLabel: pkg.label,
-    priceAed: pkg.priceAed,
-    amountFils: pkg.priceAed * 100,
-    savingsAed: pkg.savingsAed,
-    calEventTypeId: tier.calEventTypeId,
-    durationMinutes: tier.durationMinutes,
-    kindOfApartment: tier.kindOfApartment,
+    bedrooms: beds,
+    bathrooms: baths,
+    bedroomTier: sizeLabel,
+    tierLabel: sizeLabel,
+    packageType: packageType || 'initial',
+    packageLabel,
+    priceAed,
+    amountFils: priceAed * 100,
+    calEventTypeId: cal.calEventTypeId,
+    durationMinutes: cal.durationMinutes,
+    kindOfApartment: bedLabel,
   };
 }
 
@@ -347,7 +169,9 @@ function getSiteUrl(req) {
 }
 
 module.exports = {
-  PRICING_TIERS,
+  BASE_RATES,
+  EXTRA_BEDROOM_AED,
+  EXTRA_BATHROOM_AED,
   LUXURY_VILLA_MAX_SQFT,
   isLuxuryHome,
   resolveTierConfig,
