@@ -178,8 +178,8 @@
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="addonOptions">
                                     <!-- Populated by JS -->
                                 </div>
-                                <div class="mt-3 flex justify-end">
-                                    <button id="bundleQuickBtn" type="button" class="text-xs font-medium px-3.5 py-2 rounded-lg border border-neutral-300 bg-neutral-50 text-black hover:border-black transition">
+                                <div class="mt-3">
+                                    <button id="bundleQuickBtn" type="button" class="w-full text-sm font-semibold px-4 py-3 rounded-xl border border-neutral-300 bg-neutral-50 text-black hover:border-black transition">
                                         Select Full Package Bundle (Save 10%)
                                     </button>
                                 </div>
@@ -516,13 +516,13 @@
             const bothActive = state.addFollowup && state.addFinal;
             quickBtn.textContent = bothActive ? 'Full Package Bundle Applied (10% Off) ✓' : 'Select Full Package Bundle (Save 10%)';
             quickBtn.className = bothActive
-                ? 'text-xs font-medium px-3.5 py-2 rounded-lg border border-black bg-black text-white transition'
-                : 'text-xs font-medium px-3.5 py-2 rounded-lg border border-neutral-300 bg-neutral-50 text-black hover:border-black transition';
+                ? 'w-full text-sm font-semibold px-4 py-3 rounded-xl border border-black bg-black text-white transition'
+                : 'w-full text-sm font-semibold px-4 py-3 rounded-xl border border-neutral-300 bg-neutral-50 text-black hover:border-black transition';
 
             const addons = [
                 {
                     id: 'followup',
-                    title: 'Developer Follow-Up (40%)',
+                    title: 'Developer Follow-Up',
                     desc: 'We follow up directly with the developer to ensure all reported defects are resolved.',
                     priceText: `+${pkg.followupAddon.toLocaleString()} AED`,
                     active: state.addFollowup,
@@ -530,7 +530,7 @@
                 },
                 {
                     id: 'final',
-                    title: 'Final Handover Inspection (50%)',
+                    title: 'Final Handover Inspection',
                     desc: 'On-site final inspection to confirm all rectification work was completed correctly before handover.',
                     priceText: `+${pkg.finalAddon.toLocaleString()} AED`,
                     active: state.addFinal,
