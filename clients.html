@@ -7,7 +7,7 @@
 
     <meta name="description" content="Independent, RERA-certified property snagging and handover inspections in Dubai for homeowners, buyers, and investors. Interactive digital reports within 24 hours.">
     <link rel="canonical" href="https://vantagenorth.ae/clients">
-    <meta name="theme-color" content="#09090B">
+    <meta name="theme-color" content="#FAFAFA">
 
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://vantagenorth.ae/clients">
@@ -18,6 +18,7 @@
 
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@300;400;500;600&family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -26,10 +27,9 @@
             theme: {
                 extend: {
                     colors: {
-                        vnBg: '#09090B',
-                        vnCard: '#121216',
-                        vnGray: '#A1A1AA',
-                        vnLightGray: '#D4D4D8',
+                        vnBg: '#FAFAFA',
+                        vnGray: '#646464',
+                        vnDarkGray: '#2B2B2B',
                         vnBlack: '#000000',
                         vnWhite: '#FFFFFF',
                     },
@@ -43,13 +43,13 @@
     </script>
     <style>
         body {
-            background-color: #09090B;
-            color: #FFFFFF;
+            background-color: #FAFAFA;
+            color: #000000;
             font-family: 'Epilogue', sans-serif;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
-        h1, h2, h3, h4, .font-heading {
+        h1, h2, h3, .font-heading {
             font-family: 'Urbanist', sans-serif;
         }
         @keyframes fadeUp {
@@ -59,6 +59,9 @@
         .animate-fade-up {
             animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
+        .delay-100 { animation-delay: 0.1s; opacity: 0; }
+        .delay-200 { animation-delay: 0.2s; opacity: 0; }
+        .delay-300 { animation-delay: 0.3s; opacity: 0; }
         @keyframes blink {
             0%, 100% { opacity: 1; }
             50% { opacity: 0; }
@@ -66,45 +69,31 @@
         .cursor-blink {
             animation: blink 1s step-end infinite;
         }
-        .bento-card {
-            border-radius: 1.75rem;
-            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease;
-        }
-        .bento-card:hover {
-            transform: translateY(-2px);
-        }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between bg-vnBg text-vnWhite selection:bg-vnWhite selection:text-vnBlack">
+<body class="min-h-screen flex flex-col justify-between bg-vnBg text-vnBlack selection:bg-vnBlack selection:text-vnWhite">
 
-    <!-- Top Navigation -->
-    <header class="w-full py-5 px-5 md:px-10 sticky top-0 z-30 bg-[#09090B]/85 backdrop-blur-md">
-        <div class="max-w-6xl mx-auto flex items-center justify-between gap-4 bg-[#121216] border border-white/10 rounded-2xl px-5 py-3 shadow-[0_10px_30px_rgba(0,0,0,0.45)]">
+    <!-- Truly Floating Navbar -->
+    <header class="fixed top-4 left-0 right-0 z-40 px-5 md:px-10 pointer-events-none">
+        <div class="max-w-6xl mx-auto flex items-center justify-between gap-4 bg-white/85 backdrop-blur-md border border-black/10 rounded-2xl px-5 py-3 shadow-[0_10px_30px_rgba(0,0,0,0.06)] pointer-events-auto">
             <a href="/clients" aria-label="Vantage North Home" class="inline-flex items-center focus:outline-none shrink-0">
                 <img
-                    src="logo/vantage_north_logo_dark.png"
+                    src="logo/vantage_north_logo_light.png"
                     alt="Vantage North - Property Snagging Dubai"
                     class="h-[1.25rem] sm:h-[1.5rem] w-auto object-contain"
                 >
             </a>
 
-            <nav aria-label="Primary" class="flex items-center gap-1.5 sm:gap-2.5">
-                <a
-                    href="/clients"
-                    aria-current="page"
-                    class="px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-urbanist font-semibold bg-white/10 text-vnWhite transition"
-                >
-                    For owners
-                </a>
+            <nav aria-label="Primary" class="flex items-center gap-2 sm:gap-3">
                 <a
                     href="/"
-                    class="px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-urbanist font-medium text-vnGray hover:text-vnWhite hover:bg-white/10 transition"
+                    class="px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-urbanist font-medium text-vnGray hover:text-vnBlack hover:bg-black/5 transition"
                 >
                     For agents
                 </a>
                 <a
                     href="/book"
-                    class="ml-1 bg-vnWhite text-vnBlack font-urbanist text-xs sm:text-sm font-semibold tracking-[0.06em] px-4 sm:px-5 py-2.5 rounded-xl hover:bg-neutral-200 transition"
+                    class="bg-vnBlack text-vnWhite font-urbanist text-xs sm:text-sm font-semibold tracking-[0.06em] px-4 sm:px-5 py-2.5 rounded-xl hover:bg-vnDarkGray transition"
                 >
                     Book now
                 </a>
@@ -112,292 +101,162 @@
         </div>
     </header>
 
-    <main class="flex-grow px-5 md:px-10 pt-6 pb-16">
-        <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-6 lg:grid-cols-12 grid-flow-dense gap-5">
+    <main class="flex-grow pt-28 sm:pt-32 pb-20 px-6 md:px-10">
 
-            <!-- HERO (12 cols) -->
-            <section class="md:col-span-6 lg:col-span-12 bento-card bg-[#121216] border border-white/10 p-8 sm:p-12 md:p-16 text-center shadow-[0_20px_60px_rgba(0,0,0,0.5)] animate-fade-up">
-                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 text-[11px] font-urbanist font-semibold uppercase tracking-[0.18em] text-vnLightGray mb-7">
-                    <span class="w-1.5 h-1.5 rounded-full bg-vnWhite"></span>
-                    <span>RERA Certified · Dubai Property Inspections</span>
-                </div>
+        <!-- Hero Section -->
+        <section class="max-w-4xl mx-auto flex flex-col items-center text-center pt-6 pb-16 md:pb-20">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-black/15 bg-white text-[11px] font-urbanist font-semibold uppercase tracking-[0.18em] text-vnDarkGray mb-7 animate-fade-up">
+                <span class="w-1.5 h-1.5 rounded-full bg-vnBlack"></span>
+                <span>RERA Certified · Dubai Property Inspections</span>
+            </div>
 
-                <h1 aria-label="Know what you're buying" class="font-urbanist text-[2.6rem] sm:text-[3.75rem] md:text-[4.6rem] lg:text-[5.2rem] font-normal tracking-tight text-vnWhite leading-[1.06] max-w-4xl mx-auto mb-7">
-                    Know what<br>
-                    <span class="font-bold"><span id="typewriter-text">you're buying</span><span id="typewriter-cursor" aria-hidden="true">_</span></span>
-                </h1>
+            <h1 aria-label="Know what you're buying" class="font-urbanist text-[2.7rem] sm:text-[3.75rem] md:text-[4.6rem] lg:text-[5.1rem] font-normal tracking-tight text-vnBlack leading-[1.08] max-w-4xl mb-8 animate-fade-up delay-100">
+                Know what<br>
+                <span class="font-bold"><span id="typewriter-text">you're buying</span><span id="typewriter-cursor" aria-hidden="true">_</span></span>
+            </h1>
 
-                <p class="font-epilogue text-base sm:text-lg md:text-xl text-vnGray leading-relaxed max-w-2xl mx-auto mb-10">
-                    Independent snagging, handover inspections, and defect resolution in Dubai—delivered as an interactive digital report within 24 hours.
-                </p>
+            <p class="font-epilogue text-base sm:text-lg md:text-xl text-vnDarkGray font-normal leading-relaxed max-w-2xl mb-10 animate-fade-up delay-200">
+                Independent snagging, handover inspections, and end-to-end defect resolution in Dubai—delivered as an interactive digital report within 24 hours.
+            </p>
 
-                <div class="flex flex-col sm:flex-row items-center justify-center gap-3.5">
-                    <a
-                        href="/book"
-                        class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-vnWhite text-vnBlack font-urbanist text-sm sm:text-base font-semibold tracking-[0.06em] px-9 py-4 rounded-2xl hover:bg-neutral-200 transition"
-                    >
-                        <span>Book now</span>
-                        <span aria-hidden="true">→</span>
-                    </a>
-                    <a
-                        href="https://reports.vantagenorth.ae/80eff737-0307-4a59-832d-af8a226794cc"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-white/10 text-vnWhite border border-white/10 font-urbanist text-sm sm:text-base font-semibold tracking-[0.06em] px-9 py-4 rounded-2xl hover:bg-white/15 transition"
-                    >
-                        <span>Sample Report</span>
-                    </a>
-                </div>
-            </section>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto animate-fade-up delay-300">
+                <a
+                    href="https://reports.vantagenorth.ae/80eff737-0307-4a59-832d-af8a226794cc"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-vnGray text-vnWhite font-urbanist text-sm sm:text-base font-semibold tracking-[0.12em] uppercase px-10 py-4 rounded-xl shadow-[0_14px_34px_rgba(0,0,0,0.10)] hover:bg-vnDarkGray transition-colors duration-300"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" aria-hidden="true">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                        <polyline points="15 3 21 3 21 9"/>
+                        <line x1="10" y1="14" x2="21" y2="3"/>
+                    </svg>
+                    <span>Sample Report</span>
+                </a>
+                <a
+                    href="/book"
+                    class="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-vnBlack text-vnWhite font-urbanist text-sm sm:text-base font-semibold tracking-[0.12em] uppercase px-10 py-4 rounded-xl shadow-[0_14px_34px_rgba(0,0,0,0.12)] hover:bg-vnDarkGray transition-colors duration-300"
+                >
+                    <span>Book now</span>
+                    <span aria-hidden="true">→</span>
+                </a>
+            </div>
+        </section>
 
-            <!-- JIGSAW CLUSTER 1 (6x2 tall left + 6x1 top-right + 3x1 + 3x1 bottom-right) -->
-            <div class="md:col-span-6 lg:col-span-6 lg:row-span-2 bento-card bg-[#121216] border border-white/10 hover:border-white/20 p-7 sm:p-9 flex flex-col justify-between gap-5">
-                <div>
-                    <div class="flex items-center justify-between gap-3 mb-2">
-                        <span class="text-[11px] font-urbanist font-semibold uppercase tracking-[0.18em] text-vnGray">Digital Report Portal</span>
-                        <a
-                            href="https://reports.vantagenorth.ae/80eff737-0307-4a59-832d-af8a226794cc"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="text-xs font-urbanist font-semibold text-vnWhite underline underline-offset-4 hover:opacity-75"
-                        >
-                            View live sample →
-                        </a>
+        <!-- 8-Card Why Choose Us Feature Grid -->
+        <section aria-label="Why Choose Us" class="max-w-6xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+                <!-- 1. Leadership -->
+                <div class="bg-white border border-neutral-200/90 rounded-2xl p-6 flex flex-col h-full transition-all duration-200 hover:-translate-y-0.5 hover:border-neutral-400 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)]">
+                    <div class="w-10 h-10 rounded-xl bg-neutral-100 border border-neutral-200 flex items-center justify-center text-vnBlack mb-5">
+                        <i data-lucide="compass" class="w-5 h-5"></i>
                     </div>
-                    <h2 class="font-urbanist text-2xl sm:text-3xl font-bold tracking-tight text-vnWhite">Clarity in 24 hours, not a 100-page PDF</h2>
-                    <p class="text-sm text-vnGray leading-relaxed mt-3">
-                        Every snag is photographed, mapped by room, and ranked Critical, Major, or Minor on <span class="font-semibold text-vnWhite">reports.vantagenorth.ae</span>—ready to send straight to your developer.
+                    <span class="text-xs font-semibold uppercase tracking-wider text-vnGray mb-1.5 font-urbanist">Leadership</span>
+                    <h2 class="text-lg font-bold text-vnBlack mb-2 font-urbanist">Australian-led</h2>
+                    <p class="text-sm leading-relaxed text-vnDarkGray">
+                        Founded and led by an Australian team of property investors and renovators. They know what to look for, and where developers try to cut corners.
                     </p>
                 </div>
-                <div class="rounded-2xl overflow-hidden border border-white/10 bg-black">
-                    <img
-                        src="reports_snapshot.png"
-                        alt="Vantage North interactive digital snagging report preview"
-                        class="w-full h-auto object-cover"
-                    >
-                </div>
-            </div>
 
-            <div class="md:col-span-6 lg:col-span-6 lg:row-span-1 bento-card bg-vnWhite text-vnBlack p-7 sm:p-8 flex flex-col justify-between shadow-[0_14px_40px_rgba(0,0,0,0.4)]">
-                <div>
-                    <span class="text-[11px] font-urbanist font-semibold uppercase tracking-[0.18em] text-neutral-500">🇦🇺 Australian-Led · 🇦🇪 Dubai-Based</span>
-                    <h2 class="font-urbanist text-2xl sm:text-3xl font-bold tracking-tight mt-2">Australian building rigor in Dubai</h2>
-                </div>
-                <p class="text-sm text-neutral-700 leading-relaxed mt-3">
-                    We work exclusively for you—never the developer. RERA-certified inspectors apply strict Australian standards so hidden faults don't slip through.
-                </p>
-            </div>
-
-            <div class="md:col-span-3 lg:col-span-3 lg:row-span-1 bento-card bg-[#121216] border border-white/10 hover:border-white/20 p-7 flex flex-col justify-between">
-                <span class="text-[11px] font-urbanist font-semibold uppercase tracking-[0.18em] text-vnGray">Time On Site</span>
-                <div>
-                    <p class="font-urbanist text-4xl font-bold text-vnWhite">2–4h</p>
-                    <p class="text-xs text-vnGray mt-1.5 leading-relaxed">Methodical system testing scaled to your property size.</p>
-                </div>
-            </div>
-
-            <div class="md:col-span-3 lg:col-span-3 lg:row-span-1 bento-card bg-[#121216] border border-white/10 hover:border-white/20 p-7 flex flex-col justify-between">
-                <span class="text-[11px] font-urbanist font-semibold uppercase tracking-[0.18em] text-vnGray">Independence</span>
-                <div>
-                    <p class="font-urbanist text-4xl font-bold text-vnWhite">100%</p>
-                    <p class="text-xs text-vnGray mt-1.5 leading-relaxed">Aligned only with buyers and owners—zero developer conflicts.</p>
-                </div>
-            </div>
-
-            <!-- JIGSAW CLUSTER 2 (4x1 + 4x1 top-left, 4x2 tall right, 8x1 wide bottom-left) -->
-            <div class="md:col-span-3 lg:col-span-4 lg:row-span-1 bento-card bg-[#121216] border border-white/10 hover:border-white/20 p-7 flex flex-col justify-between">
-                <span class="inline-block w-fit px-3 py-1 rounded-full bg-white/10 text-[11px] font-urbanist font-semibold uppercase tracking-[0.16em] text-vnLightGray">Off-Plan</span>
-                <div class="mt-4">
-                    <h3 class="font-urbanist text-xl font-bold text-vnWhite">Handover Inspection</h3>
-                    <p class="text-sm text-vnGray leading-relaxed mt-1.5">Catch defects before signing off your developer handover.</p>
-                </div>
-            </div>
-
-            <div class="md:col-span-3 lg:col-span-4 lg:row-span-1 bento-card bg-[#121216] border border-white/10 hover:border-white/20 p-7 flex flex-col justify-between">
-                <span class="inline-block w-fit px-3 py-1 rounded-full bg-white/10 text-[11px] font-urbanist font-semibold uppercase tracking-[0.16em] text-vnLightGray">Secondary Market</span>
-                <div class="mt-4">
-                    <h3 class="font-urbanist text-xl font-bold text-vnWhite">Pre-Purchase / Resale</h3>
-                    <p class="text-sm text-vnGray leading-relaxed mt-1.5">Uncover hidden AC, moisture, or MEP faults before transfer.</p>
-                </div>
-            </div>
-
-            <div class="md:col-span-6 lg:col-span-4 lg:row-span-2 bento-card bg-[#18181D] border border-white/15 hover:border-white/25 p-7 sm:p-8 flex flex-col justify-between">
-                <div>
-                    <span class="inline-block px-3 py-1 rounded-full bg-white/10 text-[11px] font-urbanist font-semibold uppercase tracking-[0.16em] text-vnLightGray mb-4">1-Year Warranty</span>
-                    <h3 class="font-urbanist text-2xl sm:text-3xl font-bold text-vnWhite tracking-tight">DLP Inspection</h3>
-                    <p class="text-sm text-vnGray leading-relaxed mt-3">
-                        Nearing the end of your 12-month Defect Liability Period? We document every remaining snag in a developer-ready report so repairs are completed under warranty—before you foot the bill.
+                <!-- 2. Technology -->
+                <div class="bg-white border border-neutral-200/90 rounded-2xl p-6 flex flex-col h-full transition-all duration-200 hover:-translate-y-0.5 hover:border-neutral-400 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)]">
+                    <div class="w-10 h-10 rounded-xl bg-neutral-100 border border-neutral-200 flex items-center justify-center text-vnBlack mb-5">
+                        <i data-lucide="file-check-2" class="w-5 h-5"></i>
+                    </div>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-vnGray mb-1.5 font-urbanist">Technology</span>
+                    <h2 class="text-lg font-bold text-vnBlack mb-2 font-urbanist">Digital Reports</h2>
+                    <p class="text-sm leading-relaxed text-vnDarkGray">
+                        Every finding is logged with high-resolution photo evidence, thermal diagnostics, and clear status tracking.
                     </p>
                 </div>
-                <div class="pt-6 border-t border-white/10 mt-6">
-                    <a href="/book" class="text-sm font-urbanist font-semibold text-vnWhite underline underline-offset-4 hover:opacity-75">
-                        Book a DLP inspection →
-                    </a>
-                </div>
-            </div>
 
-            <div class="md:col-span-6 lg:col-span-8 lg:row-span-1 bento-card bg-[#121216] border border-white/10 hover:border-white/20 p-7 sm:p-8">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
-                    <div>
-                        <span class="text-[11px] font-urbanist font-semibold uppercase tracking-[0.18em] text-vnGray">Transparent Pricing</span>
-                        <h2 class="font-urbanist text-xl sm:text-2xl font-bold text-vnWhite mt-0.5">Flat rates by property size</h2>
+                <!-- 3. Diagnostic Precision -->
+                <div class="bg-white border border-neutral-200/90 rounded-2xl p-6 flex flex-col h-full transition-all duration-200 hover:-translate-y-0.5 hover:border-neutral-400 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)]">
+                    <div class="w-10 h-10 rounded-xl bg-neutral-100 border border-neutral-200 flex items-center justify-center text-vnBlack mb-5">
+                        <i data-lucide="thermometer" class="w-5 h-5"></i>
                     </div>
-                    <a href="/book" class="text-xs font-urbanist font-semibold text-vnWhite underline underline-offset-4 hover:opacity-75">See all packages →</a>
-                </div>
-                <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-left">
-                    <div class="bg-white/5 rounded-2xl p-3.5">
-                        <p class="text-[11px] text-vnGray">Studio</p>
-                        <p class="font-urbanist font-bold text-base text-vnWhite mt-1">1,100 AED</p>
-                    </div>
-                    <div class="bg-white/5 rounded-2xl p-3.5">
-                        <p class="text-[11px] text-vnGray">1–3 Bed</p>
-                        <p class="font-urbanist font-bold text-base text-vnWhite mt-1">From 2,000</p>
-                    </div>
-                    <div class="bg-white/5 rounded-2xl p-3.5">
-                        <p class="text-[11px] text-vnGray">Townhouse</p>
-                        <p class="font-urbanist font-bold text-base text-vnWhite mt-1">6,500 AED</p>
-                    </div>
-                    <div class="bg-white/5 rounded-2xl p-3.5">
-                        <p class="text-[11px] text-vnGray">Villa 4–5B</p>
-                        <p class="font-urbanist font-bold text-base text-vnWhite mt-1">10,500 AED</p>
-                    </div>
-                    <div class="col-span-2 sm:col-span-1 bg-white/5 rounded-2xl p-3.5">
-                        <p class="text-[11px] text-vnGray">Luxury 6B+</p>
-                        <p class="font-urbanist font-bold text-base text-vnWhite mt-1">Custom</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- JIGSAW CLUSTER 3 (4x2 tall left + 4x1 + 4x1 top-right + 4x1 + 4x1 bottom-right) -->
-            <div class="md:col-span-6 lg:col-span-4 lg:row-span-2 bento-card bg-[#18181D] border border-white/15 hover:border-white/25 p-7 sm:p-8 flex flex-col justify-between">
-                <div>
-                    <span class="text-[11px] font-urbanist font-semibold uppercase tracking-[0.18em] text-vnGray">What We Cover</span>
-                    <h2 class="font-urbanist text-2xl sm:text-3xl font-bold text-vnWhite tracking-tight mt-2">Every room, system &amp; finish</h2>
-                    <p class="text-sm text-vnGray leading-relaxed mt-3">
-                        No surface-level checklists. We test live power, cooling, drainage gradients, glazing seals, and finishes methodically.
+                    <span class="text-xs font-semibold uppercase tracking-wider text-vnGray mb-1.5 font-urbanist">Diagnostic Precision</span>
+                    <h2 class="text-lg font-bold text-vnBlack mb-2 font-urbanist">Thermal &amp; MEP Verification</h2>
+                    <p class="text-sm leading-relaxed text-vnDarkGray">
+                        Going beyond cosmetic paint checks—using thermal imaging for AC cooling performance and moisture intrusion alongside full electrical, plumbing, and joinery testing.
                     </p>
                 </div>
-                <div class="pt-6 border-t border-white/10 mt-6">
-                    <p class="text-xs font-urbanist font-semibold uppercase tracking-[0.16em] text-vnGray">01 · Core Systems</p>
-                    <h3 class="font-urbanist text-xl font-bold text-vnWhite mt-1">Electrical &amp; MEP</h3>
-                    <p class="text-sm text-vnGray leading-relaxed mt-1.5">DB labeling, socket polarity &amp; RCD trip tests, lighting, switches, and intercoms.</p>
-                </div>
-            </div>
 
-            <div class="md:col-span-3 lg:col-span-4 lg:row-span-1 bento-card bg-[#121216] border border-white/10 hover:border-white/20 p-7 flex flex-col justify-between">
-                <span class="text-xs font-urbanist font-semibold text-vnGray">02</span>
-                <div>
-                    <h3 class="font-urbanist text-xl font-bold text-vnWhite">AC &amp; Ventilation</h3>
-                    <p class="text-sm text-vnGray leading-relaxed mt-1.5">Cooling output, thermostat accuracy, airflow balance, and condensation drains.</p>
-                </div>
-            </div>
-
-            <div class="md:col-span-3 lg:col-span-4 lg:row-span-1 bento-card bg-[#121216] border border-white/10 hover:border-white/20 p-7 flex flex-col justify-between">
-                <span class="text-xs font-urbanist font-semibold text-vnGray">03</span>
-                <div>
-                    <h3 class="font-urbanist text-xl font-bold text-vnWhite">Plumbing &amp; Wet Areas</h3>
-                    <p class="text-sm text-vnGray leading-relaxed mt-1.5">Water pressure, floor-waste falls, waterproofing, silicone seals, and leak checks.</p>
-                </div>
-            </div>
-
-            <div class="md:col-span-3 lg:col-span-4 lg:row-span-1 bento-card bg-[#121216] border border-white/10 hover:border-white/20 p-7 flex flex-col justify-between">
-                <span class="text-xs font-urbanist font-semibold text-vnGray">04</span>
-                <div>
-                    <h3 class="font-urbanist text-xl font-bold text-vnWhite">Doors &amp; Glazing</h3>
-                    <p class="text-sm text-vnGray leading-relaxed mt-1.5">Frame alignment, locks, sliding tracks, acoustic/weather seals, and glass quality.</p>
-                </div>
-            </div>
-
-            <div class="md:col-span-3 lg:col-span-4 lg:row-span-1 bento-card bg-[#121216] border border-white/10 hover:border-white/20 p-7 flex flex-col justify-between">
-                <span class="text-xs font-urbanist font-semibold text-vnGray">05</span>
-                <div>
-                    <h3 class="font-urbanist text-xl font-bold text-vnWhite">Tiling &amp; Finishes</h3>
-                    <p class="text-sm text-vnGray leading-relaxed mt-1.5">Hollow tile detection, grouting, paintwork, cabinetry alignment, and appliances.</p>
-                </div>
-            </div>
-
-            <!-- JIGSAW CLUSTER 4 (5x1 + 3x1 top-left, 4x2 tall right, 4x1 + 4x1 bottom-left) -->
-            <div class="md:col-span-3 lg:col-span-5 lg:row-span-1 bento-card bg-[#121216] border border-white/10 hover:border-white/20 p-7 flex flex-col justify-between">
-                <span class="text-xs font-urbanist font-semibold text-vnGray">06 · Exterior</span>
-                <div>
-                    <h3 class="font-urbanist text-xl font-bold text-vnWhite">Balconies &amp; Outdoor</h3>
-                    <p class="text-sm text-vnGray leading-relaxed mt-1.5">Balustrades, external drainage, paving levels, plus villa roofs and garages.</p>
-                </div>
-            </div>
-
-            <div class="md:col-span-3 lg:col-span-3 lg:row-span-1 bento-card bg-[#121216] border border-white/10 hover:border-white/20 p-7 flex flex-col justify-between">
-                <span class="text-[11px] font-urbanist font-semibold uppercase tracking-[0.18em] text-vnGray">Step 01</span>
-                <div>
-                    <h3 class="font-urbanist text-xl font-bold text-vnWhite">1. Inspect</h3>
-                    <p class="text-sm text-vnGray leading-relaxed mt-1.5">Book in 2 minutes. Report in 24h.</p>
-                </div>
-            </div>
-
-            <div class="md:col-span-6 lg:col-span-4 lg:row-span-2 bento-card bg-vnWhite text-vnBlack p-7 sm:p-8 flex flex-col justify-between shadow-[0_12px_32px_rgba(0,0,0,0.35)]">
-                <div>
-                    <span class="text-[11px] font-urbanist font-semibold uppercase tracking-[0.18em] text-neutral-500">Step 03 · Final Sign-Off</span>
-                    <h3 class="font-urbanist text-2xl sm:text-3xl font-bold mt-2">3. Handover</h3>
-                    <p class="text-sm text-neutral-700 leading-relaxed mt-3">
-                        Once the developer completes rectification, we return on site to verify every fix—giving you complete confidence before final handover.
+                <!-- 4. Licensed & Regulated -->
+                <div class="bg-white border border-neutral-200/90 rounded-2xl p-6 flex flex-col h-full transition-all duration-200 hover:-translate-y-0.5 hover:border-neutral-400 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)]">
+                    <div class="w-10 h-10 rounded-xl bg-neutral-100 border border-neutral-200 flex items-center justify-center text-vnBlack mb-5">
+                        <i data-lucide="shield-check" class="w-5 h-5"></i>
+                    </div>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-vnGray mb-1.5 font-urbanist">Licensed &amp; Regulated</span>
+                    <h2 class="text-lg font-bold text-vnBlack mb-2 font-urbanist">Licensed &amp; Regulated</h2>
+                    <p class="text-sm leading-relaxed text-vnDarkGray">
+                        Fully licensed and RERA registered (65910)
                     </p>
                 </div>
-                <div class="pt-6 border-t border-black/10 mt-6">
-                    <span class="text-xs font-urbanist font-semibold uppercase tracking-[0.14em] text-neutral-500">Included in Final Handover &amp; Full Bundle</span>
+
+                <!-- 5. Turnaround -->
+                <div class="bg-white border border-neutral-200/90 rounded-2xl p-6 flex flex-col h-full transition-all duration-200 hover:-translate-y-0.5 hover:border-neutral-400 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)]">
+                    <div class="w-10 h-10 rounded-xl bg-neutral-100 border border-neutral-200 flex items-center justify-center text-vnBlack mb-5">
+                        <i data-lucide="clock" class="w-5 h-5"></i>
+                    </div>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-vnGray mb-1.5 font-urbanist">Turnaround</span>
+                    <h2 class="text-lg font-bold text-vnBlack mb-2 font-urbanist">24 hours or less</h2>
+                    <p class="text-sm leading-relaxed text-vnDarkGray">
+                        After the initial inspection, you'll receive your report within 24 hours or less.
+                    </p>
                 </div>
+
+                <!-- 6. Add-ons -->
+                <div class="bg-white border border-neutral-200/90 rounded-2xl p-6 flex flex-col h-full transition-all duration-200 hover:-translate-y-0.5 hover:border-neutral-400 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)]">
+                    <div class="w-10 h-10 rounded-xl bg-neutral-100 border border-neutral-200 flex items-center justify-center text-vnBlack mb-5">
+                        <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                    </div>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-vnGray mb-1.5 font-urbanist">Add-ons</span>
+                    <h2 class="text-lg font-bold text-vnBlack mb-2 font-urbanist">Unheard-of extras</h2>
+                    <p class="text-sm leading-relaxed text-vnDarkGray">
+                        We can also follow-up with developers / contractors, and perform a final inspection to ensure that the work was completed to standard.
+                    </p>
+                </div>
+
+                <!-- 7. Unbiased -->
+                <div class="bg-white border border-neutral-200/90 rounded-2xl p-6 flex flex-col h-full transition-all duration-200 hover:-translate-y-0.5 hover:border-neutral-400 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)]">
+                    <div class="w-10 h-10 rounded-xl bg-neutral-100 border border-neutral-200 flex items-center justify-center text-vnBlack mb-5">
+                        <i data-lucide="scale" class="w-5 h-5"></i>
+                    </div>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-vnGray mb-1.5 font-urbanist">Unbiased</span>
+                    <h2 class="text-lg font-bold text-vnBlack mb-2 font-urbanist">100% Independent</h2>
+                    <p class="text-sm leading-relaxed text-vnDarkGray">
+                        You don't let students grade their own homework. We're the teacher in the room. Our reporting is completely independent.
+                    </p>
+                </div>
+
+                <!-- 8. Don't wait -->
+                <div class="bg-white border border-neutral-200/90 rounded-2xl p-6 flex flex-col h-full transition-all duration-200 hover:-translate-y-0.5 hover:border-neutral-400 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)]">
+                    <div class="w-10 h-10 rounded-xl bg-neutral-100 border border-neutral-200 flex items-center justify-center text-vnBlack mb-5">
+                        <i data-lucide="calendar-check" class="w-5 h-5"></i>
+                    </div>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-vnGray mb-1.5 font-urbanist">Don't wait</span>
+                    <h2 class="text-lg font-bold text-vnBlack mb-2 font-urbanist">Instant booking</h2>
+                    <p class="text-sm leading-relaxed text-vnDarkGray">
+                        Don't wait around for WhatsApp replies, book your initial inspection and get confirmation in 2 minutes.
+                    </p>
+                </div>
+
             </div>
+        </section>
 
-            <div class="md:col-span-3 lg:col-span-4 lg:row-span-1 bento-card bg-[#121216] border border-white/10 hover:border-white/20 p-7 flex flex-col justify-between">
-                <span class="text-[11px] font-urbanist font-semibold uppercase tracking-[0.18em] text-vnGray">Step 02</span>
-                <div>
-                    <h3 class="font-urbanist text-xl font-bold text-vnWhite">2. Rectify</h3>
-                    <p class="text-sm text-vnGray leading-relaxed mt-1.5">Add Developer Follow-Up and we coordinate directly until defects are fixed.</p>
-                </div>
-            </div>
-
-            <div class="md:col-span-3 lg:col-span-4 lg:row-span-1 bento-card bg-[#121216] border border-white/10 hover:border-white/20 p-7 flex flex-col justify-between">
-                <span class="text-[11px] font-urbanist font-semibold uppercase tracking-[0.18em] text-vnGray">Quick Checklist</span>
-                <div>
-                    <h3 class="font-urbanist text-xl font-bold text-vnWhite">Before we arrive</h3>
-                    <p class="text-sm text-vnGray leading-relaxed mt-1.5">Ensure DEWA power &amp; water are on and share site access instructions at checkout.</p>
-                </div>
-            </div>
-
-            <!-- BOTTOM CTA CARD (12 cols) -->
-            <section class="md:col-span-6 lg:col-span-12 bento-card bg-vnWhite text-vnBlack p-8 sm:p-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-[0_14px_40px_rgba(0,0,0,0.45)]">
-                <div>
-                    <h2 class="font-urbanist text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">Ready to book your inspection?</h2>
-                    <p class="text-sm sm:text-base text-neutral-600 mt-2">Pick a live slot online in under two minutes.</p>
-                </div>
-                <div class="flex flex-wrap gap-3 w-full md:w-auto">
-                    <a
-                        href="/book"
-                        class="flex-1 md:flex-none text-center bg-vnBlack text-vnWhite font-urbanist text-sm font-semibold tracking-[0.06em] px-8 py-4 rounded-2xl hover:bg-neutral-800 transition"
-                    >
-                        Book now →
-                    </a>
-                    <a
-                        href="https://reports.vantagenorth.ae/80eff737-0307-4a59-832d-af8a226794cc"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="flex-1 md:flex-none text-center bg-[#F4F4F5] text-vnBlack font-urbanist text-sm font-semibold tracking-[0.06em] px-8 py-4 rounded-2xl hover:bg-neutral-200 transition"
-                    >
-                        Sample Report
-                    </a>
-                </div>
-            </section>
-
-        </div>
     </main>
 
     <!-- Footer -->
-    <footer class="w-full pt-4 pb-10 px-6 md:px-12 text-center space-y-4">
-        <p class="font-epilogue text-sm sm:text-base text-vnLightGray font-medium tracking-wide flex items-center justify-center gap-5">
+    <footer class="w-full pt-6 pb-10 px-6 md:px-12 text-center space-y-4">
+        <p class="font-epilogue text-sm sm:text-base text-vnDarkGray font-medium tracking-wide flex items-center justify-center gap-5">
             <span>🇦🇺 Australian-led</span>
             <span>🇦🇪 Dubai-based</span>
         </p>
-        <div class="inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full border border-white/25 bg-[#121216]">
-            <span class="w-1.5 h-1.5 rounded-full bg-vnWhite"></span>
-            <span class="font-urbanist text-xs font-semibold uppercase tracking-[0.2em] text-vnWhite">
+        <div class="inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full border border-vnBlack bg-white">
+            <span class="w-1.5 h-1.5 rounded-full bg-vnBlack"></span>
+            <span class="font-urbanist text-xs font-semibold uppercase tracking-[0.2em] text-vnBlack">
                 RERA Certified
             </span>
         </div>
@@ -407,6 +266,7 @@
     </footer>
 
     <script>
+        lucide.createIcons();
         document.getElementById('year').textContent = new Date().getFullYear();
 
         (function () {
