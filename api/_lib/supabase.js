@@ -400,6 +400,24 @@ async function updateCheckoutHoldStatus(bookingReference, status) {
   } catch {}
 }
 
+async function claimCheckoutHold(bookingReference) {
+  if (!isSupabaseConfigured() || !bookingReference) return { available: false, claimed: true };
+  try {
+    const res = await supabaseFetch(
+      `checkout_holds?booking_reference=eq.${encodeURIComponent(bookingReference)}&status=eq.pending`,
+      {
+        method: 'PATCH',
+        headers: { Prefer: 'return=representation' },
+        body: JSON.stringify({ status: 'processing' }),
+      }
+    );
+    const rows = Array.isArray(res.data) ? res.data : [];
+    return { available: true, claimed: rows.length > 0 };
+  } catch {
+    return { available: false, claimed: true };
+  }
+}
+
 module.exports = {
   isSupabaseConfigured,
   upsertClient,
@@ -421,6 +439,7 @@ module.exports = {
   getCheckoutHoldByRef,
   getCheckoutHoldByIntentId,
   updateCheckoutHoldStatus,
+  claimCheckoutHold,
   signBookingToken,
   verifyBookingToken,
 };

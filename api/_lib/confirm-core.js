@@ -11,6 +11,7 @@ const {
   updatePaymentByIntentId,
   getBookingByReference,
   updateCheckoutHoldStatus,
+  claimCheckoutHold,
 } = require('./supabase');
 
 function formatDubaiTime(iso) {
@@ -169,6 +170,42 @@ async function finalizeBooking({ bookingReference, paymentIntentId, tokenData, z
     };
   }
 
+  // Atomic lock: ensure webhook and redirect don't both run finalizeBooking simultaneously
+  const claim = await claimCheckoutHold(bookingReference);
+  if (claim.available && !claim.claimed) {
+    for (let i = 0; i < 4; i++) {
+      await new Promise((r) => setTimeout(r, 1500));
+      const retryDb = await getBookingByReference(bookingReference);
+      const found = retryDb.data;
+      if (found && (found.status === 'confirmed' || found.status === 'needs_reschedule')) {
+        return {
+          alreadyConfirmed: true,
+          booking: {
+            bookingReference: found.booking_reference,
+            status: found.status,
+            propertyType: tokenData?.propertyType || 'Property',
+            bedroomTier: tokenData?.bedroomTier || '',
+            packageLabel: tokenData?.packageLabel || 'Initial Inspection',
+            priceAed: tokenData?.priceAed || found.payments?.[0]?.amount_aed || 0,
+            pricingBreakdown: tokenData?.pricingBreakdown || null,
+            scheduledStart: found.scheduled_start,
+            scheduledEnd: found.scheduled_end,
+            fullName: found.clients?.name || tokenData?.fullName,
+            email: found.clients?.email || tokenData?.email,
+            projectName: tokenData?.projectName || 'Dubai Property',
+            areaCommunity: tokenData?.areaCommunity || 'Dubai',
+            unitNumber: tokenData?.unitNumber || 'TBD',
+            inspectionPurpose: tokenData?.inspectionPurpose || 'Handover',
+            calBookingUid: found.cal_booking_uid || null,
+            calCollision: found.status === 'needs_reschedule',
+            intentId: found.payments?.[0]?.ziina_payment_intent_id || paymentIntentId,
+          },
+          supabaseSynced: true,
+        };
+      }
+    }
+  }
+
   const b = { ...tokenData, intentId: paymentIntentId };
 
   // 2. Cal.com booking creation (with UTC start, E.164 phone, and collision detection)
@@ -236,25 +273,16 @@ async function finalizeBooking({ bookingReference, paymentIntentId, tokenData, z
       let calJson = await calRes.json();
 
       if (!calRes.ok || !calJson.data) {
-        const msg = String(calJson?.error?.message || '').toLowerCase();
-        if (calRes.status === 409 || msg.includes('already') || msg.includes('available') || msg.includes('busy')) {
-          calCollision = true;
-        } else {
-          const minimalPayload = {
-            ...baseCalPayload,
-            attendee: { name: b.fullName, email: b.email, timeZone: 'Asia/Dubai' },
-          };
-          calRes = await fetch('https://api.cal.com/v2/bookings', {
-            method: 'POST',
-            headers: calHeaders,
-            body: JSON.stringify(minimalPayload),
-          });
-          calJson = await calRes.json();
-          const msg2 = String(calJson?.error?.message || '').toLowerCase();
-          if (!calRes.ok && (calRes.status === 409 || msg2.includes('already') || msg2.includes('available') || msg2.includes('busy'))) {
-            calCollision = true;
-          }
-        }
+        const minimalPayload = {
+          ...baseCalPayload,
+          attendee: { name: b.fullName, email: b.email, timeZone: 'Asia/Dubai' },
+        };
+        calRes = await fetch('https://api.cal.com/v2/bookings', {
+          method: 'POST',
+          headers: calHeaders,
+          body: JSON.stringify(minimalPayload),
+        });
+        calJson = await calRes.json();
       }
 
       if (calRes.ok && calJson.data) {
@@ -262,6 +290,28 @@ async function finalizeBooking({ bookingReference, paymentIntentId, tokenData, z
         calBookingUid = calJson.data.uid || null;
       } else {
         calWarning = calJson?.error?.message || JSON.stringify(calJson);
+        const msg = String(calWarning).toLowerCase();
+        if (calRes.status === 409 || msg.includes('already') || msg.includes('not available') || msg.includes('busy')) {
+          try {
+            const existingCalRes = await fetch(
+              `https://api.cal.com/v2/bookings?attendeeEmail=${encodeURIComponent(b.email)}&take=5`,
+              { headers: calHeaders }
+            );
+            const existingCalJson = await existingCalRes.json();
+            const match = (existingCalJson?.data || []).find(
+              (cb) => cb.start && new Date(cb.start).getTime() === new Date(startUtc).getTime() && cb.status !== 'cancelled'
+            );
+            if (match) {
+              calBookingId = match.id || null;
+              calBookingUid = match.uid || null;
+              calWarning = null;
+            } else {
+              calCollision = true;
+            }
+          } catch {
+            calCollision = true;
+          }
+        }
       }
     } catch (calErr) {
       calWarning = calErr.message;
