@@ -238,8 +238,9 @@
                 for (const dateKey of dates) {
                     const daySlots = slotsByDate[dateKey] || [];
                     for (const slot of daySlots) {
-                        const iso = slot.time || slot;
+                        const iso = slot.start || slot.time || slot;
                         const dt = new Date(iso);
+                        if (Number.isNaN(dt.getTime())) continue;
                         const label = dt.toLocaleString('en-AE', {
                             timeZone: 'Asia/Dubai',
                             weekday: 'short',
