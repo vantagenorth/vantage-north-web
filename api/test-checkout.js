@@ -1,53 +1,121 @@
-const { getSiteUrl } = require('./_lib/config');
+const { calculateQuote, getSiteUrl } = require('./_lib/config');
+const {
+  signBookingToken,
+  getActiveCheckoutHolds,
+  createCheckoutHold,
+} = require('./_lib/supabase');
 
 module.exports = async function handler(req, res) {
-  if (req.method === 'GET') {
-    const intentId = req.query?.intent_id;
-    if (!intentId) {
-      return res.status(400).json({ error: 'Missing intent_id' });
-    }
-    const ziinaKey = process.env.ZIINA_API_KEY;
-    if (!ziinaKey) {
-      return res.status(500).json({ error: 'ZIINA_API_KEY is not configured on the server' });
-    }
-    try {
-      const ziinaRes = await fetch(`https://api-v2.ziina.com/api/payment_intent/${encodeURIComponent(intentId)}`, {
-        headers: { Authorization: `Bearer ${ziinaKey}` },
-      });
-      const data = await ziinaRes.json();
-      return res.status(ziinaRes.status).json({
-        id: data.id,
-        status: data.status,
-        amount: data.amount,
-        currency_code: data.currency_code,
-        test: data.test,
-      });
-    } catch (err) {
-      return res.status(500).json({ error: err.message || 'Failed to verify Ziina payment intent' });
-    }
-  }
-
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
+    const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {};
+
+    const {
+      amountAed: rawAmountAed = 2,
+      propertyType = 'Apartment',
+      bedrooms = 2,
+      bathrooms = 2,
+      packageType = 'initial',
+      scheduledStart,
+      fullName = 'Test Client',
+      email = 'hello@vantagenorth.ae',
+      phone = '+971 58 556 5311',
+      projectName = 'Test Tower Residence',
+      areaCommunity = 'Dubai Marina',
+      unitNumber = 'Test-1402',
+      developer = 'Test Developer',
+      dewaConnected = true,
+      inspectionPurpose = 'Handover',
+      accessInstructions = 'Test NOC ready at security desk',
+      agentName = 'Test Agent',
+      agentAgency = 'Test Real Estate',
+      agentEmail = 'hello@vantagenorth.ae',
+      agentPhone = '+971 50 000 0000',
+      notes = 'Test inspection booking via /booking-test',
+    } = body;
+
+    if (!scheduledStart) {
+      return res.status(400).json({ error: 'Please select an available Cal.com time slot.' });
+    }
+
+    const quote = calculateQuote({ propertyType, bedrooms, bathrooms, packageType });
+    if (quote.error || quote.isLuxuryQuote) {
+      return res.status(400).json({ error: quote.error || 'Invalid test property configuration' });
+    }
+
     const ziinaKey = process.env.ZIINA_API_KEY;
     if (!ziinaKey) {
       return res.status(500).json({ error: 'ZIINA_API_KEY is not configured on the server' });
     }
 
-    const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {};
-    const rawAed = Number(body.amountAed ?? 2);
-    const amountAed = Number.isFinite(rawAed) ? Math.min(25, Math.max(2, Math.round(rawAed))) : 2;
+    const startDt = new Date(scheduledStart);
+    if (Number.isNaN(startDt.getTime())) {
+      return res.status(400).json({ error: 'Invalid scheduledStart datetime' });
+    }
+    const endDt = new Date(startDt.getTime() + quote.durationMinutes * 60 * 1000);
+
+    const holdsRes = await getActiveCheckoutHolds(startDt.toISOString(), endDt.toISOString());
+    if ((holdsRes.data || []).length > 0) {
+      return res.status(409).json({
+        error: 'This time slot is currently reserved. Please select another slot.',
+      });
+    }
+
+    const parsedAed = Number(rawAmountAed);
+    const amountAed = Number.isFinite(parsedAed) ? Math.min(25, Math.max(2, Math.round(parsedAed))) : 2;
     const amountFils = amountAed * 100;
-    const isTest = body.testMode === true || process.env.ZIINA_TEST_MODE === 'true';
 
-    const ref = `VN-TEST-${Date.now().toString(36).toUpperCase()}`;
+    const bookingReference = `VN-TEST-${Date.now().toString(36).toUpperCase()}`;
+
+    const bookingPayload = {
+      bookingReference,
+      propertyType: quote.propertyType,
+      bedrooms: quote.bedrooms,
+      bathrooms: quote.bathrooms,
+      bedroomTier: quote.bedroomTier,
+      tierLabel: quote.tierLabel,
+      packageType: quote.packageType,
+      packageLabel: `${quote.packageLabel} (Test Booking)`,
+      priceAed: amountAed,
+      amountFils,
+      pricingBreakdown: [
+        { label: `Test Booking (${quote.tierLabel})`, amountAed },
+      ],
+      calEventTypeId: quote.calEventTypeId,
+      durationMinutes: quote.durationMinutes,
+      kindOfApartment: quote.kindOfApartment,
+      scheduledStart: startDt.toISOString(),
+      scheduledEnd: endDt.toISOString(),
+      fullName: String(fullName).trim(),
+      email: String(email).trim().toLowerCase(),
+      phone: String(phone).trim(),
+      projectName: String(projectName).trim(),
+      areaCommunity: String(areaCommunity).trim(),
+      unitNumber: String(unitNumber).trim(),
+      address: null,
+      developer: String(developer).trim(),
+      dewaConnected: Boolean(dewaConnected),
+      inspectionPurpose,
+      accessInstructions: String(accessInstructions).trim(),
+      agentName: agentName ? String(agentName).trim() : null,
+      agentAgency: agentAgency ? String(agentAgency).trim() : null,
+      agentEmail: agentEmail ? String(agentEmail).trim() : null,
+      agentPhone: agentPhone ? String(agentPhone).trim() : null,
+      notes: notes ? String(notes).trim() : null,
+      termsAcceptedAt: new Date().toISOString(),
+      isTestBooking: true,
+    };
+
+    const token = signBookingToken(bookingPayload);
     const siteUrl = getSiteUrl(req);
-    const successUrl = `${siteUrl}/booking-test?status=success&ref=${encodeURIComponent(ref)}&intent_id={PAYMENT_INTENT_ID}`;
-    const cancelUrl = `${siteUrl}/booking-test?status=cancelled&ref=${encodeURIComponent(ref)}`;
+    const successUrl = `${siteUrl}/booking-confirmation?booking_ref=${encodeURIComponent(bookingReference)}`;
+    const cancelUrl = `${siteUrl}/booking-test?cancelled=1&booking_ref=${encodeURIComponent(bookingReference)}`;
+    const isTest = process.env.ZIINA_TEST_MODE === 'true';
 
+    const ziinaMessage = `Vantage North Test ${bookingReference}`.slice(0, 60);
     const ziinaRes = await fetch('https://api-v2.ziina.com/api/payment_intent', {
       method: 'POST',
       headers: {
@@ -57,7 +125,7 @@ module.exports = async function handler(req, res) {
       body: JSON.stringify({
         amount: amountFils,
         currency_code: 'AED',
-        message: `Vantage North Test ${ref}`,
+        message: ziinaMessage,
         success_url: successUrl,
         cancel_url: cancelUrl,
         test: isTest,
@@ -72,14 +140,26 @@ module.exports = async function handler(req, res) {
       });
     }
 
+    await createCheckoutHold({
+      booking_reference: bookingReference,
+      ziina_payment_intent_id: ziinaData.id,
+      scheduled_start: startDt.toISOString(),
+      scheduled_end: endDt.toISOString(),
+      expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+      status: 'pending',
+      payload: bookingPayload,
+    });
+
     return res.status(200).json({
       redirectUrl: ziinaData.redirect_url,
       paymentIntentId: ziinaData.id,
-      bookingReference: ref,
+      bookingReference,
       amountAed,
+      token,
       test: isTest,
     });
   } catch (err) {
+    console.error('Error in /api/test-checkout:', err);
     return res.status(500).json({ error: err.message || 'Internal server error' });
   }
 };

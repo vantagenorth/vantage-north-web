@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vantage North | Ziina Payment Test</title>
+    <title>Vantage North | End-to-End Booking Test</title>
     <meta name="robots" content="noindex, nofollow">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -50,31 +50,114 @@
                 <img src="/logo/vantage_north_logo_light.png" alt="Vantage North" class="h-7 w-auto">
             </a>
             <a href="/book" class="text-sm font-medium text-vnGray hover:text-vnBlack transition">
-                Back to full booking
+                Full booking page
             </a>
         </div>
     </header>
 
-    <main class="flex-1 max-w-xl w-full mx-auto px-4 sm:px-6 py-12 sm:py-16 space-y-6">
-        <!-- Return Status Banner -->
-        <div id="statusBanner" class="hidden rounded-2xl p-5 border text-sm"></div>
+    <main class="flex-1 max-w-2xl w-full mx-auto px-4 sm:px-6 py-10 sm:py-14 space-y-6">
+        <div id="cancelledBanner" class="hidden rounded-2xl p-4 border bg-amber-50 border-amber-200 text-amber-900 text-sm">
+            Payment cancelled. You can adjust any test fields below and try again.
+        </div>
 
-        <!-- Test Payment Card -->
         <section class="bg-white border border-neutral-200 rounded-3xl p-6 sm:p-8 shadow-[0_14px_40px_rgba(0,0,0,0.04)] space-y-6">
             <div>
                 <span class="inline-block text-[11px] font-urbanist font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full bg-neutral-100 text-vnGray mb-3">
-                    Internal Payment Check
+                    End-to-End Test Booking
                 </span>
-                <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">Ziina checkout test</h1>
+                <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">Test booking &amp; Ziina checkout</h1>
                 <p class="text-sm text-vnDarkGray mt-1.5 leading-relaxed">
-                    Run a small payment through Ziina without creating a calendar slot or inspection booking.
+                    Pre-filled with test client, unit, developer, and agent data plus a real Cal.com slot so you can run a complete test inspection &amp; report.
                 </p>
             </div>
 
-            <div class="space-y-4">
+            <form id="testBookingForm" class="space-y-6">
+                <!-- Cal.com Slot -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <label for="slotSelect" class="block text-xs uppercase tracking-wider text-vnGray font-medium">
+                            Cal.com Inspection Slot (Dubai Time)
+                        </label>
+                        <span id="slotHint" class="text-[11px] text-vnGray">Loading Monday slots...</span>
+                    </div>
+                    <select id="slotSelect" required class="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 bg-white text-sm focus:outline-none focus:border-black">
+                        <option value="">Loading available Cal.com slots...</option>
+                    </select>
+                </div>
+
+                <!-- Client Info -->
+                <div class="space-y-3">
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-vnGray">Client</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs text-vnGray mb-1">Full Name</label>
+                            <input id="fullName" type="text" required value="Test Client" class="w-full px-3.5 py-2 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:border-black">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-vnGray mb-1">Email (for confirmation)</label>
+                            <input id="email" type="email" required value="hello@vantagenorth.ae" class="w-full px-3.5 py-2 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:border-black">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-xs text-vnGray mb-1">Phone</label>
+                            <input id="phone" type="text" required value="+971 58 556 5311" class="w-full px-3.5 py-2 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:border-black">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Unit & Developer Info -->
+                <div class="space-y-3">
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-vnGray">Unit &amp; Developer</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs text-vnGray mb-1">Developer</label>
+                            <input id="developer" type="text" required value="Test Developer" class="w-full px-3.5 py-2 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:border-black">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-vnGray mb-1">Project / Building</label>
+                            <input id="projectName" type="text" required value="Test Tower Residence" class="w-full px-3.5 py-2 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:border-black">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-vnGray mb-1">Area / Community</label>
+                            <input id="areaCommunity" type="text" required value="Dubai Marina" class="w-full px-3.5 py-2 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:border-black">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-vnGray mb-1">Unit Number</label>
+                            <input id="unitNumber" type="text" required value="Test-1402" class="w-full px-3.5 py-2 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:border-black">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-xs text-vnGray mb-1">Access Instructions</label>
+                            <input id="accessInstructions" type="text" required value="Test NOC ready at security desk" class="w-full px-3.5 py-2 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:border-black">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agent Info -->
+                <div class="space-y-3">
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-vnGray">Agent</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs text-vnGray mb-1">Agent Name</label>
+                            <input id="agentName" type="text" value="Test Agent" class="w-full px-3.5 py-2 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:border-black">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-vnGray mb-1">Agency</label>
+                            <input id="agentAgency" type="text" value="Test Real Estate" class="w-full px-3.5 py-2 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:border-black">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-vnGray mb-1">Agent Email</label>
+                            <input id="agentEmail" type="email" value="hello@vantagenorth.ae" class="w-full px-3.5 py-2 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:border-black">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-vnGray mb-1">Agent Phone</label>
+                            <input id="agentPhone" type="text" value="+971 50 000 0000" class="w-full px-3.5 py-2 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:border-black">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Amount -->
                 <div>
                     <label for="amountInput" class="block text-xs uppercase tracking-wider text-vnGray font-medium mb-2">
-                        Amount (AED)
+                        Test Payment Amount (AED)
                     </label>
                     <div class="flex items-center gap-2">
                         <button type="button" data-amt="2" class="amt-btn px-4 py-2 rounded-xl border border-black bg-black text-white text-sm font-urbanist font-semibold">2 AED</button>
@@ -92,7 +175,10 @@
                 </div>
 
                 <div class="rounded-2xl bg-neutral-50 border border-neutral-200 p-4 flex items-center justify-between">
-                    <span class="text-sm text-vnDarkGray">Total due</span>
+                    <div>
+                        <div class="text-sm font-semibold">Apartment — 2 Bed, 2 Bath (Test)</div>
+                        <div class="text-xs text-vnGray">Creates Cal.com booking + Supabase inspection</div>
+                    </div>
                     <span id="totalDisplay" class="text-2xl font-urbanist font-bold">2 AED</span>
                 </div>
 
@@ -100,13 +186,13 @@
 
                 <button
                     id="payBtn"
-                    type="button"
+                    type="submit"
                     class="w-full inline-flex items-center justify-center gap-2 bg-vnBlack text-vnWhite font-urbanist text-sm font-semibold uppercase tracking-wider px-6 py-4 rounded-2xl hover:bg-neutral-800 transition disabled:opacity-50"
                 >
-                    <span>Pay 2 AED with Ziina</span>
+                    <span>Pay 2 AED &amp; Book Test Inspection</span>
                     <span aria-hidden="true">→</span>
                 </button>
-            </div>
+            </form>
         </section>
     </main>
 
@@ -115,14 +201,19 @@
         const totalDisplay = document.getElementById('totalDisplay');
         const payBtn = document.getElementById('payBtn');
         const errorBox = document.getElementById('errorBox');
-        const statusBanner = document.getElementById('statusBanner');
+        const slotSelect = document.getElementById('slotSelect');
+        const slotHint = document.getElementById('slotHint');
         const amtBtns = document.querySelectorAll('.amt-btn');
+
+        if (new URLSearchParams(window.location.search).get('cancelled') === '1') {
+            document.getElementById('cancelledBanner').classList.remove('hidden');
+        }
 
         function setAmount(val) {
             const amt = Math.min(25, Math.max(2, Math.round(Number(val) || 2)));
             amountInput.value = String(amt);
             totalDisplay.textContent = `${amt} AED`;
-            payBtn.querySelector('span').textContent = `Pay ${amt} AED with Ziina`;
+            payBtn.querySelector('span').textContent = `Pay ${amt} AED & Book Test Inspection`;
             amtBtns.forEach(b => {
                 const active = Number(b.dataset.amt) === amt;
                 b.className = active
@@ -134,8 +225,72 @@
         amtBtns.forEach(b => b.addEventListener('click', () => setAmount(b.dataset.amt)));
         amountInput.addEventListener('input', () => setAmount(amountInput.value));
 
-        payBtn.addEventListener('click', async () => {
+        async function loadSlots() {
+            try {
+                const res = await fetch('/api/slots?propertyType=Apartment&bedrooms=2');
+                const data = await res.json();
+                const slotsByDate = data.slots || {};
+                const dates = Object.keys(slotsByDate).sort();
+
+                const options = [];
+                let firstMondayIso = null;
+
+                for (const dateKey of dates) {
+                    const daySlots = slotsByDate[dateKey] || [];
+                    for (const slot of daySlots) {
+                        const iso = slot.time || slot;
+                        const dt = new Date(iso);
+                        const label = dt.toLocaleString('en-AE', {
+                            timeZone: 'Asia/Dubai',
+                            weekday: 'short',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: 'numeric',
+                            minute: '2-digit',
+                        });
+                        const weekday = dt.toLocaleString('en-US', { timeZone: 'Asia/Dubai', weekday: 'short' });
+                        if (!firstMondayIso && weekday === 'Mon') {
+                            firstMondayIso = iso;
+                        }
+                        options.push({ iso, label });
+                    }
+                }
+
+                if (options.length === 0) {
+                    slotSelect.innerHTML = '<option value="">No Cal.com slots available</option>';
+                    slotHint.textContent = 'No slots found';
+                    return;
+                }
+
+                slotSelect.innerHTML = options
+                    .slice(0, 40)
+                    .map(o => `<option value="${o.iso}">${o.label}</option>`)
+                    .join('');
+
+                if (firstMondayIso) {
+                    slotSelect.value = firstMondayIso;
+                    slotHint.textContent = 'Pre-selected next Monday';
+                } else {
+                    slotHint.textContent = 'Pre-selected earliest slot';
+                }
+            } catch (err) {
+                slotSelect.innerHTML = '<option value="">Failed to load Cal.com slots</option>';
+                slotHint.textContent = 'Error loading slots';
+            }
+        }
+
+        loadSlots();
+
+        document.getElementById('testBookingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
             errorBox.classList.add('hidden');
+
+            if (!slotSelect.value) {
+                errorBox.textContent = 'Please wait for Cal.com slots to load or select a time slot.';
+                errorBox.classList.remove('hidden');
+                return;
+            }
+
             payBtn.disabled = true;
             const origText = payBtn.querySelector('span').textContent;
             payBtn.querySelector('span').textContent = 'Creating Ziina checkout...';
@@ -144,7 +299,26 @@
                 const res = await fetch('/api/test-checkout', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ amountAed: Number(amountInput.value) || 2 }),
+                    body: JSON.stringify({
+                        amountAed: Number(amountInput.value) || 2,
+                        propertyType: 'Apartment',
+                        bedrooms: 2,
+                        bathrooms: 2,
+                        packageType: 'initial',
+                        scheduledStart: slotSelect.value,
+                        fullName: document.getElementById('fullName').value,
+                        email: document.getElementById('email').value,
+                        phone: document.getElementById('phone').value,
+                        developer: document.getElementById('developer').value,
+                        projectName: document.getElementById('projectName').value,
+                        areaCommunity: document.getElementById('areaCommunity').value,
+                        unitNumber: document.getElementById('unitNumber').value,
+                        accessInstructions: document.getElementById('accessInstructions').value,
+                        agentName: document.getElementById('agentName').value,
+                        agentAgency: document.getElementById('agentAgency').value,
+                        agentEmail: document.getElementById('agentEmail').value,
+                        agentPhone: document.getElementById('agentPhone').value,
+                    }),
                 });
                 const data = await res.json();
                 if (!res.ok || !data.redirectUrl) {
@@ -158,46 +332,6 @@
                 payBtn.querySelector('span').textContent = origText;
             }
         });
-
-        // Handle return from Ziina
-        (async function checkReturnStatus() {
-            const params = new URLSearchParams(window.location.search);
-            const status = params.get('status');
-            const ref = params.get('ref');
-            const intentId = params.get('intent_id');
-
-            if (status === 'cancelled') {
-                statusBanner.className = 'rounded-2xl p-5 border text-sm bg-amber-50 border-amber-200 text-amber-900';
-                statusBanner.innerHTML = `<strong>Payment cancelled.</strong> Reference: <span class="font-mono">${ref || '—'}</span>`;
-                statusBanner.classList.remove('hidden');
-                return;
-            }
-
-            if (status === 'success') {
-                statusBanner.className = 'rounded-2xl p-5 border text-sm bg-emerald-50 border-emerald-200 text-emerald-900';
-                statusBanner.innerHTML = `<strong>Returned from Ziina!</strong> Verifying payment status...`;
-                statusBanner.classList.remove('hidden');
-
-                if (intentId && !intentId.includes('{')) {
-                    try {
-                        const res = await fetch(`/api/test-checkout?intent_id=${encodeURIComponent(intentId)}`);
-                        const info = await res.json();
-                        const aed = info.amount ? (info.amount / 100).toFixed(2) : '—';
-                        statusBanner.innerHTML = `
-                            <div class="font-semibold mb-1">Payment status: ${info.status || 'completed'}</div>
-                            <div class="text-xs space-y-0.5">
-                                <div>Reference: <span class="font-mono">${ref || '—'}</span></div>
-                                <div>Amount: ${aed} ${info.currency_code || 'AED'} (${info.test ? 'Test Mode' : 'Live Mode'})</div>
-                            </div>
-                        `;
-                    } catch (_) {
-                        statusBanner.innerHTML = `<strong>Payment completed.</strong> Reference: <span class="font-mono">${ref || '—'}</span>`;
-                    }
-                } else {
-                    statusBanner.innerHTML = `<strong>Payment completed.</strong> Reference: <span class="font-mono">${ref || '—'}</span>`;
-                }
-            }
-        })();
     </script>
 </body>
 </html>
