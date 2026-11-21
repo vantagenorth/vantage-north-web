@@ -12,7 +12,7 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://vantagenorth.ae/partners">
     <meta property="og:site_name" content="Vantage North">
-    <meta property="og:title" content="Vantage North | A Better Handover Starts Here">
+    <meta property="og:title" content="Vantage North | Partner With Us">
     <meta property="og:description" content="Seamless snagging and end-to-end defect resolution for agents, conveyancers, and property managers in Dubai. Australian-led, RERA certified.">
     <meta property="og:image" content="https://vantagenorth.ae/reports_snapshot.png">
 
@@ -62,11 +62,10 @@
         .delay-100 { animation-delay: 0.1s; opacity: 0; }
         .delay-200 { animation-delay: 0.2s; opacity: 0; }
         .delay-300 { animation-delay: 0.3s; opacity: 0; }
-        .bento-card {
-            border-radius: 1.5rem;
+        .partner-card {
             transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease;
         }
-        .bento-card:hover {
+        .partner-card:hover {
             transform: translateY(-2px);
         }
     </style>
@@ -81,8 +80,9 @@
                     <img src="/logo/vantage_north_logo_light.png" alt="Vantage North" class="h-6 sm:h-7 w-auto">
                 </a>
                 <nav aria-label="Page sections" class="hidden md:flex items-center gap-6 text-sm font-medium text-vnDarkGray">
-                    <a href="#benefits" class="hover:text-vnBlack transition">Benefits</a>
-                    <a href="#process" class="hover:text-vnBlack transition">Process</a>
+                    <a href="#who" class="hover:text-vnBlack transition">Who we help</a>
+                    <a href="#benefits" class="hover:text-vnBlack transition">Why partner</a>
+                    <a href="#process" class="hover:text-vnBlack transition">Workflow</a>
                     <a href="#faq" class="hover:text-vnBlack transition">FAQ</a>
                 </nav>
             </div>
@@ -105,124 +105,86 @@
         <!-- Mobile Dropdown Menu -->
         <div id="mobileNavMenu" class="hidden md:hidden border-t border-neutral-200 bg-white px-4 py-4 space-y-2">
             <nav aria-label="Mobile sections" class="flex flex-col space-y-1 text-sm font-medium text-vnDarkGray">
-                <a href="#benefits" class="mobile-nav-link px-3 py-2 rounded-xl hover:bg-neutral-100 hover:text-vnBlack transition">Benefits</a>
-                <a href="#process" class="mobile-nav-link px-3 py-2 rounded-xl hover:bg-neutral-100 hover:text-vnBlack transition">Process</a>
+                <a href="#who" class="mobile-nav-link px-3 py-2 rounded-xl hover:bg-neutral-100 hover:text-vnBlack transition">Who we help</a>
+                <a href="#benefits" class="mobile-nav-link px-3 py-2 rounded-xl hover:bg-neutral-100 hover:text-vnBlack transition">Why partner</a>
+                <a href="#process" class="mobile-nav-link px-3 py-2 rounded-xl hover:bg-neutral-100 hover:text-vnBlack transition">Workflow</a>
                 <a href="#faq" class="mobile-nav-link px-3 py-2 rounded-xl hover:bg-neutral-100 hover:text-vnBlack transition">FAQ</a>
             </nav>
         </div>
     </header>
 
-    <main class="flex-grow pt-20 sm:pt-28 pb-24 px-4 sm:px-6 space-y-24 sm:space-y-28">
+    <main class="flex-grow pt-14 sm:pt-20 pb-24 px-4 sm:px-6 space-y-24 sm:space-y-28">
 
-        <!-- Hero Section -->
-        <section class="max-w-4xl mx-auto flex flex-col items-center text-center">
-            <h1 class="font-urbanist text-[3.1rem] sm:text-[4.25rem] md:text-[5.25rem] lg:text-[6rem] font-normal tracking-tight text-vnBlack leading-[1.06] max-w-5xl mb-10 sm:mb-12 animate-fade-up delay-100">
-                A better handover<br>
-                <span class="font-bold">starts here</span>
-            </h1>
-
-            <p class="font-epilogue text-base sm:text-lg md:text-xl text-vnDarkGray font-normal leading-relaxed max-w-4xl mb-12 animate-fade-up delay-200">
-                Seamless snagging &amp; end-to-end defect resolution for property partners — agents, conveyancers, and property managers.
-            </p>
-
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-5 w-full sm:w-auto animate-fade-up delay-300">
-                <a
-                    href="https://reports.vantagenorth.ae/sample"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="w-full sm:w-[230px] inline-flex items-center justify-center border border-neutral-300 bg-transparent text-vnBlack font-urbanist text-sm sm:text-base font-semibold tracking-[0.12em] uppercase px-8 py-4 rounded-3xl hover:border-vnBlack transition-colors duration-300"
-                >
-                    <span>Sample Report</span>
-                </a>
-                <a
-                    href="https://wa.me/971585565311"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="w-full sm:w-[230px] inline-flex items-center justify-center gap-3 bg-vnBlack text-vnWhite font-urbanist text-sm sm:text-base font-semibold tracking-[0.12em] uppercase px-8 py-4 rounded-3xl shadow-[0_14px_34px_rgba(0,0,0,0.12)] hover:bg-vnDarkGray transition-colors duration-300"
-                >
-                    <span>Let's chat</span>
-                    <span aria-hidden="true">→</span>
-                </a>
-            </div>
-        </section>
-
-        <!-- Interlocking Bento Feature Grid -->
-        <section id="benefits" aria-label="Partner Benefits" class="max-w-6xl mx-auto scroll-mt-24">
-            <div class="grid grid-cols-1 md:grid-cols-6 lg:grid-cols-12 grid-flow-dense gap-6">
-
-                <!-- 1. Make your handovers effortless (Main Tall 5x2 light card) -->
-                <div class="md:col-span-6 lg:col-span-5 lg:row-span-2 bento-card bg-white border border-neutral-200 hover:border-neutral-400 hover:shadow-[0_14px_36px_rgba(0,0,0,0.06)] p-7 sm:p-9 flex flex-col justify-between gap-7">
-                    <div>
-                        <h2 class="text-xl sm:text-2xl font-bold text-vnBlack mb-2 font-urbanist">Make your handovers effortless</h2>
-                        <p class="text-sm sm:text-base leading-relaxed text-vnDarkGray">
-                            Your job is guiding clients through transfers and handovers—not chasing developer snag teams. Introduce us once and we handle the inspection, reporting, and technical follow-through from start to finish.
-                        </p>
-                    </div>
-
-                    <!-- Handover Workflow Overview -->
-                    <div class="rounded-2xl bg-neutral-50 p-5 space-y-3.5 border border-neutral-200">
-                        <div class="flex items-center justify-between text-xs text-vnGray">
-                            <span class="font-urbanist font-semibold uppercase tracking-wider text-vnBlack text-sm">Handover Workflow</span>
-                        </div>
-                        <div class="space-y-2">
-                            <div class="rounded-xl bg-white border border-neutral-200 px-3.5 py-2.5 flex items-center justify-between gap-3">
-                                <div class="flex items-center gap-2.5">
-                                    <i data-lucide="user-plus" class="w-4 h-4 text-sky-600 shrink-0"></i>
-                                    <span class="font-urbanist font-medium text-sm text-vnBlack">Client introduction</span>
-                                </div>
-                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-urbanist font-semibold">
-                                    <i data-lucide="check" class="w-3 h-3"></i>2 min
-                                </span>
-                            </div>
-                            <div class="rounded-xl bg-white border border-neutral-200 px-3.5 py-2.5 flex items-center justify-between gap-3">
-                                <div class="flex items-center gap-2.5">
-                                    <i data-lucide="search" class="w-4 h-4 text-violet-600 shrink-0"></i>
-                                    <span class="font-urbanist font-medium text-sm text-vnBlack">Full unit inspection</span>
-                                </div>
-                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-urbanist font-semibold">
-                                    <i data-lucide="check" class="w-3 h-3"></i>Handled
-                                </span>
-                            </div>
-                            <div class="rounded-xl bg-white border border-neutral-200 px-3.5 py-2.5 flex items-center justify-between gap-3">
-                                <div class="flex items-center gap-2.5">
-                                    <i data-lucide="message-square" class="w-4 h-4 text-amber-600 shrink-0"></i>
-                                    <span class="font-urbanist font-medium text-sm text-vnBlack">Developer follow-up</span>
-                                </div>
-                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-urbanist font-semibold">
-                                    <i data-lucide="check" class="w-3 h-3"></i>Handled
-                                </span>
-                            </div>
-                            <div class="rounded-xl bg-white border border-neutral-200 px-3.5 py-2.5 flex items-center justify-between gap-3">
-                                <div class="flex items-center gap-2.5">
-                                    <i data-lucide="key-round" class="w-4 h-4 text-emerald-600 shrink-0"></i>
-                                    <span class="font-urbanist font-medium text-sm text-vnBlack">Key-ready handover</span>
-                                </div>
-                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-urbanist font-semibold">
-                                    <i data-lucide="check" class="w-3 h-3"></i>Verified
-                                </span>
-                            </div>
-                        </div>
-                    </div>
+        <!-- Split Executive Partner Hero -->
+        <section class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+            <div class="lg:col-span-7 space-y-7 animate-fade-up delay-100">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-neutral-200 text-xs font-urbanist font-semibold text-vnDarkGray">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    Agents · Conveyancers · Property Managers
                 </div>
 
-                <!-- 2. Client-ready digital reports (Wide 7x1 card with slidable Before/After photos) -->
-                <div class="md:col-span-6 lg:col-span-7 lg:row-span-1 bento-card bg-white border border-neutral-200 hover:border-neutral-400 hover:shadow-[0_14px_36px_rgba(0,0,0,0.06)] p-7 sm:p-8 flex flex-col sm:flex-row items-start justify-between gap-6">
-                    <div class="max-w-sm">
-                        <h2 class="text-xl sm:text-2xl font-bold text-vnBlack mb-2 font-urbanist">Client-ready digital reports</h2>
-                        <p class="text-sm leading-relaxed text-vnDarkGray mb-5">
-                            Impress your clients with an interactive online report—complete with annotated defect photos, clear severity tags, and live before-and-after repair tracking instead of a 100-page PDF.
-                        </p>
-                        <a
-                            href="https://reports.vantagenorth.ae/sample"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="inline-flex items-center justify-center border border-neutral-300 bg-transparent text-vnBlack font-urbanist text-xs sm:text-sm font-semibold tracking-[0.08em] uppercase px-6 py-3 rounded-2xl hover:border-vnBlack transition-colors duration-300"
-                        >
-                            <span>View sample report</span>
-                        </a>
+                <h1 class="font-urbanist text-4xl sm:text-5xl md:text-6xl font-normal tracking-tight text-vnBlack leading-[1.06]">
+                    A better handover<br>
+                    <span class="font-bold">for your clients</span>
+                </h1>
+
+                <p class="font-epilogue text-base sm:text-lg text-vnDarkGray leading-relaxed max-w-xl">
+                    Seamless snagging and end-to-end defect resolution for Dubai property partners. Introduce us once—we handle the inspection, 24-hour digital report, and developer follow-through.
+                </p>
+
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-1">
+                    <a
+                        href="https://wa.me/971585565311"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="inline-flex items-center justify-center gap-2.5 bg-vnBlack text-vnWhite font-urbanist text-sm font-semibold tracking-[0.1em] uppercase px-8 py-4 rounded-2xl shadow-[0_14px_34px_rgba(0,0,0,0.12)] hover:bg-vnDarkGray transition"
+                    >
+                        <span>Let's chat</span>
+                        <span aria-hidden="true">→</span>
+                    </a>
+                    <a
+                        href="https://reports.vantagenorth.ae/sample"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="inline-flex items-center justify-center border border-neutral-300 bg-white text-vnBlack font-urbanist text-sm font-semibold tracking-[0.1em] uppercase px-8 py-4 rounded-2xl hover:border-vnBlack transition"
+                    >
+                        <span>Sample report</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right: Partner Handoff Preview Card -->
+            <div class="lg:col-span-5 animate-fade-up delay-200">
+                <div class="bg-white border border-neutral-200 rounded-3xl p-6 sm:p-7 shadow-[0_18px_48px_rgba(0,0,0,0.06)] space-y-5">
+                    <div class="flex items-center justify-between border-b border-neutral-100 pb-4">
+                        <div>
+                            <p class="font-urbanist font-bold text-base text-vnBlack">Partner handoff</p>
+                            <p class="text-xs text-vnGray">Zero admin for your team</p>
+                        </div>
+                        <span class="px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-urbanist font-semibold">
+                            RERA 65910
+                        </span>
                     </div>
-                    <div class="shrink-0 w-full sm:w-64 lg:w-72 bg-neutral-50 border border-neutral-200 rounded-2xl p-2">
-                        <div id="baSlider" class="relative overflow-hidden rounded-xl aspect-[4/3] sm:aspect-square bg-neutral-200 select-none">
+
+                    <!-- Mini Metrics Row -->
+                    <div class="grid grid-cols-3 gap-2.5 text-center">
+                        <div class="rounded-2xl bg-neutral-50 border border-neutral-200 p-3">
+                            <p class="font-urbanist font-bold text-lg text-vnBlack">60s</p>
+                            <p class="text-[11px] text-vnGray">Client intro</p>
+                        </div>
+                        <div class="rounded-2xl bg-neutral-50 border border-neutral-200 p-3">
+                            <p class="font-urbanist font-bold text-lg text-vnBlack">24h</p>
+                            <p class="text-[11px] text-vnGray">Live report</p>
+                        </div>
+                        <div class="rounded-2xl bg-neutral-50 border border-neutral-200 p-3">
+                            <p class="font-urbanist font-bold text-lg text-vnBlack">100%</p>
+                            <p class="text-[11px] text-vnGray">Independent</p>
+                        </div>
+                    </div>
+
+                    <!-- Slidable Before/After Preview -->
+                    <div class="bg-neutral-50 border border-neutral-200 rounded-2xl p-2">
+                        <div id="baSlider" class="relative overflow-hidden rounded-xl aspect-[16/10] bg-neutral-200 select-none">
                             <img
                                 src="https://djlliskxwlpdrrnhmwhb.supabase.co/storage/v1/object/public/inspection_photos/inspections/11111111-1111-1111-1111-111111111102/snag_02_fixed.jpeg"
                                 alt="After repair: AC condensation fixed"
@@ -258,242 +220,222 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </section>
 
-                <!-- 3. Protect your client relationships (Wide 7x1 card) -->
-                <div class="md:col-span-6 lg:col-span-7 lg:row-span-1 bento-card bg-white border border-neutral-200 hover:border-neutral-400 hover:shadow-[0_14px_36px_rgba(0,0,0,0.06)] p-7 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-                    <div class="max-w-lg">
-                        <h2 class="text-xl sm:text-2xl font-bold text-vnBlack mb-2 font-urbanist">Protect your client relationships</h2>
-                        <p class="text-sm leading-relaxed text-vnDarkGray">
-                            When hidden AC, leak, or electrical faults appear after key collection or transfer, clients remember who advised them. Catching defects early protects your reputation and earns repeat referrals.
-                        </p>
-                    </div>
-                    <div class="shrink-0 w-14 h-14 rounded-2xl bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-700">
-                        <i data-lucide="award" class="w-7 h-7"></i>
-                    </div>
-                </div>
+        <!-- Built For Every Partner Role -->
+        <section id="who" aria-label="Who we partner with" class="max-w-6xl mx-auto scroll-mt-24">
+            <div class="max-w-2xl mb-10">
+                <span class="text-xs font-semibold uppercase tracking-wider text-vnGray font-urbanist">Who we work with</span>
+                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight mt-2">Built for every stage of the transaction</h2>
+            </div>
 
-                <!-- 4. 24 hours (4x1 card) -->
-                <div class="md:col-span-3 lg:col-span-4 lg:row-span-1 bento-card bg-white border border-neutral-200 hover:border-neutral-400 hover:shadow-[0_14px_36px_rgba(0,0,0,0.06)] p-7 flex flex-col justify-between gap-5">
-                    <div class="w-14 h-14 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-700">
-                        <i data-lucide="clock" class="w-7 h-7"></i>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="partner-card bg-white border border-neutral-200 hover:border-neutral-400 hover:shadow-[0_14px_36px_rgba(0,0,0,0.06)] rounded-3xl p-7 flex flex-col justify-between gap-6">
+                    <div class="w-12 h-12 rounded-2xl bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-700">
+                        <i data-lucide="handshake" class="w-6 h-6"></i>
                     </div>
                     <div>
-                        <h2 class="text-lg sm:text-xl font-bold text-vnBlack mb-1.5 font-urbanist">24 hours</h2>
-                        <p class="text-sm leading-relaxed text-vnDarkGray">
-                            After the initial inspection, your client receives their full digital report within 24 hours or less—keeping handover and transfer timelines moving.
+                        <h3 class="text-xl font-bold text-vnBlack mb-2">Real estate agents</h3>
+                        <p class="text-sm text-vnDarkGray leading-relaxed">
+                            Protect client trust after key collection. When hidden AC, plumbing, or electrical issues are caught before handover, your buyers remember you as the advisor who had their back.
                         </p>
                     </div>
                 </div>
 
-                <!-- 5. Zero admin for your team (4x1 card) -->
-                <div class="md:col-span-3 lg:col-span-4 lg:row-span-1 bento-card bg-white border border-neutral-200 hover:border-neutral-400 hover:shadow-[0_14px_36px_rgba(0,0,0,0.06)] p-7 flex flex-col justify-between gap-5">
-                    <div class="w-14 h-14 rounded-2xl bg-violet-50 border border-violet-200 flex items-center justify-center text-violet-700">
-                        <i data-lucide="sparkles" class="w-7 h-7"></i>
+                <div class="partner-card bg-white border border-neutral-200 hover:border-neutral-400 hover:shadow-[0_14px_36px_rgba(0,0,0,0.06)] rounded-3xl p-7 flex flex-col justify-between gap-6">
+                    <div class="w-12 h-12 rounded-2xl bg-violet-50 border border-violet-200 flex items-center justify-center text-violet-700">
+                        <i data-lucide="file-check-2" class="w-6 h-6"></i>
                     </div>
                     <div>
-                        <h2 class="text-lg sm:text-xl font-bold text-vnBlack mb-1.5 font-urbanist">Zero admin</h2>
-                        <p class="text-sm leading-relaxed text-vnDarkGray">
-                            Just connect us with your client or share the unit details—we handle scheduling, NOC coordination, and client updates.
+                        <h3 class="text-xl font-bold text-vnBlack mb-2">Conveyancers</h3>
+                        <p class="text-sm text-vnDarkGray leading-relaxed">
+                            Keep off-plan handovers and secondary-market transfers moving on schedule. Our 24-hour, RERA-certified reports give your clients objective evidence prior to closing or DLP sign-off.
                         </p>
                     </div>
                 </div>
 
-                <!-- 6. We're independent (Tall 4x2 light card) -->
-                <div class="md:col-span-6 lg:col-span-4 lg:row-span-2 bento-card bg-white border border-neutral-200 hover:border-neutral-400 hover:shadow-[0_14px_36px_rgba(0,0,0,0.06)] p-7 sm:p-9 flex flex-col justify-between gap-8">
-                    <div class="flex items-start justify-between">
-                        <div class="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center">
-                            <i data-lucide="scale" class="w-8 h-8"></i>
-                        </div>
-                        <span class="font-urbanist text-4xl font-bold text-vnBlack/85">100%</span>
+                <div class="partner-card bg-white border border-neutral-200 hover:border-neutral-400 hover:shadow-[0_14px_36px_rgba(0,0,0,0.06)] rounded-3xl p-7 flex flex-col justify-between gap-6">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700">
+                        <i data-lucide="building-2" class="w-6 h-6"></i>
                     </div>
                     <div>
-                        <h2 class="text-2xl sm:text-3xl font-bold text-vnBlack mb-3 font-urbanist tracking-tight">We're independent</h2>
-                        <p class="text-sm sm:text-base leading-relaxed text-vnDarkGray">
-                            We work solely for your client's best interest—never for the developer. Recommending an independent inspector shows clients you genuinely have their back.
+                        <h3 class="text-xl font-bold text-vnBlack mb-2">Property managers</h3>
+                        <p class="text-sm text-vnDarkGray leading-relaxed">
+                            Document unit condition before tenant move-in and enforce developer DLP warranties properly—without your team spending hours coordinating site visits and contractor follow-ups.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Why Partners Choose Vantage North (Clean 2x3 Grid) -->
+        <section id="benefits" aria-label="Why partner with Vantage North" class="max-w-6xl mx-auto scroll-mt-24">
+            <div class="max-w-2xl mb-10">
+                <span class="text-xs font-semibold uppercase tracking-wider text-vnGray font-urbanist">Why partner</span>
+                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight mt-2">Reliable, independent, zero admin</h2>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="partner-card bg-white border border-neutral-200 rounded-3xl p-7 space-y-4">
+                    <div class="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-700">
+                        <i data-lucide="clock" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-vnBlack mb-1.5">24-hour turnaround</h3>
+                        <p class="text-sm text-vnDarkGray leading-relaxed">
+                            Full digital reports are delivered within 24 hours of inspection, so transfer and handover deadlines never stall.
                         </p>
                     </div>
                 </div>
 
-                <!-- 7. Australian-led (4x1 card) -->
-                <div class="md:col-span-3 lg:col-span-4 lg:row-span-1 bento-card bg-white border border-neutral-200 hover:border-neutral-400 hover:shadow-[0_14px_36px_rgba(0,0,0,0.06)] p-7 flex flex-col justify-between gap-5">
-                    <div class="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700">
-                        <svg viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8" role="img" aria-label="Kangaroo">
+                <div class="partner-card bg-white border border-neutral-200 rounded-3xl p-7 space-y-4">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700">
+                        <i data-lucide="scale" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-vnBlack mb-1.5">100% independent</h3>
+                        <p class="text-sm text-vnDarkGray leading-relaxed">
+                            We work solely for your client's best interest—never for developers or contractors. Objective reporting you can stand behind.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="partner-card bg-white border border-neutral-200 rounded-3xl p-7 space-y-4">
+                    <div class="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-700">
+                        <i data-lucide="sparkles" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-vnBlack mb-1.5">Zero admin for your team</h3>
+                        <p class="text-sm text-vnDarkGray leading-relaxed">
+                            Connect us on WhatsApp or share the unit details. We handle client scheduling, NOC access coordination, and live updates.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="partner-card bg-white border border-neutral-200 rounded-3xl p-7 space-y-4">
+                    <div class="w-12 h-12 rounded-2xl bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-700">
+                        <i data-lucide="plane" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-vnBlack mb-1.5">Overseas &amp; VIP clients</h3>
+                        <p class="text-sm text-vnDarkGray leading-relaxed">
+                            Representing international clients who can't attend in person? We act as trusted boots on the ground from inspection to keys.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="partner-card bg-white border border-neutral-200 rounded-3xl p-7 space-y-4">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700">
+                        <svg viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7" role="img" aria-label="Kangaroo">
                             <path d="M1.5 11.5C3.5 13.8 6.4 13.4 9 11.2C10.5 12.8 11.6 14 12.2 16.2L12.6 20.4C12.7 21 13.1 21.3 13.8 21.4L18.8 22.1C19.4 22.2 19.6 21.5 19 21.2L14.2 19.3L13.6 15.3C14 14.8 14.5 14.6 14.9 14.9L14.2 16.7C14 17.2 14.4 17.6 14.9 17.4C15.5 17.1 16 16.1 16.5 14.6C17.8 13.6 18.8 12.4 19.3 10.8C20.4 10.6 21.4 10.5 22.1 10.1C22.6 9.8 22.6 9.1 22.1 8.8L20.1 7.6C19.5 6.8 18.4 6 17.6 5.9C17.2 5.9 17.2 6.4 17.6 6.8L18.9 7.9C18.3 8.4 17.6 8.8 16.8 8.3C15.5 5.4 13.6 3.5 11.2 3.8C8.4 4.1 6.2 7.6 4.1 10.4C3.1 11.7 2.1 12 1.5 11.5Z"/>
                         </svg>
                     </div>
                     <div>
-                        <h2 class="text-lg sm:text-xl font-bold text-vnBlack mb-1.5 font-urbanist">Australian-led</h2>
-                        <p class="text-sm leading-relaxed text-vnDarkGray">
-                            Founded and led by an experienced Australian renovator who knows what to look for, and where corners get cut.
+                        <h3 class="text-lg font-bold text-vnBlack mb-1.5">Australian-led</h3>
+                        <p class="text-sm text-vnDarkGray leading-relaxed">
+                            Led by an experienced Australian renovator who knows exactly what to look for—and where corners get cut.
                         </p>
                     </div>
                 </div>
 
-                <!-- 8. Fully licensed (4x1 card) -->
-                <div class="md:col-span-3 lg:col-span-4 lg:row-span-1 bento-card bg-white border border-neutral-200 hover:border-neutral-400 hover:shadow-[0_14px_36px_rgba(0,0,0,0.06)] p-7 flex flex-col justify-between gap-5">
-                    <div class="w-14 h-14 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700">
-                        <i data-lucide="shield-check" class="w-7 h-7"></i>
+                <div class="partner-card bg-white border border-neutral-200 rounded-3xl p-7 space-y-4">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700">
+                        <i data-lucide="shield-check" class="w-6 h-6"></i>
                     </div>
                     <div>
-                        <h2 class="text-lg sm:text-xl font-bold text-vnBlack mb-1.5 font-urbanist">Fully licensed</h2>
-                        <p class="text-sm leading-relaxed text-vnDarkGray">
-                            Vantage North is fully licensed and RERA registered—giving your firm compliant, trustworthy documentation.
+                        <h3 class="text-lg font-bold text-vnBlack mb-1.5">Fully licensed &amp; RERA</h3>
+                        <p class="text-sm text-vnDarkGray leading-relaxed">
+                            Fully licensed and RERA registered (65910), with turn-key developer follow-up and final verification available.
                         </p>
-                    </div>
-                </div>
-
-                <!-- 9. Overseas & VIP buyers (6x1 card) -->
-                <div class="md:col-span-3 lg:col-span-6 lg:row-span-1 bento-card bg-white border border-neutral-200 hover:border-neutral-400 hover:shadow-[0_14px_36px_rgba(0,0,0,0.06)] p-7 flex flex-col justify-between gap-5">
-                    <div class="w-14 h-14 rounded-2xl bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-700">
-                        <i data-lucide="plane" class="w-7 h-7"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-lg sm:text-xl font-bold text-vnBlack mb-1.5 font-urbanist">Overseas &amp; VIP buyers</h2>
-                        <p class="text-sm leading-relaxed text-vnDarkGray">
-                            Working with international investors who can't attend handover in person? We act as reliable boots on the ground and keep both you and your client updated with live progress.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- 10. Turn-key developer follow-up (6x1 card) -->
-                <div class="md:col-span-3 lg:col-span-6 lg:row-span-1 bento-card bg-white border border-neutral-200 hover:border-neutral-400 hover:shadow-[0_14px_36px_rgba(0,0,0,0.06)] p-7 flex flex-col justify-between gap-5">
-                    <div class="w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-700">
-                        <i data-lucide="plus-circle" class="w-7 h-7"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-lg sm:text-xl font-bold text-vnBlack mb-1.5 font-urbanist">Turn-key developer follow-up</h2>
-                        <p class="text-sm leading-relaxed text-vnDarkGray">
-                            We don't just drop off a snag list and disappear. Our Turn-key package includes direct developer coordination and final verification re-inspections so your team never has to chase contractors.
-                        </p>
-                    </div>
-                </div>
-
-            </div>
-        </section>
-
-        <!-- How It Works Section -->
-        <section id="process" aria-label="How It Works" class="max-w-6xl mx-auto scroll-mt-24">
-            <div class="text-center mx-auto mb-12">
-                <span class="text-xs font-semibold uppercase tracking-wider text-vnGray font-urbanist">How It Works</span>
-                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight mt-2">A frictionless workflow for you and your clients</h2>
-            </div>
-
-            <div class="flex flex-col lg:flex-row items-stretch gap-2.5">
-                <div class="flex-1 bg-white border border-neutral-200 rounded-2xl p-6 flex flex-col justify-start">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="w-8 h-8 rounded-full bg-black text-white text-xs font-bold flex items-center justify-center">1</span>
-                        <i data-lucide="message-circle" class="w-5 h-5 text-vnGray"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-base mb-1">Quick intro</h3>
-                        <p class="text-xs text-vnDarkGray leading-relaxed">Introduce your client on WhatsApp or share their details in 60 seconds.</p>
-                    </div>
-                </div>
-
-                <div class="flex items-center justify-center py-1 lg:py-0 text-neutral-500 shrink-0" aria-hidden="true">
-                    <i data-lucide="arrow-down" class="w-6 h-6 lg:hidden"></i>
-                    <i data-lucide="arrow-right" class="w-6 h-6 hidden lg:block"></i>
-                </div>
-
-                <div class="flex-1 bg-white border border-neutral-200 rounded-2xl p-6 flex flex-col justify-start">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="w-8 h-8 rounded-full bg-black text-white text-xs font-bold flex items-center justify-center">2</span>
-                        <i data-lucide="search" class="w-5 h-5 text-vnGray"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-base mb-1">On-site inspection</h3>
-                        <p class="text-xs text-vnDarkGray leading-relaxed">We inspect the property from top to bottom for hidden issues and defects.</p>
-                    </div>
-                </div>
-
-                <div class="flex items-center justify-center py-1 lg:py-0 text-neutral-500 shrink-0" aria-hidden="true">
-                    <i data-lucide="arrow-down" class="w-6 h-6 lg:hidden"></i>
-                    <i data-lucide="arrow-right" class="w-6 h-6 hidden lg:block"></i>
-                </div>
-
-                <div class="flex-1 bg-white border border-neutral-200 rounded-2xl p-6 flex flex-col justify-start">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="w-8 h-8 rounded-full bg-black text-white text-xs font-bold flex items-center justify-center">3</span>
-                        <i data-lucide="file-text" class="w-5 h-5 text-vnGray"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-base mb-1">Digital report</h3>
-                        <p class="text-xs text-vnDarkGray leading-relaxed">Client-ready interactive report delivered within 24 hours.</p>
-                    </div>
-                </div>
-
-                <div class="flex items-center justify-center py-1 lg:py-0 text-neutral-500 shrink-0" aria-hidden="true">
-                    <i data-lucide="arrow-down" class="w-6 h-6 lg:hidden"></i>
-                    <i data-lucide="arrow-right" class="w-6 h-6 hidden lg:block"></i>
-                </div>
-
-                <div class="flex-1 bg-white border border-neutral-200 rounded-2xl p-6 flex flex-col justify-start">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="w-8 h-8 rounded-full bg-neutral-200 text-black text-xs font-bold flex items-center justify-center">4</span>
-                        <span class="text-[10px] font-urbanist font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-neutral-100 text-vnGray">Add-on</span>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-base mb-1">Developer follow-up</h3>
-                        <p class="text-xs text-vnDarkGray leading-relaxed">We coordinate with the developer and re-inspect completed repairs.</p>
-                    </div>
-                </div>
-
-                <div class="flex items-center justify-center py-1 lg:py-0 text-neutral-500 shrink-0" aria-hidden="true">
-                    <i data-lucide="arrow-down" class="w-6 h-6 lg:hidden"></i>
-                    <i data-lucide="arrow-right" class="w-6 h-6 hidden lg:block"></i>
-                </div>
-
-                <div class="flex-1 bg-emerald-50/70 border border-emerald-200 rounded-2xl p-6 flex flex-col justify-start">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="w-8 h-8 rounded-full bg-emerald-600 text-white text-xs font-bold flex items-center justify-center">5</span>
-                        <i data-lucide="key-round" class="w-5 h-5 text-emerald-700"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-base text-vnBlack mb-1">Smooth handover</h3>
-                        <p class="text-xs text-vnDarkGray leading-relaxed">Happy clients, zero post-handover headaches, and stronger referrals.</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- FAQ Bubbles + Floating Answer Modal -->
+        <!-- Partner Workflow Timeline (4 Columns) -->
+        <section id="process" aria-label="Partner workflow" class="max-w-6xl mx-auto scroll-mt-24">
+            <div class="bg-white border border-neutral-200 rounded-3xl p-7 sm:p-10 lg:p-12">
+                <div class="max-w-2xl mb-10">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-vnGray font-urbanist">Workflow</span>
+                    <h2 class="text-2xl sm:text-3xl font-bold tracking-tight mt-2">How a partner referral works</h2>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 relative">
+                    <div class="space-y-3">
+                        <span class="w-9 h-9 rounded-full bg-vnBlack text-white text-xs font-urbanist font-bold flex items-center justify-center">01</span>
+                        <h3 class="font-bold text-base text-vnBlack">Introduce your client</h3>
+                        <p class="text-sm text-vnDarkGray leading-relaxed">Message us on WhatsApp or connect us in a quick group chat with the property details.</p>
+                    </div>
+
+                    <div class="space-y-3">
+                        <span class="w-9 h-9 rounded-full bg-vnBlack text-white text-xs font-urbanist font-bold flex items-center justify-center">02</span>
+                        <h3 class="font-bold text-base text-vnBlack">We inspect on site</h3>
+                        <p class="text-sm text-vnDarkGray leading-relaxed">We coordinate NOC/access directly and test AC, plumbing, electrical, and finishes.</p>
+                    </div>
+
+                    <div class="space-y-3">
+                        <span class="w-9 h-9 rounded-full bg-vnBlack text-white text-xs font-urbanist font-bold flex items-center justify-center">03</span>
+                        <h3 class="font-bold text-base text-vnBlack">24h digital report</h3>
+                        <p class="text-sm text-vnDarkGray leading-relaxed">Your client (and you, if requested) receives an interactive online report within 24 hours.</p>
+                    </div>
+
+                    <div class="space-y-3">
+                        <span class="w-9 h-9 rounded-full bg-emerald-600 text-white text-xs font-urbanist font-bold flex items-center justify-center">04</span>
+                        <h3 class="font-bold text-base text-vnBlack">Smooth closing</h3>
+                        <p class="text-sm text-vnDarkGray leading-relaxed">Optional turn-key developer follow-up &amp; re-inspection through to key handover.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Partner FAQ (Clean 2-Column Accordion Grid) -->
         <section id="faq" aria-label="Frequently Asked Questions" class="max-w-6xl mx-auto scroll-mt-24">
-            <div class="text-center mb-10">
+            <div class="max-w-2xl mb-10">
                 <span class="text-xs font-semibold uppercase tracking-wider text-vnGray font-urbanist">FAQ</span>
-                <h2 class="text-3xl sm:text-4xl font-bold tracking-tight mt-2">Common questions from partners</h2>
-                <p class="text-sm text-vnDarkGray mt-2">Tap any question to view the answer.</p>
+                <h2 class="text-2xl sm:text-3xl font-bold tracking-tight mt-2">Common questions from partners</h2>
             </div>
 
-            <div class="flex flex-wrap justify-center gap-3">
-                <button type="button" class="faq-bubble group inline-flex items-center gap-2.5 bg-white border border-neutral-200 hover:border-vnBlack hover:shadow-[0_10px_28px_rgba(0,0,0,0.06)] rounded-full px-5 py-3 text-left transition" data-faq-index="0">
-                    <span class="font-urbanist font-semibold text-sm sm:text-base text-vnBlack">How do I refer a client or book for them?</span>
-                    <span class="w-5 h-5 rounded-full bg-neutral-100 group-hover:bg-vnBlack group-hover:text-white flex items-center justify-center text-xs text-vnGray transition shrink-0">+</span>
-                </button>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <details class="group bg-white border border-neutral-200 rounded-2xl p-6">
+                    <summary class="cursor-pointer list-none flex items-center justify-between gap-4 font-urbanist font-bold text-base">
+                        <span>How do I refer a client or book for them?</span>
+                        <span class="text-xl text-vnGray group-open:rotate-45 transition-transform">+</span>
+                    </summary>
+                    <p class="text-sm text-vnDarkGray leading-relaxed mt-3">
+                        Message us on WhatsApp (+971 58 556 5311) or introduce your client via a group chat. We handle scheduling, access instructions, and payment directly—zero admin for your team.
+                    </p>
+                </details>
 
-                <button type="button" class="faq-bubble group inline-flex items-center gap-2.5 bg-white border border-neutral-200 hover:border-vnBlack hover:shadow-[0_10px_28px_rgba(0,0,0,0.06)] rounded-full px-5 py-3 text-left transition" data-faq-index="1">
-                    <span class="font-urbanist font-semibold text-sm sm:text-base text-vnBlack">Will snagging delay my client's handover or transfer?</span>
-                    <span class="w-5 h-5 rounded-full bg-neutral-100 group-hover:bg-vnBlack group-hover:text-white flex items-center justify-center text-xs text-vnGray transition shrink-0">+</span>
-                </button>
+                <details class="group bg-white border border-neutral-200 rounded-2xl p-6">
+                    <summary class="cursor-pointer list-none flex items-center justify-between gap-4 font-urbanist font-bold text-base">
+                        <span>Will snagging delay my client's handover or transfer?</span>
+                        <span class="text-xl text-vnGray group-open:rotate-45 transition-transform">+</span>
+                    </summary>
+                    <p class="text-sm text-vnDarkGray leading-relaxed mt-3">
+                        No. We deliver the full interactive report within 24 hours of inspection, giving you and your client clear documentation immediately so timelines stay on track.
+                    </p>
+                </details>
 
-                <button type="button" class="faq-bubble group inline-flex items-center gap-2.5 bg-white border border-neutral-200 hover:border-vnBlack hover:shadow-[0_10px_28px_rgba(0,0,0,0.06)] rounded-full px-5 py-3 text-left transition" data-faq-index="2">
-                    <span class="font-urbanist font-semibold text-sm sm:text-base text-vnBlack">Do I need to attend the inspection in person?</span>
-                    <span class="w-5 h-5 rounded-full bg-neutral-100 group-hover:bg-vnBlack group-hover:text-white flex items-center justify-center text-xs text-vnGray transition shrink-0">+</span>
-                </button>
+                <details class="group bg-white border border-neutral-200 rounded-2xl p-6">
+                    <summary class="cursor-pointer list-none flex items-center justify-between gap-4 font-urbanist font-bold text-base">
+                        <span>Do I need to attend the inspection in person?</span>
+                        <span class="text-xl text-vnGray group-open:rotate-45 transition-transform">+</span>
+                    </summary>
+                    <p class="text-sm text-vnDarkGray leading-relaxed mt-3">
+                        Not at all. Once building access or NOC details are shared, we handle the entire on-site inspection independently and keep you updated once the report is live.
+                    </p>
+                </details>
 
-                <button type="button" class="faq-bubble group inline-flex items-center gap-2.5 bg-white border border-neutral-200 hover:border-vnBlack hover:shadow-[0_10px_28px_rgba(0,0,0,0.06)] rounded-full px-5 py-3 text-left transition" data-faq-index="3">
-                    <span class="font-urbanist font-semibold text-sm sm:text-base text-vnBlack">Can I view my client's report too?</span>
-                    <span class="w-5 h-5 rounded-full bg-neutral-100 group-hover:bg-vnBlack group-hover:text-white flex items-center justify-center text-xs text-vnGray transition shrink-0">+</span>
-                </button>
-
-                <button type="button" class="faq-bubble group inline-flex items-center gap-2.5 bg-white border border-neutral-200 hover:border-vnBlack hover:shadow-[0_10px_28px_rgba(0,0,0,0.06)] rounded-full px-5 py-3 text-left transition" data-faq-index="4">
-                    <span class="font-urbanist font-semibold text-sm sm:text-base text-vnBlack">Do you handle overseas clients?</span>
-                    <span class="w-5 h-5 rounded-full bg-neutral-100 group-hover:bg-vnBlack group-hover:text-white flex items-center justify-center text-xs text-vnGray transition shrink-0">+</span>
-                </button>
-
-                <button type="button" class="faq-bubble group inline-flex items-center gap-2.5 bg-white border border-neutral-200 hover:border-vnBlack hover:shadow-[0_10px_28px_rgba(0,0,0,0.06)] rounded-full px-5 py-3 text-left transition" data-faq-index="5">
-                    <span class="font-urbanist font-semibold text-sm sm:text-base text-vnBlack">Do you inspect secondary-market (resale) properties?</span>
-                    <span class="w-5 h-5 rounded-full bg-neutral-100 group-hover:bg-vnBlack group-hover:text-white flex items-center justify-center text-xs text-vnGray transition shrink-0">+</span>
-                </button>
+                <details class="group bg-white border border-neutral-200 rounded-2xl p-6">
+                    <summary class="cursor-pointer list-none flex items-center justify-between gap-4 font-urbanist font-bold text-base">
+                        <span>Can my firm receive a copy of the report?</span>
+                        <span class="text-xl text-vnGray group-open:rotate-45 transition-transform">+</span>
+                    </summary>
+                    <p class="text-sm text-vnDarkGray leading-relaxed mt-3">
+                        Yes. With your client's permission, we share the live report link with you so you can stay across every logged defect and repair status.
+                    </p>
+                </details>
             </div>
         </section>
 
@@ -538,18 +480,6 @@
             </nav>
         </div>
     </footer>
-
-    <!-- Floating FAQ Answer Modal -->
-    <div id="faqModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/45 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="faqModalQuestion">
-        <div id="faqModalCard" class="bg-white border border-neutral-200 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-[0_24px_64px_rgba(0,0,0,0.22)] relative">
-            <button id="faqModalClose" type="button" aria-label="Close answer" class="absolute top-5 right-5 w-9 h-9 rounded-full border border-neutral-200 flex items-center justify-center text-vnGray hover:text-vnBlack hover:border-vnBlack transition">
-                <i data-lucide="x" class="w-4 h-4"></i>
-            </button>
-            <span class="text-xs font-semibold uppercase tracking-wider text-vnGray font-urbanist">FAQ</span>
-            <h3 id="faqModalQuestion" class="text-xl sm:text-2xl font-bold text-vnBlack font-urbanist mt-1.5 pr-10"></h3>
-            <p id="faqModalAnswer" class="text-sm sm:text-base text-vnDarkGray leading-relaxed mt-4"></p>
-        </div>
-    </div>
 
     <script>
         lucide.createIcons();
@@ -600,65 +530,6 @@
             baBtnBefore.addEventListener('click', () => setBaPosition(100));
             baBtnAfter.addEventListener('click', () => setBaPosition(0));
             setBaPosition(50);
-        }
-
-        // FAQ Bubbles Floating Modal
-        const FAQ_ITEMS = [
-            {
-                q: "How do I refer a client or book for them?",
-                a: "Simply message us on WhatsApp (+971 58 556 5311) or introduce your client via a group chat. We handle scheduling, access instructions, and payment directly—zero admin for your team."
-            },
-            {
-                q: "Will snagging delay my client's handover or transfer?",
-                a: "No. We deliver the full interactive report within 24 hours of inspection, giving you and your buyer clear documentation immediately so handover or transfer timelines stay on track."
-            },
-            {
-                q: "Do I need to attend the inspection in person?",
-                a: "Not at all. Once building access or NOC details are shared, we handle the entire on-site inspection independently and update both you and your client once the report is live."
-            },
-            {
-                q: "Can I view my client's report too?",
-                a: "Yes. With your client's permission, we can share the live report link with you so you can stay across every logged defect and repair status."
-            },
-            {
-                q: "Do you handle overseas investors?",
-                a: "Yes—many of our clients are overseas buyers. We act as their trusted eyes on the ground, documenting every millimetre and verifying developer fixes before they accept the keys."
-            },
-            {
-                q: "Do you inspect secondary-market (resale) properties?",
-                a: "Yes. For resale buyers, our inspection uncovers hidden AC, plumbing, and maintenance issues before transfer, helping your client close with complete clarity."
-            }
-        ];
-
-        const faqModal = document.getElementById('faqModal');
-        const faqModalQuestion = document.getElementById('faqModalQuestion');
-        const faqModalAnswer = document.getElementById('faqModalAnswer');
-        const faqModalClose = document.getElementById('faqModalClose');
-
-        function closeFaqModal() {
-            faqModal.classList.add('hidden');
-        }
-
-        document.querySelectorAll('.faq-bubble').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const item = FAQ_ITEMS[Number(btn.dataset.faqIndex)];
-                if (!item) return;
-                faqModalQuestion.textContent = item.q;
-                faqModalAnswer.textContent = item.a;
-                faqModal.classList.remove('hidden');
-            });
-        });
-
-        if (faqModalClose && faqModal) {
-            faqModalClose.addEventListener('click', closeFaqModal);
-            faqModal.addEventListener('click', (e) => {
-                if (e.target === faqModal) closeFaqModal();
-            });
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && !faqModal.classList.contains('hidden')) {
-                    closeFaqModal();
-                }
-            });
         }
     </script>
 </body>
