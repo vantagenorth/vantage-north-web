@@ -101,7 +101,7 @@
         <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
             <div class="flex items-center gap-8">
                 <a href="/clients" class="flex items-center shrink-0">
-                    <img src="/logo/vantage_north_logo_light.png" alt="Vantage North" class="h-7 w-auto">
+                    <img src="/logo/vantage_north_logo_light.png" alt="Vantage North" class="h-6 sm:h-7 w-auto">
                 </a>
                 <nav aria-label="Page sections" class="hidden md:flex items-center gap-6 text-sm font-medium text-vnDarkGray">
                     <a href="#features" class="hover:text-vnBlack transition">Features</a>
@@ -110,10 +110,34 @@
                     <a href="#faq" class="hover:text-vnBlack transition">FAQ</a>
                 </nav>
             </div>
-            <div class="flex items-center gap-3 text-sm shrink-0">
-                <a href="https://wa.me/971585565311" target="_blank" rel="noopener noreferrer" class="px-4 py-2 rounded-full border border-neutral-300 text-vnBlack hover:border-vnBlack transition font-medium">Let's chat</a>
-                <a href="/book" class="px-4 py-2 rounded-full bg-vnBlack text-vnWhite hover:bg-neutral-800 transition font-medium">
+            <div class="flex items-center gap-2.5 sm:gap-3 text-sm shrink-0">
+                <a href="https://wa.me/971585565311" target="_blank" rel="noopener noreferrer" class="hidden md:inline-flex px-4 py-2 rounded-full border border-neutral-300 text-vnBlack hover:border-vnBlack transition font-medium whitespace-nowrap">Let's chat</a>
+                <a href="/book" class="px-4 py-2 rounded-full bg-vnBlack text-vnWhite hover:bg-neutral-800 transition font-medium whitespace-nowrap">
                     Book now
+                </a>
+                <button
+                    id="mobileMenuBtn"
+                    type="button"
+                    aria-label="Toggle navigation menu"
+                    aria-expanded="false"
+                    aria-controls="mobileNavMenu"
+                    class="md:hidden w-9 h-9 rounded-full border border-neutral-300 flex items-center justify-center text-vnBlack hover:border-vnBlack transition"
+                >
+                    <i data-lucide="menu" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Dropdown Menu -->
+        <div id="mobileNavMenu" class="hidden md:hidden border-t border-neutral-200 bg-white px-4 py-4 space-y-2">
+            <nav aria-label="Mobile sections" class="flex flex-col space-y-1 text-sm font-medium text-vnDarkGray">
+                <a href="#features" class="mobile-nav-link px-3 py-2 rounded-xl hover:bg-neutral-100 hover:text-vnBlack transition">Features</a>
+                <a href="#process" class="mobile-nav-link px-3 py-2 rounded-xl hover:bg-neutral-100 hover:text-vnBlack transition">Process</a>
+                <a href="#pricing" class="mobile-nav-link px-3 py-2 rounded-xl hover:bg-neutral-100 hover:text-vnBlack transition">Pricing</a>
+                <a href="#faq" class="mobile-nav-link px-3 py-2 rounded-xl hover:bg-neutral-100 hover:text-vnBlack transition">FAQ</a>
+            </nav>
+            <div class="pt-2 border-t border-neutral-100">
+                <a href="https://wa.me/971585565311" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center px-4 py-2.5 rounded-full border border-neutral-300 text-vnBlack hover:border-vnBlack transition font-medium text-sm">
+                    Let's chat
                 </a>
             </div>
         </div>
@@ -227,25 +251,44 @@
                             View sample report
                         </a>
                     </div>
-                    <div class="shrink-0 w-full sm:w-64 lg:w-72 bg-neutral-50 border border-neutral-200 rounded-2xl p-2.5">
-                        <div class="grid grid-cols-2 gap-2">
-                            <div class="relative overflow-hidden rounded-xl aspect-square bg-neutral-200">
+                    <div class="shrink-0 w-full sm:w-64 lg:w-72 bg-neutral-50 border border-neutral-200 rounded-2xl p-2">
+                        <div id="baSlider" class="relative overflow-hidden rounded-xl aspect-[4/3] sm:aspect-square bg-neutral-200 select-none">
+                            <!-- After Image (Base) -->
+                            <img
+                                src="https://djlliskxwlpdrrnhmwhb.supabase.co/storage/v1/object/public/inspection_photos/inspections/11111111-1111-1111-1111-111111111102/snag_02_fixed.jpeg"
+                                alt="After repair: AC condensation fixed"
+                                class="w-full h-full object-cover pointer-events-none"
+                                loading="lazy"
+                            >
+                            <!-- Before Image (Clipped Overlay) -->
+                            <div id="baBeforeWrap" class="absolute inset-0 pointer-events-none" style="clip-path: inset(0 50% 0 0);">
                                 <img
                                     src="https://djlliskxwlpdrrnhmwhb.supabase.co/storage/v1/object/public/inspection_photos/inspections/11111111-1111-1111-1111-111111111102/snag-02-ac-condensation.jpg"
                                     alt="Before repair: AC condensation defect"
                                     class="w-full h-full object-cover"
                                     loading="lazy"
                                 >
-                                <span class="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-black/80 text-white text-[10px] font-urbanist font-semibold uppercase tracking-wider backdrop-blur-sm">Before</span>
                             </div>
-                            <div class="relative overflow-hidden rounded-xl aspect-square bg-neutral-200">
-                                <img
-                                    src="https://djlliskxwlpdrrnhmwhb.supabase.co/storage/v1/object/public/inspection_photos/inspections/11111111-1111-1111-1111-111111111102/snag_02_fixed.jpeg"
-                                    alt="After repair: AC condensation fixed"
-                                    class="w-full h-full object-cover"
-                                    loading="lazy"
-                                >
-                                <span class="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-emerald-600/90 text-white text-[10px] font-urbanist font-semibold uppercase tracking-wider backdrop-blur-sm">After</span>
+                            <!-- Vertical Divider & Drag Handle -->
+                            <div id="baDivider" class="absolute top-0 bottom-0 w-0.5 bg-white shadow-[0_0_8px_rgba(0,0,0,0.45)] pointer-events-none z-10" style="left: 50%;">
+                                <div class="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white text-black shadow-md flex items-center justify-center">
+                                    <i data-lucide="chevrons-left-right" class="w-3.5 h-3.5"></i>
+                                </div>
+                            </div>
+                            <!-- Range Input for Touch/Mouse Sliding -->
+                            <input
+                                id="baRange"
+                                type="range"
+                                min="0"
+                                max="100"
+                                value="50"
+                                aria-label="Slide to compare before and after inspection photos"
+                                class="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-10 m-0"
+                            >
+                            <!-- Bottom-Right Before / After Tab -->
+                            <div class="absolute bottom-2.5 right-2.5 z-20 inline-flex items-center p-0.5 rounded-lg bg-black/75 backdrop-blur-sm border border-white/15 text-[10px] font-urbanist font-semibold uppercase tracking-wider">
+                                <button id="baBtnBefore" type="button" class="px-2 py-1 rounded-md text-white/75 hover:text-white transition">Before</button>
+                                <button id="baBtnAfter" type="button" class="px-2 py-1 rounded-md text-white/75 hover:text-white transition">After</button>
                             </div>
                         </div>
                     </div>
@@ -880,6 +923,53 @@
         });
 
         renderQuote();
+
+        // Mobile Navbar Hamburger Menu
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileNavMenu = document.getElementById('mobileNavMenu');
+        if (mobileMenuBtn && mobileNavMenu) {
+            mobileMenuBtn.addEventListener('click', () => {
+                const isOpen = !mobileNavMenu.classList.contains('hidden');
+                mobileNavMenu.classList.toggle('hidden', isOpen);
+                mobileMenuBtn.setAttribute('aria-expanded', String(!isOpen));
+            });
+            mobileNavMenu.querySelectorAll('.mobile-nav-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileNavMenu.classList.add('hidden');
+                    mobileMenuBtn.setAttribute('aria-expanded', 'false');
+                });
+            });
+        }
+
+        // Before / After Photo Comparison Slider
+        const baRange = document.getElementById('baRange');
+        const baBeforeWrap = document.getElementById('baBeforeWrap');
+        const baDivider = document.getElementById('baDivider');
+        const baBtnBefore = document.getElementById('baBtnBefore');
+        const baBtnAfter = document.getElementById('baBtnAfter');
+
+        function setBaPosition(val) {
+            const pct = Math.max(0, Math.min(100, Number(val)));
+            baRange.value = String(pct);
+            baBeforeWrap.style.clipPath = `inset(0 ${100 - pct}% 0 0)`;
+            baDivider.style.left = `${pct}%`;
+
+            const beforeActive = pct > 50;
+            const afterActive = pct < 50;
+            baBtnBefore.className = beforeActive
+                ? 'px-2 py-1 rounded-md bg-white text-black transition'
+                : 'px-2 py-1 rounded-md text-white/75 hover:text-white transition';
+            baBtnAfter.className = afterActive
+                ? 'px-2 py-1 rounded-md bg-emerald-500 text-white transition'
+                : 'px-2 py-1 rounded-md text-white/75 hover:text-white transition';
+        }
+
+        if (baRange && baBeforeWrap && baDivider && baBtnBefore && baBtnAfter) {
+            baRange.addEventListener('input', (e) => setBaPosition(e.target.value));
+            baBtnBefore.addEventListener('click', () => setBaPosition(100));
+            baBtnAfter.addEventListener('click', () => setBaPosition(0));
+            setBaPosition(50);
+        }
     </script>
 </body>
 </html>
