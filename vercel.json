@@ -1,7 +1,8 @@
 {
   "cleanUrls": true,
   "redirects": [
-    { "source": "/clients", "destination": "/", "permanent": true }
+    { "source": "/clients", "destination": "/", "permanent": true },
+    { "source": "/agents", "destination": "/partners", "permanent": true }
   ],
   "headers": [
     {
