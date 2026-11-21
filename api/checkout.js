@@ -113,6 +113,7 @@ module.exports = async function handler(req, res) {
     const isTest = process.env.ZIINA_TEST_MODE === 'true';
 
     // Create Ziina Payment Intent (no Supabase writes until payment is confirmed)
+    const ziinaMessage = `Vantage North Inspection (${bookingReference})`.slice(0, 60);
     const ziinaRes = await fetch('https://api-v2.ziina.com/api/payment_intent', {
       method: 'POST',
       headers: {
@@ -122,7 +123,7 @@ module.exports = async function handler(req, res) {
       body: JSON.stringify({
         amount: quote.amountFils,
         currency_code: 'AED',
-        message: `Vantage North ${quote.tierLabel} - ${quote.packageLabel} (${bookingReference})`,
+        message: ziinaMessage,
         success_url: successUrl,
         cancel_url: cancelUrl,
         test: isTest,
@@ -132,7 +133,7 @@ module.exports = async function handler(req, res) {
     const ziinaData = await ziinaRes.json();
     if (!ziinaRes.ok || !ziinaData.redirect_url) {
       return res.status(ziinaRes.status || 502).json({
-        error: 'Failed to create Ziina payment intent',
+        error: ziinaData?.message || 'Failed to create Ziina payment intent',
         details: ziinaData,
       });
     }
