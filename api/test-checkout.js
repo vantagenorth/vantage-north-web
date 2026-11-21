@@ -13,6 +13,11 @@ module.exports = async function handler(req, res) {
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {};
 
+    const expectedKey = process.env.TEST_BOOKING_KEY;
+    if (!expectedKey || !body.testKey || body.testKey !== expectedKey) {
+      return res.status(403).json({ error: 'Test booking is locked. Valid test access key required.' });
+    }
+
     const {
       amountAed: rawAmountAed = 2,
       propertyType = 'Apartment',

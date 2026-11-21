@@ -86,11 +86,15 @@ function buildConfirmationHtml(b, paymentStatus, calBookingUid, calCollision) {
         <strong>Schedule Notice:</strong> Your payment succeeded, but your selected time slot was reserved by another client moments earlier. Our team will contact you shortly (or WhatsApp <strong>+971 58 556 5311</strong>) to confirm an alternate time at no extra cost.
       </div>`
     : '';
+  const canCancel = b.scheduledStart
+    ? (new Date(b.scheduledStart).getTime() - Date.now()) >= 24 * 60 * 60 * 1000
+    : true;
   const manageButtons = calBookingUid
     ? `
       <div style="margin:24px 0 0; padding-top:20px; border-top:1px solid #E5E5E5;">
         <a href="https://cal.com/reschedule/${encodeURIComponent(calBookingUid)}" style="display:inline-block; background:#000000; color:#FFFFFF; text-decoration:none; font-size:13px; font-weight:600; padding:11px 20px; border-radius:8px; margin-right:10px;">Reschedule</a>
-        <a href="https://cal.com/booking/${encodeURIComponent(calBookingUid)}?cancel=true" style="display:inline-block; background:#FFFFFF; color:#2B2B2B; text-decoration:none; font-size:13px; font-weight:600; padding:10px 20px; border-radius:8px; border:1px solid #D4D4D4;">Cancel</a>
+        ${canCancel ? `<a href="https://cal.com/booking/${encodeURIComponent(calBookingUid)}?cancel=true" style="display:inline-block; background:#FFFFFF; color:#2B2B2B; text-decoration:none; font-size:13px; font-weight:600; padding:10px 20px; border-radius:8px; border:1px solid #D4D4D4;">Cancel</a>` : ''}
+        <p style="font-size:11px; color:#646464; margin:12px 0 0;">Cancellations are not permitted less than 24 hours prior to inspection — only rescheduling.</p>
       </div>`
     : '';
   return `
@@ -241,9 +245,18 @@ async function finalizeBooking({ bookingReference, paymentIntentId, tokenData, z
       },
     };
 
+    const buildingLocation = [b.projectName, b.areaCommunity].filter(Boolean).join(', ') || 'On-site Property Inspection';
     const fullCalPayload = {
       ...baseCalPayload,
+      location: {
+        type: 'address',
+        value: buildingLocation,
+      },
       bookingFieldsResponses: {
+        location: {
+          optionValue: 'attendeeInPerson',
+          value: buildingLocation,
+        },
         notes: [
           `Ref: ${b.bookingReference}`,
           `Property: ${b.propertyType} — ${b.bedroomTier}`,

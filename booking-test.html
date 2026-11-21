@@ -72,6 +72,14 @@
             </div>
 
             <form id="testBookingForm" class="space-y-6">
+                <!-- Private Test Access Key -->
+                <div>
+                    <label for="testKey" class="block text-xs uppercase tracking-wider text-vnGray font-medium mb-1">
+                        Test Access Key
+                    </label>
+                    <input id="testKey" type="password" required placeholder="Enter TEST_BOOKING_KEY" class="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:border-black">
+                </div>
+
                 <!-- Cal.com Slot -->
                 <div>
                     <div class="flex items-center justify-between mb-2">
@@ -301,6 +309,7 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
+                        testKey: document.getElementById('testKey').value,
                         amountAed: Number(amountInput.value) || 2,
                         propertyType: 'Apartment',
                         bedrooms: 2,

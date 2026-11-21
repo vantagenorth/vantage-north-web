@@ -119,8 +119,9 @@
             <div id="manageBookingLinks" class="hidden text-xs text-vnGray flex flex-wrap items-center gap-3 pt-1">
                 <span>Need to adjust your appointment?</span>
                 <a id="cRescheduleLink" href="#" target="_blank" rel="noopener" class="text-black font-medium underline hover:opacity-75">Reschedule</a>
-                <span>·</span>
+                <span id="cCancelSep">·</span>
                 <a id="cCancelLink" href="#" target="_blank" rel="noopener" class="text-vnGray underline hover:text-black">Cancel Booking</a>
+                <span id="cNoCancelNote" class="hidden text-vnGray">(Cancellations not permitted within 24h — reschedule only)</span>
             </div>
 
             <p class="text-[11px] text-vnGray pt-1">
@@ -130,7 +131,6 @@
             <div class="pt-2 flex flex-wrap gap-3 print:hidden">
                 <button type="button" onclick="window.print()" class="border border-neutral-300 px-5 py-3 rounded-xl text-sm font-medium hover:border-black transition">Print / Save Receipt</button>
                 <a href="/" class="bg-black text-white px-6 py-3 rounded-xl text-sm font-medium hover:bg-neutral-800 transition">Return to Homepage</a>
-                <a href="/book" class="border border-neutral-300 px-6 py-3 rounded-xl text-sm font-medium hover:border-black transition">Book Another Property</a>
             </div>
         </div>
     </main>
@@ -253,7 +253,16 @@
                 if (b.calBookingUid) {
                     const uid = encodeURIComponent(b.calBookingUid);
                     document.getElementById('cRescheduleLink').href = `https://cal.com/reschedule/${uid}`;
-                    document.getElementById('cCancelLink').href = `https://cal.com/booking/${uid}?cancel=true`;
+                    const canCancel = b.scheduledStart
+                        ? (new Date(b.scheduledStart).getTime() - Date.now()) >= 24 * 60 * 60 * 1000
+                        : true;
+                    if (canCancel) {
+                        document.getElementById('cCancelLink').href = `https://cal.com/booking/${uid}?cancel=true`;
+                    } else {
+                        document.getElementById('cCancelLink').classList.add('hidden');
+                        document.getElementById('cCancelSep').classList.add('hidden');
+                        document.getElementById('cNoCancelNote').classList.remove('hidden');
+                    }
                     document.getElementById('manageBookingLinks').classList.remove('hidden');
                 }
 
