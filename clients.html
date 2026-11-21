@@ -62,12 +62,19 @@
         .delay-100 { animation-delay: 0.1s; opacity: 0; }
         .delay-200 { animation-delay: 0.2s; opacity: 0; }
         .delay-300 { animation-delay: 0.3s; opacity: 0; }
-        @keyframes lensFloat {
-            0%, 100% { transform: translate(-50%, -50%) rotate(-4deg) translateY(0px); }
-            50% { transform: translate(-50%, -50%) rotate(-2deg) translateY(-3px); }
+        @keyframes lensSettle {
+            0%, 100% { transform: scale(1) translateY(0px); }
+            50% { transform: scale(1.025) translateY(-1.5px); }
         }
-        .mag-lens-wrap {
-            animation: lensFloat 4.5s ease-in-out infinite;
+        .mag-lens-group {
+            transform-box: fill-box;
+            transform-origin: center;
+            animation: lensSettle 4.5s ease-in-out infinite;
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        h1:hover .mag-lens-group {
+            animation: none;
+            transform: scale(1.06);
         }
         .bento-card {
             border-radius: 1.5rem;
@@ -102,30 +109,63 @@
             <p class="inline-flex items-center px-4 py-1.5 rounded-full border border-neutral-300 bg-white font-urbanist text-[11px] sm:text-xs font-semibold uppercase tracking-[0.22em] text-vnGray mb-10 animate-fade-up">
                 Specialist Property Snagging &amp; Handover
             </p>
-            <h1 aria-label="Know what you're buying" class="font-urbanist text-[2.7rem] sm:text-[3.75rem] md:text-[4.6rem] lg:text-[5.1rem] font-normal tracking-tight text-vnBlack leading-[1.08] max-w-4xl mb-14 sm:mb-16 animate-fade-up delay-100">
+            <h1 aria-label="Know what you're buying." class="font-urbanist text-[2.7rem] sm:text-[3.75rem] md:text-[4.6rem] lg:text-[5.1rem] font-normal tracking-tight text-vnBlack leading-[1.08] max-w-4xl mb-14 sm:mb-16 animate-fade-up delay-100">
                 Know what<br>
-                <span class="font-bold">you're buyin<span class="relative inline-block">g<span aria-hidden="true" class="mag-lens-wrap pointer-events-none select-none absolute left-[44%] top-[116%] w-[0.94em] h-[0.94em] z-20">
-                    <!-- 3D Handle (angled up-right, away from subtitle) -->
-                    <span class="absolute left-[82%] top-[24%] w-[0.58em] h-[0.14em] origin-left -rotate-[32deg] rounded-full bg-gradient-to-b from-neutral-600 via-neutral-900 to-black shadow-[0_6px_12px_rgba(0,0,0,0.35)] border border-neutral-700/60"></span>
-                    <!-- 3D Bezel + Glass Lens -->
-                    <span class="relative block w-full h-full rounded-full p-[0.058em] bg-gradient-to-br from-neutral-400 via-neutral-800 to-black shadow-[0_14px_28px_rgba(0,0,0,0.28),0_4px_10px_rgba(0,0,0,0.18)]">
-                        <span class="relative flex items-center justify-center w-full h-full rounded-full overflow-hidden bg-white shadow-[inset_0_3px_8px_rgba(0,0,0,0.22),inset_0_-2px_6px_rgba(255,255,255,0.9)]">
-                            <!-- Thick magnified bottom curve of 'g' with clean zigzag crack -->
-                            <svg viewBox="0 0 100 100" class="w-full h-full pointer-events-none" fill="none">
-                                <!-- Left side of thick curved 'g' tail -->
-                                <path d="M -10 34 Q 16 62 47 63 L 53 54 L 44 46 L 51 35 Q 20 34 -2 10 Z" fill="#000000"/>
-                                <!-- Right side of thick curved 'g' tail (separated by sharp zigzag crack) -->
-                                <path d="M 55 63 Q 88 60 110 28 L 98 10 Q 80 35 57 35 L 50 46 L 59 54 Z" fill="#000000"/>
-                            </svg>
-                            <!-- Specular glass glare -->
-                            <span class="absolute -top-[18%] -left-[12%] w-[75%] h-[55%] rounded-full bg-gradient-to-b from-white/75 to-transparent rotate-[-25deg] pointer-events-none"></span>
-                        </span>
-                    </span>
-                </span></span></span>
+                <span class="font-bold">you're buyin<svg aria-hidden="true" viewBox="0 0 110 140" class="inline-block overflow-visible select-none" style="height: 1.4em; width: 0.62em; vertical-align: -0.58em;">
+                    <defs>
+                        <clipPath id="g-lens-clip">
+                            <circle cx="34" cy="96" r="27" />
+                        </clipPath>
+                        <linearGradient id="bezel-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#A3A3A3" />
+                            <stop offset="45%" stop-color="#262626" />
+                            <stop offset="100%" stop-color="#000000" />
+                        </linearGradient>
+                        <linearGradient id="handle-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#525252" />
+                            <stop offset="50%" stop-color="#171717" />
+                            <stop offset="100%" stop-color="#000000" />
+                        </linearGradient>
+                        <linearGradient id="glare-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.75" />
+                            <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0" />
+                        </linearGradient>
+                        <filter id="lens-shadow" x="-35%" y="-35%" width="180%" height="180%">
+                            <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#000000" flood-opacity="0.26" />
+                        </filter>
+                    </defs>
+
+                    <!-- Base layer: clean lowercase 'g' aligned to HTML baseline (y=82) -->
+                    <text x="4" y="82" font-family="'Urbanist', sans-serif" font-weight="700" font-size="100" fill="#000000">g</text>
+
+                    <!-- Magnifying glass + clipped 1.15x layer -->
+                    <g class="mag-lens-group" filter="url(#lens-shadow)">
+                        <!-- Handle (back in down-right position) -->
+                        <line x1="54" y1="116" x2="80" y2="142" stroke="url(#handle-grad)" stroke-width="8.5" stroke-linecap="round" />
+
+                        <!-- Clipped lens interior -->
+                        <g clip-path="url(#g-lens-clip)">
+                            <circle cx="34" cy="96" r="27" fill="#FFFFFF" />
+                            <!-- 1.15x magnified duplicate of 'g' -->
+                            <g transform="translate(34, 96) scale(1.15) translate(-34, -96)">
+                                <text x="4" y="82" font-family="'Urbanist', sans-serif" font-weight="700" font-size="100" fill="#000000">g</text>
+                                <!-- Crisp hairline crack path splitting the bottom loop of 'g' -->
+                                <path d="M 22 93 L 31 96 L 28 100 L 38 103 L 35 108 L 43 111" fill="none" stroke="#FFFFFF" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M 31 96 L 37 94" fill="none" stroke="#FFFFFF" stroke-width="1.2" stroke-linecap="round" />
+                                <path d="M 38 103 L 44 101" fill="none" stroke="#FFFFFF" stroke-width="1.1" stroke-linecap="round" />
+                            </g>
+                            <!-- Diagonal glass reflection -->
+                            <ellipse cx="22" cy="83" rx="18" ry="9" transform="rotate(-30 22 83)" fill="url(#glare-grad)" />
+                        </g>
+
+                        <!-- Metallic bezel rim -->
+                        <circle cx="34" cy="96" r="27" fill="none" stroke="url(#bezel-grad)" stroke-width="5" />
+                    </g>
+                </svg></span>
             </h1>
 
             <p class="font-epilogue text-base sm:text-lg md:text-xl text-vnDarkGray font-normal leading-relaxed max-w-2xl mb-12 animate-fade-up delay-200">
-                We uncover hidden problems, so they won't become yours.
+                We uncover hidden problems,<br>so they won't become yours.
             </p>
 
             <div class="flex flex-col sm:flex-row items-center justify-center gap-5 w-full sm:w-auto animate-fade-up delay-300">
