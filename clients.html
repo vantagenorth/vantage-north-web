@@ -69,47 +69,36 @@
         .cursor-blink {
             animation: blink 1s step-end infinite;
         }
+        .bento-card {
+            border-radius: 1.5rem;
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+        .bento-card:hover {
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between bg-vnBg text-vnBlack selection:bg-vnBlack selection:text-vnWhite">
 
-    <!-- Truly Floating Navbar -->
-    <header class="fixed top-4 left-0 right-0 z-40 px-5 md:px-10 pointer-events-none">
-        <div class="max-w-6xl mx-auto flex items-center justify-between gap-4 bg-white/85 backdrop-blur-md border border-black/10 rounded-2xl px-5 py-3 shadow-[0_10px_30px_rgba(0,0,0,0.06)] pointer-events-auto">
-            <a href="/clients" aria-label="Vantage North Home" class="inline-flex items-center focus:outline-none shrink-0">
-                <img
-                    src="logo/vantage_north_logo_light.png"
-                    alt="Vantage North - Property Snagging Dubai"
-                    class="h-[1.25rem] sm:h-[1.5rem] w-auto object-contain"
-                >
+    <!-- Navbar (matching booking page) -->
+    <header class="border-b border-neutral-200 bg-white/90 backdrop-blur sticky top-0 z-30">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <a href="/clients" class="flex items-center">
+                <img src="/logo/vantage_north_logo_light.png" alt="Vantage North" class="h-7 w-auto">
             </a>
-
-            <nav aria-label="Primary" class="flex items-center gap-2 sm:gap-3">
-                <a
-                    href="/"
-                    class="px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-urbanist font-medium text-vnGray hover:text-vnBlack hover:bg-black/5 transition"
-                >
-                    For agents
-                </a>
-                <a
-                    href="/book"
-                    class="bg-vnBlack text-vnWhite font-urbanist text-xs sm:text-sm font-semibold tracking-[0.06em] px-4 sm:px-5 py-2.5 rounded-xl hover:bg-vnDarkGray transition"
-                >
+            <div class="flex items-center gap-4 text-sm">
+                <a href="/" class="text-vnGray hover:text-vnBlack transition font-medium">For agents</a>
+                <a href="/book" class="px-4 py-2 rounded-full bg-vnBlack text-vnWhite hover:bg-neutral-800 transition font-medium">
                     Book now
                 </a>
-            </nav>
+            </div>
         </div>
     </header>
 
-    <main class="flex-grow pt-28 sm:pt-32 pb-20 px-6 md:px-10">
+    <main class="flex-grow pt-14 sm:pt-20 pb-20 px-4 sm:px-6">
 
         <!-- Hero Section -->
-        <section class="max-w-4xl mx-auto flex flex-col items-center text-center pt-6 pb-16 md:pb-20">
-            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-black/15 bg-white text-[11px] font-urbanist font-semibold uppercase tracking-[0.18em] text-vnDarkGray mb-7 animate-fade-up">
-                <span class="w-1.5 h-1.5 rounded-full bg-vnBlack"></span>
-                <span>RERA Certified · Dubai Property Inspections</span>
-            </div>
-
+        <section class="max-w-4xl mx-auto flex flex-col items-center text-center pb-16 md:pb-20">
             <h1 aria-label="Know what you're buying" class="font-urbanist text-[2.7rem] sm:text-[3.75rem] md:text-[4.6rem] lg:text-[5.1rem] font-normal tracking-tight text-vnBlack leading-[1.08] max-w-4xl mb-8 animate-fade-up delay-100">
                 Know what<br>
                 <span class="font-bold"><span id="typewriter-text">you're buying</span><span id="typewriter-cursor" aria-hidden="true">_</span></span>
@@ -143,104 +132,162 @@
             </div>
         </section>
 
-        <!-- 8-Card Why Choose Us Feature Grid -->
+        <!-- Interlocking Bento Feature Grid (8 cards, varied sizes & illustrated visuals) -->
         <section aria-label="Why Choose Us" class="max-w-6xl mx-auto">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-6 lg:grid-cols-12 grid-flow-dense gap-5">
 
-                <!-- 1. Leadership -->
-                <div class="bg-white border border-neutral-200/90 rounded-2xl p-6 flex flex-col h-full transition-all duration-200 hover:-translate-y-0.5 hover:border-neutral-400 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)]">
-                    <div class="w-10 h-10 rounded-xl bg-neutral-100 border border-neutral-200 flex items-center justify-center text-vnBlack mb-5">
-                        <i data-lucide="compass" class="w-5 h-5"></i>
+                <!-- 1. Leadership (Tall 5x2 feature card) -->
+                <div class="md:col-span-6 lg:col-span-5 lg:row-span-2 bento-card bg-white border border-neutral-200 hover:border-neutral-400 hover:shadow-[0_14px_36px_rgba(0,0,0,0.06)] p-7 sm:p-9 flex flex-col justify-between gap-8">
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="w-16 h-16 rounded-2xl bg-neutral-900 text-white flex items-center justify-center shadow-sm">
+                            <i data-lucide="compass" class="w-8 h-8"></i>
+                        </div>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-neutral-100 text-xs font-urbanist font-semibold text-vnDarkGray">
+                            🇦🇺 Australian-led · 🇦🇪 Dubai-based
+                        </span>
                     </div>
-                    <span class="text-xs font-semibold uppercase tracking-wider text-vnGray mb-1.5 font-urbanist">Leadership</span>
-                    <h2 class="text-lg font-bold text-vnBlack mb-2 font-urbanist">Australian-led</h2>
-                    <p class="text-sm leading-relaxed text-vnDarkGray">
-                        Founded and led by an Australian team of property investors and renovators. They know what to look for, and where developers try to cut corners.
-                    </p>
+
+                    <div>
+                        <span class="block text-xs font-semibold uppercase tracking-wider text-vnGray mb-2 font-urbanist">Leadership</span>
+                        <h2 class="text-2xl sm:text-3xl font-bold text-vnBlack mb-3 font-urbanist tracking-tight">Australian-led</h2>
+                        <p class="text-sm sm:text-base leading-relaxed text-vnDarkGray">
+                            Founded and led by an Australian team of property investors and renovators. They know what to look for, and where developers try to cut corners.
+                        </p>
+                    </div>
                 </div>
 
-                <!-- 2. Technology -->
-                <div class="bg-white border border-neutral-200/90 rounded-2xl p-6 flex flex-col h-full transition-all duration-200 hover:-translate-y-0.5 hover:border-neutral-400 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)]">
-                    <div class="w-10 h-10 rounded-xl bg-neutral-100 border border-neutral-200 flex items-center justify-center text-vnBlack mb-5">
-                        <i data-lucide="file-check-2" class="w-5 h-5"></i>
+                <!-- 2. Technology (Wide 7x1 card with illustrated report status pills) -->
+                <div class="md:col-span-6 lg:col-span-7 lg:row-span-1 bento-card bg-white border border-neutral-200 hover:border-neutral-400 hover:shadow-[0_14px_36px_rgba(0,0,0,0.06)] p-7 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+                    <div class="max-w-md">
+                        <span class="block text-xs font-semibold uppercase tracking-wider text-vnGray mb-1.5 font-urbanist">Technology</span>
+                        <h2 class="text-xl sm:text-2xl font-bold text-vnBlack mb-2 font-urbanist">Digital Reports</h2>
+                        <p class="text-sm leading-relaxed text-vnDarkGray">
+                            Every finding is logged with high-resolution photo evidence, thermal diagnostics, and clear status tracking.
+                        </p>
                     </div>
-                    <span class="text-xs font-semibold uppercase tracking-wider text-vnGray mb-1.5 font-urbanist">Technology</span>
-                    <h2 class="text-lg font-bold text-vnBlack mb-2 font-urbanist">Digital Reports</h2>
-                    <p class="text-sm leading-relaxed text-vnDarkGray">
-                        Every finding is logged with high-resolution photo evidence, thermal diagnostics, and clear status tracking.
-                    </p>
+                    <div class="shrink-0 bg-neutral-50 border border-neutral-200 rounded-2xl p-4 w-full sm:w-52 space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <div class="w-10 h-10 rounded-xl bg-white border border-neutral-200 flex items-center justify-center text-vnBlack">
+                                <i data-lucide="file-check-2" class="w-5 h-5"></i>
+                            </div>
+                            <span class="text-[11px] font-urbanist font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">Live Portal</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 pt-1">
+                            <span class="h-2 flex-1 rounded-full bg-red-400"></span>
+                            <span class="h-2 flex-1 rounded-full bg-amber-400"></span>
+                            <span class="h-2 flex-1 rounded-full bg-neutral-300"></span>
+                        </div>
+                        <p class="text-[11px] text-vnGray font-medium">Critical · Major · Minor</p>
+                    </div>
                 </div>
 
-                <!-- 3. Diagnostic Precision -->
-                <div class="bg-white border border-neutral-200/90 rounded-2xl p-6 flex flex-col h-full transition-all duration-200 hover:-translate-y-0.5 hover:border-neutral-400 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)]">
-                    <div class="w-10 h-10 rounded-xl bg-neutral-100 border border-neutral-200 flex items-center justify-center text-vnBlack mb-5">
-                        <i data-lucide="thermometer" class="w-5 h-5"></i>
+                <!-- 3. Diagnostic Precision (Wide 7x1 card with large icon & illustrated system tags) -->
+                <div class="md:col-span-6 lg:col-span-7 lg:row-span-1 bento-card bg-white border border-neutral-200 hover:border-neutral-400 hover:shadow-[0_14px_36px_rgba(0,0,0,0.06)] p-7 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+                    <div class="max-w-md">
+                        <span class="block text-xs font-semibold uppercase tracking-wider text-vnGray mb-1.5 font-urbanist">Diagnostic Precision</span>
+                        <h2 class="text-xl sm:text-2xl font-bold text-vnBlack mb-2 font-urbanist">Thermal &amp; MEP Verification</h2>
+                        <p class="text-sm leading-relaxed text-vnDarkGray">
+                            Going beyond cosmetic paint checks—using thermal imaging for AC cooling performance and moisture intrusion alongside full electrical, plumbing, and joinery testing.
+                        </p>
                     </div>
-                    <span class="text-xs font-semibold uppercase tracking-wider text-vnGray mb-1.5 font-urbanist">Diagnostic Precision</span>
-                    <h2 class="text-lg font-bold text-vnBlack mb-2 font-urbanist">Thermal &amp; MEP Verification</h2>
-                    <p class="text-sm leading-relaxed text-vnDarkGray">
-                        Going beyond cosmetic paint checks—using thermal imaging for AC cooling performance and moisture intrusion alongside full electrical, plumbing, and joinery testing.
-                    </p>
+                    <div class="shrink-0 flex sm:flex-col items-center sm:items-end gap-3">
+                        <div class="w-14 h-14 rounded-2xl bg-neutral-100 border border-neutral-200 flex items-center justify-center text-vnBlack">
+                            <i data-lucide="thermometer" class="w-7 h-7"></i>
+                        </div>
+                        <div class="flex flex-wrap sm:justify-end gap-1.5 max-w-[170px]">
+                            <span class="text-[11px] px-2.5 py-1 rounded-lg bg-neutral-100 text-vnDarkGray font-medium">Thermal AC</span>
+                            <span class="text-[11px] px-2.5 py-1 rounded-lg bg-neutral-100 text-vnDarkGray font-medium">Moisture</span>
+                            <span class="text-[11px] px-2.5 py-1 rounded-lg bg-neutral-100 text-vnDarkGray font-medium">MEP</span>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- 4. Licensed & Regulated -->
-                <div class="bg-white border border-neutral-200/90 rounded-2xl p-6 flex flex-col h-full transition-all duration-200 hover:-translate-y-0.5 hover:border-neutral-400 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)]">
-                    <div class="w-10 h-10 rounded-xl bg-neutral-100 border border-neutral-200 flex items-center justify-center text-vnBlack mb-5">
-                        <i data-lucide="shield-check" class="w-5 h-5"></i>
+                <!-- 4. Licensed & Regulated (4x1 compact card) -->
+                <div class="md:col-span-3 lg:col-span-4 lg:row-span-1 bento-card bg-white border border-neutral-200 hover:border-neutral-400 hover:shadow-[0_14px_36px_rgba(0,0,0,0.06)] p-7 flex flex-col justify-between gap-5">
+                    <div class="flex items-center justify-between">
+                        <div class="w-14 h-14 rounded-2xl bg-neutral-100 border border-neutral-200 flex items-center justify-center text-vnBlack">
+                            <i data-lucide="shield-check" class="w-7 h-7"></i>
+                        </div>
+                        <span class="font-urbanist text-xs font-bold tracking-widest uppercase px-3 py-1 rounded-full border border-neutral-300 text-vnDarkGray">RERA 65910</span>
                     </div>
-                    <span class="text-xs font-semibold uppercase tracking-wider text-vnGray mb-1.5 font-urbanist">Licensed &amp; Regulated</span>
-                    <h2 class="text-lg font-bold text-vnBlack mb-2 font-urbanist">Licensed &amp; Regulated</h2>
-                    <p class="text-sm leading-relaxed text-vnDarkGray">
-                        Fully licensed and RERA registered (65910)
-                    </p>
+                    <div>
+                        <span class="block text-xs font-semibold uppercase tracking-wider text-vnGray mb-1 font-urbanist">Licensed &amp; Regulated</span>
+                        <h2 class="text-lg sm:text-xl font-bold text-vnBlack mb-1.5 font-urbanist">Licensed &amp; Regulated</h2>
+                        <p class="text-sm leading-relaxed text-vnDarkGray">
+                            Fully licensed and RERA registered (65910)
+                        </p>
+                    </div>
                 </div>
 
-                <!-- 5. Turnaround -->
-                <div class="bg-white border border-neutral-200/90 rounded-2xl p-6 flex flex-col h-full transition-all duration-200 hover:-translate-y-0.5 hover:border-neutral-400 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)]">
-                    <div class="w-10 h-10 rounded-xl bg-neutral-100 border border-neutral-200 flex items-center justify-center text-vnBlack mb-5">
-                        <i data-lucide="clock" class="w-5 h-5"></i>
+                <!-- 5. Turnaround (4x1 card with bold 24h graphic) -->
+                <div class="md:col-span-3 lg:col-span-4 lg:row-span-1 bento-card bg-white border border-neutral-200 hover:border-neutral-400 hover:shadow-[0_14px_36px_rgba(0,0,0,0.06)] p-7 flex flex-col justify-between gap-5">
+                    <div class="flex items-center justify-between">
+                        <div class="w-14 h-14 rounded-2xl bg-neutral-100 border border-neutral-200 flex items-center justify-center text-vnBlack">
+                            <i data-lucide="clock" class="w-7 h-7"></i>
+                        </div>
+                        <span class="font-urbanist text-3xl font-bold tracking-tight text-vnBlack">&le;24h</span>
                     </div>
-                    <span class="text-xs font-semibold uppercase tracking-wider text-vnGray mb-1.5 font-urbanist">Turnaround</span>
-                    <h2 class="text-lg font-bold text-vnBlack mb-2 font-urbanist">24 hours or less</h2>
-                    <p class="text-sm leading-relaxed text-vnDarkGray">
-                        After the initial inspection, you'll receive your report within 24 hours or less.
-                    </p>
+                    <div>
+                        <span class="block text-xs font-semibold uppercase tracking-wider text-vnGray mb-1 font-urbanist">Turnaround</span>
+                        <h2 class="text-lg sm:text-xl font-bold text-vnBlack mb-1.5 font-urbanist">24 hours or less</h2>
+                        <p class="text-sm leading-relaxed text-vnDarkGray">
+                            After the initial inspection, you'll receive your report within 24 hours or less.
+                        </p>
+                    </div>
                 </div>
 
-                <!-- 6. Add-ons -->
-                <div class="bg-white border border-neutral-200/90 rounded-2xl p-6 flex flex-col h-full transition-all duration-200 hover:-translate-y-0.5 hover:border-neutral-400 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)]">
-                    <div class="w-10 h-10 rounded-xl bg-neutral-100 border border-neutral-200 flex items-center justify-center text-vnBlack mb-5">
-                        <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                <!-- 6. Unbiased (Tall 4x2 high-contrast dark card) -->
+                <div class="md:col-span-6 lg:col-span-4 lg:row-span-2 bento-card bg-neutral-900 text-white border border-neutral-900 hover:shadow-[0_18px_44px_rgba(0,0,0,0.18)] p-7 sm:p-9 flex flex-col justify-between gap-8">
+                    <div class="flex items-start justify-between">
+                        <div class="w-16 h-16 rounded-2xl bg-white text-black flex items-center justify-center">
+                            <i data-lucide="scale" class="w-8 h-8"></i>
+                        </div>
+                        <span class="font-urbanist text-4xl font-bold text-white/90">100%</span>
                     </div>
-                    <span class="text-xs font-semibold uppercase tracking-wider text-vnGray mb-1.5 font-urbanist">Add-ons</span>
-                    <h2 class="text-lg font-bold text-vnBlack mb-2 font-urbanist">Unheard-of extras</h2>
-                    <p class="text-sm leading-relaxed text-vnDarkGray">
-                        We can also follow-up with developers / contractors, and perform a final inspection to ensure that the work was completed to standard.
-                    </p>
+                    <div>
+                        <span class="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2 font-urbanist">Unbiased</span>
+                        <h2 class="text-2xl sm:text-3xl font-bold text-white mb-3 font-urbanist tracking-tight">100% Independent</h2>
+                        <p class="text-sm sm:text-base leading-relaxed text-neutral-300">
+                            You don't let students grade their own homework. We're the teacher in the room. Our reporting is completely independent.
+                        </p>
+                    </div>
                 </div>
 
-                <!-- 7. Unbiased -->
-                <div class="bg-white border border-neutral-200/90 rounded-2xl p-6 flex flex-col h-full transition-all duration-200 hover:-translate-y-0.5 hover:border-neutral-400 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)]">
-                    <div class="w-10 h-10 rounded-xl bg-neutral-100 border border-neutral-200 flex items-center justify-center text-vnBlack mb-5">
-                        <i data-lucide="scale" class="w-5 h-5"></i>
+                <!-- 7. Add-ons (5x1 medium-wide card) -->
+                <div class="md:col-span-3 lg:col-span-5 lg:row-span-1 bento-card bg-white border border-neutral-200 hover:border-neutral-400 hover:shadow-[0_14px_36px_rgba(0,0,0,0.06)] p-7 flex flex-col justify-between gap-5">
+                    <div class="flex items-center justify-between gap-3">
+                        <div class="w-14 h-14 rounded-2xl bg-neutral-100 border border-neutral-200 flex items-center justify-center text-vnBlack shrink-0">
+                            <i data-lucide="plus-circle" class="w-7 h-7"></i>
+                        </div>
+                        <div class="flex flex-wrap justify-end gap-1.5">
+                            <span class="text-[11px] px-2.5 py-1 rounded-full bg-neutral-100 text-vnDarkGray font-medium">+ Developer Follow-Up</span>
+                            <span class="text-[11px] px-2.5 py-1 rounded-full bg-neutral-100 text-vnDarkGray font-medium">+ Final Inspection</span>
+                        </div>
                     </div>
-                    <span class="text-xs font-semibold uppercase tracking-wider text-vnGray mb-1.5 font-urbanist">Unbiased</span>
-                    <h2 class="text-lg font-bold text-vnBlack mb-2 font-urbanist">100% Independent</h2>
-                    <p class="text-sm leading-relaxed text-vnDarkGray">
-                        You don't let students grade their own homework. We're the teacher in the room. Our reporting is completely independent.
-                    </p>
+                    <div>
+                        <span class="block text-xs font-semibold uppercase tracking-wider text-vnGray mb-1 font-urbanist">Add-ons</span>
+                        <h2 class="text-lg sm:text-xl font-bold text-vnBlack mb-1.5 font-urbanist">Unheard-of extras</h2>
+                        <p class="text-sm leading-relaxed text-vnDarkGray">
+                            We can also follow-up with developers / contractors, and perform a final inspection to ensure that the work was completed to standard.
+                        </p>
+                    </div>
                 </div>
 
-                <!-- 8. Don't wait -->
-                <div class="bg-white border border-neutral-200/90 rounded-2xl p-6 flex flex-col h-full transition-all duration-200 hover:-translate-y-0.5 hover:border-neutral-400 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)]">
-                    <div class="w-10 h-10 rounded-xl bg-neutral-100 border border-neutral-200 flex items-center justify-center text-vnBlack mb-5">
-                        <i data-lucide="calendar-check" class="w-5 h-5"></i>
+                <!-- 8. Don't wait (3x1 compact card) -->
+                <div class="md:col-span-3 lg:col-span-3 lg:row-span-1 bento-card bg-white border border-neutral-200 hover:border-neutral-400 hover:shadow-[0_14px_36px_rgba(0,0,0,0.06)] p-7 flex flex-col justify-between gap-5">
+                    <div class="flex items-center justify-between">
+                        <div class="w-14 h-14 rounded-2xl bg-neutral-100 border border-neutral-200 flex items-center justify-center text-vnBlack">
+                            <i data-lucide="calendar-check" class="w-7 h-7"></i>
+                        </div>
+                        <span class="font-urbanist text-xl font-bold text-vnBlack">2 min</span>
                     </div>
-                    <span class="text-xs font-semibold uppercase tracking-wider text-vnGray mb-1.5 font-urbanist">Don't wait</span>
-                    <h2 class="text-lg font-bold text-vnBlack mb-2 font-urbanist">Instant booking</h2>
-                    <p class="text-sm leading-relaxed text-vnDarkGray">
-                        Don't wait around for WhatsApp replies, book your initial inspection and get confirmation in 2 minutes.
-                    </p>
+                    <div>
+                        <span class="block text-xs font-semibold uppercase tracking-wider text-vnGray mb-1 font-urbanist">Don't wait</span>
+                        <h2 class="text-lg sm:text-xl font-bold text-vnBlack mb-1.5 font-urbanist">Instant booking</h2>
+                        <p class="text-sm leading-relaxed text-vnDarkGray">
+                            Don't wait around for WhatsApp replies, book your initial inspection and get confirmation in 2 minutes.
+                        </p>
+                    </div>
                 </div>
 
             </div>
