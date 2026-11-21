@@ -86,8 +86,9 @@
             background-color: #000000;
             color: #FFFFFF;
         }
-        .option-card.active .sub-text {
-            color: #D4D4D4;
+        .option-card.active .sub-text,
+        .option-card.active svg {
+            color: #FFFFFF;
         }
         details > summary::-webkit-details-marker {
             display: none;
@@ -180,24 +181,23 @@
         <section id="features" aria-label="Why Choose Us" class="max-w-6xl mx-auto scroll-mt-24">
             <div class="grid grid-cols-1 md:grid-cols-6 lg:grid-cols-12 grid-flow-dense gap-6">
 
-                <!-- 1. Below The Surface (Main Tall 5x2 card on top left: text top, Systems pass/fail illustration bottom) -->
-                <div class="md:col-span-6 lg:col-span-5 lg:row-span-2 bento-card bg-white border border-neutral-200 hover:border-neutral-400 hover:shadow-[0_14px_36px_rgba(0,0,0,0.06)] p-7 sm:p-9 flex flex-col justify-between gap-7">
+                <!-- 1. Below The Surface (Main Tall 5x2 dark card with light-bordered Systems Overview) -->
+                <div class="md:col-span-6 lg:col-span-5 lg:row-span-2 bento-card bg-neutral-950 text-white border border-neutral-900 hover:shadow-[0_18px_44px_rgba(0,0,0,0.18)] p-7 sm:p-9 flex flex-col justify-between gap-7">
                     <div>
-                        <span class="block text-xs font-semibold uppercase tracking-wider text-vnGray mb-2 font-urbanist">Diagnostic Precision</span>
-                        <h2 class="text-xl sm:text-2xl font-bold text-vnBlack mb-2 font-urbanist">Below The Surface</h2>
-                        <p class="text-sm sm:text-base leading-relaxed text-vnDarkGray">
+                        <span class="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2 font-urbanist">Diagnostic Precision</span>
+                        <h2 class="text-xl sm:text-2xl font-bold text-white mb-2 font-urbanist">Below The Surface</h2>
+                        <p class="text-sm sm:text-base leading-relaxed text-neutral-300">
                             The costliest defects aren't visible to the naked eye. Using the most advanced non-invasive diagnostic equipment, we look behind walls, ceilings, and floors to uncover hidden water leaks, cooling inefficiencies, and electrical faults.
                         </p>
                     </div>
 
-                    <!-- Systems Pass/Fail Illustration -->
-                    <div class="rounded-2xl bg-neutral-950 text-white p-6 space-y-4 border border-neutral-800">
-                        <div class="flex items-center justify-between text-xs text-neutral-400">
+                    <!-- Systems Overview (light border) -->
+                    <div class="rounded-2xl bg-white/5 text-white p-5 space-y-3.5 border border-white/25">
+                        <div class="flex items-center justify-between text-xs text-neutral-300">
                             <span class="font-urbanist font-semibold uppercase tracking-wider text-white text-sm">Systems Overview</span>
-                            <span class="text-[11px] font-urbanist font-medium text-neutral-400">Pass / Fail</span>
                         </div>
                         <div class="space-y-2">
-                            <div class="rounded-xl bg-white/5 border border-white/10 px-3.5 py-2.5 flex items-center justify-between gap-3">
+                            <div class="rounded-xl bg-white/5 border border-white/15 px-3.5 py-2.5 flex items-center justify-between gap-3">
                                 <div class="flex items-center gap-2.5">
                                     <i data-lucide="wind" class="w-4 h-4 text-neutral-300 shrink-0"></i>
                                     <span class="font-urbanist font-medium text-sm text-white">AC &amp; Cooling</span>
@@ -206,7 +206,7 @@
                                     <i data-lucide="check" class="w-3 h-3"></i>Pass
                                 </span>
                             </div>
-                            <div class="rounded-xl bg-white/5 border border-white/10 px-3.5 py-2.5 flex items-center justify-between gap-3">
+                            <div class="rounded-xl bg-white/5 border border-white/15 px-3.5 py-2.5 flex items-center justify-between gap-3">
                                 <div class="flex items-center gap-2.5">
                                     <i data-lucide="droplets" class="w-4 h-4 text-neutral-300 shrink-0"></i>
                                     <span class="font-urbanist font-medium text-sm text-white">Plumbing &amp; Leaks</span>
@@ -215,7 +215,7 @@
                                     <i data-lucide="x" class="w-3 h-3"></i>Fail
                                 </span>
                             </div>
-                            <div class="rounded-xl bg-white/5 border border-white/10 px-3.5 py-2.5 flex items-center justify-between gap-3">
+                            <div class="rounded-xl bg-white/5 border border-white/15 px-3.5 py-2.5 flex items-center justify-between gap-3">
                                 <div class="flex items-center gap-2.5">
                                     <i data-lucide="zap" class="w-4 h-4 text-neutral-300 shrink-0"></i>
                                     <span class="font-urbanist font-medium text-sm text-white">Electrical</span>
@@ -224,7 +224,7 @@
                                     <i data-lucide="check" class="w-3 h-3"></i>Pass
                                 </span>
                             </div>
-                            <div class="rounded-xl bg-white/5 border border-white/10 px-3.5 py-2.5 flex items-center justify-between gap-3">
+                            <div class="rounded-xl bg-white/5 border border-white/15 px-3.5 py-2.5 flex items-center justify-between gap-3">
                                 <div class="flex items-center gap-2.5">
                                     <i data-lucide="door-open" class="w-4 h-4 text-neutral-300 shrink-0"></i>
                                     <span class="font-urbanist font-medium text-sm text-white">Doors &amp; Windows</span>
@@ -233,19 +233,6 @@
                                     <i data-lucide="check" class="w-3 h-3"></i>Pass
                                 </span>
                             </div>
-                            <div class="rounded-xl bg-white/5 border border-white/10 px-3.5 py-2.5 flex items-center justify-between gap-3">
-                                <div class="flex items-center gap-2.5">
-                                    <i data-lucide="layers" class="w-4 h-4 text-neutral-300 shrink-0"></i>
-                                    <span class="font-urbanist font-medium text-sm text-white">Walls &amp; Tiles</span>
-                                </div>
-                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-500/15 text-rose-400 border border-rose-500/25 text-[11px] font-urbanist font-semibold">
-                                    <i data-lucide="x" class="w-3 h-3"></i>Fail
-                                </span>
-                            </div>
-                        </div>
-                        <div class="pt-2 border-t border-white/10 flex items-center justify-between text-[11px] text-neutral-400">
-                            <span>Walls · Ceilings · Floors</span>
-                            <span class="text-white/80 font-medium">Non-invasive</span>
                         </div>
                     </div>
                 </div>
@@ -255,16 +242,16 @@
                     <div class="max-w-sm">
                         <span class="block text-xs font-semibold uppercase tracking-wider text-vnGray mb-1.5 font-urbanist">Online</span>
                         <h2 class="text-xl sm:text-2xl font-bold text-vnBlack mb-2 font-urbanist">Digital Reports</h2>
-                        <p class="text-sm leading-relaxed text-vnDarkGray mb-4">
+                        <p class="text-sm leading-relaxed text-vnDarkGray mb-5">
                             No bloated, 100-page PDF attachments. Access your full, interactive report online - complete with annotated defect photos, filtering, severity tags, and live resolution tracking.
                         </p>
                         <a
                             href="https://reports.vantagenorth.ae/sample"
                             target="_blank"
                             rel="noopener noreferrer"
-                            class="inline-flex items-center px-4 py-2 rounded-lg bg-vnBlack text-vnWhite text-xs font-urbanist font-semibold hover:bg-neutral-800 transition"
+                            class="w-full sm:w-[230px] inline-flex items-center justify-center bg-vnBlack text-vnWhite font-urbanist text-sm sm:text-base font-semibold tracking-[0.12em] uppercase px-8 py-4 rounded-3xl shadow-[0_14px_34px_rgba(0,0,0,0.12)] hover:bg-vnDarkGray transition-colors duration-300"
                         >
-                            View sample report
+                            <span>View sample report</span>
                         </a>
                     </div>
                     <div class="shrink-0 w-full sm:w-64 lg:w-72 bg-neutral-50 border border-neutral-200 rounded-2xl p-2">
@@ -324,15 +311,10 @@
                     </div>
                 </div>
 
-                <!-- 4. Turnaround (4x1 card with guarantee icon) -->
+                <!-- 4. Turnaround (4x1 card) -->
                 <div class="md:col-span-3 lg:col-span-4 lg:row-span-1 bento-card bg-white border border-neutral-200 hover:border-neutral-400 hover:shadow-[0_14px_36px_rgba(0,0,0,0.06)] p-7 flex flex-col justify-between gap-5">
-                    <div class="flex items-center justify-between">
-                        <div class="w-14 h-14 rounded-2xl bg-neutral-100 border border-neutral-200 flex items-center justify-center text-vnBlack">
-                            <i data-lucide="clock" class="w-7 h-7"></i>
-                        </div>
-                        <div class="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700" title="Guaranteed 24h turnaround">
-                            <i data-lucide="badge-check" class="w-5 h-5"></i>
-                        </div>
+                    <div class="w-14 h-14 rounded-2xl bg-neutral-100 border border-neutral-200 flex items-center justify-center text-vnBlack">
+                        <i data-lucide="clock" class="w-7 h-7"></i>
                     </div>
                     <div>
                         <span class="block text-xs font-semibold uppercase tracking-wider text-vnGray mb-1 font-urbanist">Turnaround</span>
@@ -345,11 +327,8 @@
 
                 <!-- 5. Instant / Fast booking (4x1 card) -->
                 <div class="md:col-span-3 lg:col-span-4 lg:row-span-1 bento-card bg-white border border-neutral-200 hover:border-neutral-400 hover:shadow-[0_14px_36px_rgba(0,0,0,0.06)] p-7 flex flex-col justify-between gap-5">
-                    <div class="flex items-center justify-between">
-                        <div class="w-14 h-14 rounded-2xl bg-neutral-100 border border-neutral-200 flex items-center justify-center text-vnBlack">
-                            <i data-lucide="calendar-check" class="w-7 h-7"></i>
-                        </div>
-                        <span class="font-urbanist text-xl font-bold text-vnBlack">2 min</span>
+                    <div class="w-14 h-14 rounded-2xl bg-neutral-100 border border-neutral-200 flex items-center justify-center text-vnBlack">
+                        <i data-lucide="calendar-check" class="w-7 h-7"></i>
                     </div>
                     <div>
                         <span class="block text-xs font-semibold uppercase tracking-wider text-vnGray mb-1 font-urbanist">Instant</span>
@@ -379,24 +358,19 @@
 
                 <!-- 7. Leadership (Directly under Turnaround, 4x1 card) -->
                 <div class="md:col-span-3 lg:col-span-4 lg:row-span-1 bento-card bg-white border border-neutral-200 hover:border-neutral-400 hover:shadow-[0_14px_36px_rgba(0,0,0,0.06)] p-7 flex flex-col justify-between gap-5">
-                    <div class="flex items-start justify-between gap-3">
-                        <div class="w-14 h-14 rounded-2xl bg-neutral-100 border border-neutral-200 flex items-center justify-center text-vnBlack">
-                            <i data-lucide="compass" class="w-7 h-7"></i>
-                        </div>
-                        <svg viewBox="0 0 40 24" class="w-11 h-7 rounded-md border border-neutral-200 shrink-0" role="img" aria-label="Australia">
-                            <rect width="40" height="24" fill="#012169"/>
-                            <path d="M0,0 L20,12 M20,0 L0,12" stroke="#FFFFFF" stroke-width="2.4"/>
-                            <path d="M0,0 L20,12 M20,0 L0,12" stroke="#C8102E" stroke-width="1.2"/>
-                            <path d="M10,0 V12 M0,6 H20" stroke="#FFFFFF" stroke-width="3.6"/>
-                            <path d="M10,0 V12 M0,6 H20" stroke="#C8102E" stroke-width="2"/>
-                            <circle cx="10" cy="18" r="2.2" fill="#FFFFFF"/>
-                            <circle cx="30" cy="5.5" r="1.2" fill="#FFFFFF"/>
-                            <circle cx="25.5" cy="10.5" r="1.2" fill="#FFFFFF"/>
-                            <circle cx="34.5" cy="9.5" r="1.2" fill="#FFFFFF"/>
-                            <circle cx="30" cy="18.5" r="1.2" fill="#FFFFFF"/>
-                            <circle cx="32.2" cy="13.5" r="0.8" fill="#FFFFFF"/>
-                        </svg>
-                    </div>
+                    <svg viewBox="0 0 40 24" class="w-12 h-8 rounded-md border border-neutral-200 shrink-0" role="img" aria-label="Australia">
+                        <rect width="40" height="24" fill="#012169"/>
+                        <path d="M0,0 L20,12 M20,0 L0,12" stroke="#FFFFFF" stroke-width="2.4"/>
+                        <path d="M0,0 L20,12 M20,0 L0,12" stroke="#C8102E" stroke-width="1.2"/>
+                        <path d="M10,0 V12 M0,6 H20" stroke="#FFFFFF" stroke-width="3.6"/>
+                        <path d="M10,0 V12 M0,6 H20" stroke="#C8102E" stroke-width="2"/>
+                        <circle cx="10" cy="18" r="2.2" fill="#FFFFFF"/>
+                        <circle cx="30" cy="5.5" r="1.2" fill="#FFFFFF"/>
+                        <circle cx="25.5" cy="10.5" r="1.2" fill="#FFFFFF"/>
+                        <circle cx="34.5" cy="9.5" r="1.2" fill="#FFFFFF"/>
+                        <circle cx="30" cy="18.5" r="1.2" fill="#FFFFFF"/>
+                        <circle cx="32.2" cy="13.5" r="0.8" fill="#FFFFFF"/>
+                    </svg>
                     <div>
                         <span class="block text-xs font-semibold uppercase tracking-wider text-vnGray mb-1 font-urbanist">Leadership</span>
                         <h2 class="text-lg sm:text-xl font-bold text-vnBlack mb-1.5 font-urbanist">Australian-led</h2>
@@ -408,14 +382,8 @@
 
                 <!-- 8. Licensed & Regulated / A team you can trust (Under Fast booking, 4x1 card) -->
                 <div class="md:col-span-3 lg:col-span-4 lg:row-span-1 bento-card bg-white border border-neutral-200 hover:border-neutral-400 hover:shadow-[0_14px_36px_rgba(0,0,0,0.06)] p-7 flex flex-col justify-between gap-5">
-                    <div class="flex items-start justify-between gap-3">
-                        <div class="w-14 h-14 rounded-2xl bg-neutral-100 border border-neutral-200 flex items-center justify-center text-vnBlack">
-                            <i data-lucide="shield-check" class="w-7 h-7"></i>
-                        </div>
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-neutral-100 border border-neutral-200 text-xs font-urbanist font-semibold uppercase tracking-wider text-vnBlack">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                            RERA
-                        </span>
+                    <div class="w-14 h-14 rounded-2xl bg-neutral-100 border border-neutral-200 flex items-center justify-center text-vnBlack">
+                        <i data-lucide="shield-check" class="w-7 h-7"></i>
                     </div>
                     <div>
                         <span class="block text-xs font-semibold uppercase tracking-wider text-vnGray mb-1 font-urbanist">Licensed &amp; Regulated</span>
@@ -498,7 +466,7 @@
                     </div>
                     <div>
                         <h3 class="font-bold text-base mb-1">Initial inspection</h3>
-                        <p class="text-xs text-vnDarkGray leading-relaxed">Full on-site MEP, thermal, moisture &amp; finish testing.</p>
+                        <p class="text-xs text-vnDarkGray leading-relaxed">We inspect your property from top to bottom for hidden issues and defects.</p>
                     </div>
                 </div>
 
@@ -583,22 +551,27 @@
                         <label class="block text-xs uppercase tracking-wider text-vnGray font-medium mb-2.5">Property Type</label>
                         <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5" id="qTypeGroup">
                             <button type="button" data-type="Studio" class="option-card border border-neutral-200 rounded-xl p-3 text-left hover:border-neutral-400">
+                                <svg class="w-5 h-5 mb-2 text-vnDarkGray" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M4 21V9l8-5 8 5v12M9 21v-6h6v6"></path></svg>
                                 <div class="font-urbanist font-semibold text-sm">Studio</div>
                                 <div class="sub-text text-xs text-vnGray mt-0.5">From 1,100 AED</div>
                             </button>
                             <button type="button" data-type="Apartment" class="option-card active border border-neutral-200 rounded-xl p-3 text-left hover:border-neutral-400">
+                                <svg class="w-5 h-5 mb-2 text-vnDarkGray" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M3 21h18M5 21V7l8-4v18M19 21V11l-6-4M9 9v.01M9 12v.01M9 15v.01M9 18v.01"></path></svg>
                                 <div class="font-urbanist font-semibold text-sm">Apartment</div>
                                 <div class="sub-text text-xs text-vnGray mt-0.5">From 1,800 AED</div>
                             </button>
                             <button type="button" data-type="Townhouse" class="option-card border border-neutral-200 rounded-xl p-3 text-left hover:border-neutral-400">
+                                <svg class="w-5 h-5 mb-2 text-vnDarkGray" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1"></path></svg>
                                 <div class="font-urbanist font-semibold text-sm">Townhouse</div>
                                 <div class="sub-text text-xs text-vnGray mt-0.5">From 3,200 AED</div>
                             </button>
                             <button type="button" data-type="Villa" class="option-card border border-neutral-200 rounded-xl p-3 text-left hover:border-neutral-400">
+                                <svg class="w-5 h-5 mb-2 text-vnDarkGray" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M2 21h20M4 21V10l8-6 8 6v11M9 21v-6h6v6M12 7v.01"></path></svg>
                                 <div class="font-urbanist font-semibold text-sm">Villa</div>
                                 <div class="sub-text text-xs text-vnGray mt-0.5">From 6,500 AED</div>
                             </button>
                             <button type="button" data-type="Luxury" class="option-card border border-neutral-200 rounded-xl p-3 text-left hover:border-neutral-400 col-span-2 sm:col-span-1">
+                                <svg class="w-5 h-5 mb-2 text-vnDarkGray" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5L12 3z"></path></svg>
                                 <div class="font-urbanist font-semibold text-sm">Luxury</div>
                                 <div class="sub-text text-xs text-vnGray mt-0.5">By request</div>
                             </button>
@@ -736,18 +709,6 @@
             </div>
         </section>
 
-        <!-- Floating FAQ Answer Modal -->
-        <div id="faqModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/45 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="faqModalQuestion">
-            <div id="faqModalCard" class="bg-white border border-neutral-200 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-[0_24px_64px_rgba(0,0,0,0.22)] relative">
-                <button id="faqModalClose" type="button" aria-label="Close answer" class="absolute top-5 right-5 w-9 h-9 rounded-full border border-neutral-200 flex items-center justify-center text-vnGray hover:text-vnBlack hover:border-vnBlack transition">
-                    <i data-lucide="x" class="w-4 h-4"></i>
-                </button>
-                <span class="text-xs font-semibold uppercase tracking-wider text-vnGray font-urbanist">FAQ</span>
-                <h3 id="faqModalQuestion" class="text-xl sm:text-2xl font-bold text-vnBlack font-urbanist mt-1.5 pr-10"></h3>
-                <p id="faqModalAnswer" class="text-sm sm:text-base text-vnDarkGray leading-relaxed mt-4"></p>
-            </div>
-        </div>
-
         <!-- Bottom CTA Banner -->
         <section class="max-w-6xl mx-auto">
             <div class="bg-neutral-950 text-white rounded-3xl p-8 sm:p-12 md:p-14 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 shadow-[0_20px_50px_rgba(0,0,0,0.12)]">
@@ -776,7 +737,7 @@
             <div class="space-y-2">
                 <img src="/logo/vantage_north_logo_light.png" alt="Vantage North" class="h-6 w-auto mb-3">
                 <p class="text-xs text-vnGray">
-                    WhatsApp / Phone: <a href="https://wa.me/971585565311" target="_blank" rel="noopener noreferrer" class="underline hover:text-black">+971 58 556 5311</a> · Email: <a href="mailto:andy@vantagenorth.ae" class="underline hover:text-black">andy@vantagenorth.ae</a> · Dubai, UAE
+                    Phone: <a href="https://wa.me/971585565311" target="_blank" rel="noopener noreferrer" class="underline hover:text-black">+971 58 556 5311</a> · Email: <a href="mailto:hello@vantagenorth.ae" class="underline hover:text-black">hello@vantagenorth.ae</a> · Dubai, UAE
                 </p>
                 <p class="text-[11px] text-vnGray pt-1">
                     &copy; <span id="year"></span> Al Marsad Property Observer L.L.C S.O.C trading as Vantage North · RERA 65910. All rights reserved.
@@ -791,6 +752,18 @@
             </nav>
         </div>
     </footer>
+
+    <!-- Floating FAQ Answer Modal -->
+    <div id="faqModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/45 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="faqModalQuestion">
+        <div id="faqModalCard" class="bg-white border border-neutral-200 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-[0_24px_64px_rgba(0,0,0,0.22)] relative">
+            <button id="faqModalClose" type="button" aria-label="Close answer" class="absolute top-5 right-5 w-9 h-9 rounded-full border border-neutral-200 flex items-center justify-center text-vnGray hover:text-vnBlack hover:border-vnBlack transition">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+            <span class="text-xs font-semibold uppercase tracking-wider text-vnGray font-urbanist">FAQ</span>
+            <h3 id="faqModalQuestion" class="text-xl sm:text-2xl font-bold text-vnBlack font-urbanist mt-1.5 pr-10"></h3>
+            <p id="faqModalAnswer" class="text-sm sm:text-base text-vnDarkGray leading-relaxed mt-4"></p>
+        </div>
+    </div>
 
     <script>
         lucide.createIcons();
