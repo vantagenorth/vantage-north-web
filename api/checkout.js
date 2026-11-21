@@ -124,7 +124,7 @@ module.exports = async function handler(req, res) {
     const isTest = process.env.ZIINA_TEST_MODE === 'true';
 
     // Create Ziina Payment Intent (no permanent Supabase records until payment is confirmed)
-    const ziinaMessage = `Vantage North Report ${bookingReference}`.slice(0, 60);
+    const ziinaMessage = `Vantage North Booking ${bookingReference}`.slice(0, 60);
     const ziinaRes = await fetch('https://api-v2.ziina.com/api/payment_intent', {
       method: 'POST',
       headers: {
