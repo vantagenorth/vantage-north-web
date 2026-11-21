@@ -10,7 +10,7 @@ const {
   insertPayment,
   updatePaymentByIntentId,
   getBookingByReference,
-  updateCheckoutHoldStatus,
+  deleteCheckoutHold,
   claimCheckoutHold,
 } = require('./supabase');
 
@@ -443,7 +443,7 @@ async function finalizeBooking({ bookingReference, paymentIntentId, tokenData, z
       }
     }
 
-    await updateCheckoutHoldStatus(b.bookingReference, 'completed');
+    await deleteCheckoutHold(b.bookingReference);
     supabaseSynced = true;
   }
 

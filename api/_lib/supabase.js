@@ -418,6 +418,15 @@ async function claimCheckoutHold(bookingReference) {
   }
 }
 
+async function deleteCheckoutHold(bookingReference) {
+  if (!isSupabaseConfigured() || !bookingReference) return;
+  try {
+    await supabaseFetch(`checkout_holds?booking_reference=eq.${encodeURIComponent(bookingReference)}`, {
+      method: 'DELETE',
+    });
+  } catch {}
+}
+
 module.exports = {
   isSupabaseConfigured,
   upsertClient,
@@ -440,6 +449,7 @@ module.exports = {
   getCheckoutHoldByIntentId,
   updateCheckoutHoldStatus,
   claimCheckoutHold,
+  deleteCheckoutHold,
   signBookingToken,
   verifyBookingToken,
 };
