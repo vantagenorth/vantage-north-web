@@ -331,6 +331,75 @@ function verifyBookingToken(token) {
   }
 }
 
+async function createCheckoutHold(hold) {
+  if (!isSupabaseConfigured()) return { available: false, data: null };
+  try {
+    const res = await supabaseFetch('checkout_holds', {
+      method: 'POST',
+      headers: { Prefer: 'return=representation' },
+      body: JSON.stringify({ id: crypto.randomUUID(), ...hold }),
+    });
+    return { available: true, data: Array.isArray(res.data) ? res.data[0] : res.data };
+  } catch (err) {
+    console.warn('checkout_holds unavailable (createCheckoutHold):', err.message);
+    return { available: false, data: null };
+  }
+}
+
+async function getActiveCheckoutHolds(startIso, endIso) {
+  if (!isSupabaseConfigured()) return { available: false, data: [] };
+  try {
+    const nowIso = new Date().toISOString();
+    const params = new URLSearchParams({
+      select: 'booking_reference,scheduled_start,scheduled_end,expires_at,status',
+      status: 'eq.pending',
+      expires_at: `gt.${nowIso}`,
+      scheduled_start: `lt.${endIso}`,
+      scheduled_end: `gt.${startIso}`,
+    });
+    const res = await supabaseFetch(`checkout_holds?${params.toString()}`, { method: 'GET' });
+    return { available: true, data: Array.isArray(res.data) ? res.data : [] };
+  } catch (err) {
+    return { available: false, data: [] };
+  }
+}
+
+async function getCheckoutHoldByRef(bookingReference) {
+  if (!isSupabaseConfigured() || !bookingReference) return null;
+  try {
+    const res = await supabaseFetch(
+      `checkout_holds?booking_reference=eq.${encodeURIComponent(bookingReference)}&limit=1`,
+      { method: 'GET' }
+    );
+    return Array.isArray(res.data) ? res.data[0] || null : null;
+  } catch {
+    return null;
+  }
+}
+
+async function getCheckoutHoldByIntentId(intentId) {
+  if (!isSupabaseConfigured() || !intentId) return null;
+  try {
+    const res = await supabaseFetch(
+      `checkout_holds?ziina_payment_intent_id=eq.${encodeURIComponent(intentId)}&limit=1`,
+      { method: 'GET' }
+    );
+    return Array.isArray(res.data) ? res.data[0] || null : null;
+  } catch {
+    return null;
+  }
+}
+
+async function updateCheckoutHoldStatus(bookingReference, status) {
+  if (!isSupabaseConfigured() || !bookingReference) return;
+  try {
+    await supabaseFetch(`checkout_holds?booking_reference=eq.${encodeURIComponent(bookingReference)}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    });
+  } catch {}
+}
+
 module.exports = {
   isSupabaseConfigured,
   upsertClient,
@@ -347,6 +416,11 @@ module.exports = {
   insertUnit,
   findOrCreateAgent,
   insertReport,
+  createCheckoutHold,
+  getActiveCheckoutHolds,
+  getCheckoutHoldByRef,
+  getCheckoutHoldByIntentId,
+  updateCheckoutHoldStatus,
   signBookingToken,
   verifyBookingToken,
 };

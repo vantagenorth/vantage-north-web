@@ -192,3 +192,19 @@ begin
         execute format('create policy "Authenticated staff full access" on public.%I for all to authenticated using (true) with check (true);', t);
     end loop;
 end $$;
+
+-- 9. CHECKOUT HOLDS (temporary 15-minute slot locks + webhook payload staging)
+create table if not exists public.checkout_holds (
+    id uuid primary key default gen_random_uuid(),
+    created_at timestamptz not null default now(),
+    booking_reference text not null unique,
+    ziina_payment_intent_id text unique,
+    scheduled_start timestamptz not null,
+    scheduled_end timestamptz not null,
+    expires_at timestamptz not null,
+    status text not null default 'pending',
+    payload jsonb not null
+);
+
+create index if not exists idx_checkout_holds_active on public.checkout_holds(status, expires_at);
+alter table public.checkout_holds enable row level security;

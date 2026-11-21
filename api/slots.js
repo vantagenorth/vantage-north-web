@@ -1,4 +1,5 @@
 const { resolveTierConfig } = require('./_lib/config');
+const { getActiveCheckoutHolds } = require('./_lib/supabase');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -29,14 +30,17 @@ module.exports = async function handler(req, res) {
       timeZone: 'Asia/Dubai',
     });
 
-    const calRes = await fetch(`https://api.cal.com/v2/slots?${params.toString()}`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${calApiKey}`,
-        'cal-api-version': '2024-09-04',
-        'User-Agent': 'VantageNorthBooking/1.0',
-      },
-    });
+    const [calRes, holdsRes] = await Promise.all([
+      fetch(`https://api.cal.com/v2/slots?${params.toString()}`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${calApiKey}`,
+          'cal-api-version': '2024-09-04',
+          'User-Agent': 'VantageNorthBooking/1.0',
+        },
+      }),
+      getActiveCheckoutHolds(startIso, endIso),
+    ]);
 
     const calJson = await calRes.json();
     if (!calRes.ok || calJson.status === 'error') {
@@ -45,10 +49,29 @@ module.exports = async function handler(req, res) {
       });
     }
 
+    const activeHolds = (holdsRes.data || []).map((h) => ({
+      start: new Date(h.scheduled_start).getTime(),
+      end: new Date(h.scheduled_end).getTime(),
+    }));
+    const durationMs = tier.durationMinutes * 60 * 1000;
+    const rawSlots = calJson.data || {};
+    const filteredSlots = {};
+
+    for (const [dateKey, daySlots] of Object.entries(rawSlots)) {
+      const kept = (daySlots || []).filter((s) => {
+        const sStart = new Date(s.start).getTime();
+        const sEnd = sStart + durationMs;
+        return !activeHolds.some((h) => sStart < h.end && sEnd > h.start);
+      });
+      if (kept.length > 0) {
+        filteredSlots[dateKey] = kept;
+      }
+    }
+
     return res.status(200).json({
       durationMinutes: tier.durationMinutes,
       timeZone: 'Asia/Dubai',
-      slots: calJson.data || {},
+      slots: filteredSlots,
     });
   } catch (err) {
     console.error('Error in /api/slots:', err);

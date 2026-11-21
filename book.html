@@ -856,6 +856,7 @@
 
                 try {
                     localStorage.setItem(`vn_intent_${data.bookingReference}`, data.paymentIntentId);
+                    if (data.token) localStorage.setItem(`vn_token_${data.bookingReference}`, data.token);
                 } catch {}
 
                 window.location.href = data.checkoutUrl;

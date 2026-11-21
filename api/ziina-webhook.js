@@ -1,10 +1,25 @@
+const crypto = require('crypto');
 const {
-  isSupabaseConfigured,
-  getPaymentByIntentId,
-  updatePaymentByIntentId,
-  updateBookingByReference,
-  insertReport,
+  getCheckoutHoldByIntentId,
+  updateCheckoutHoldStatus,
 } = require('./_lib/supabase');
+const { finalizeBooking } = require('./_lib/confirm-core');
+
+const ZIINA_WEBHOOK_IPS = new Set([
+  '3.29.184.186',
+  '3.29.190.95',
+  '20.233.47.127',
+  '13.202.161.181',
+]);
+
+function verifyHmac(rawBody, signatureHeader, secret) {
+  if (!secret) return true;
+  if (!signatureHeader) return false;
+  const expected = crypto.createHmac('sha256', secret).update(rawBody).digest('hex');
+  const a = Buffer.from(signatureHeader);
+  const b = Buffer.from(expected);
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+}
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -12,6 +27,20 @@ module.exports = async function handler(req, res) {
   }
 
   try {
+    if (process.env.ZIINA_ENFORCE_WEBHOOK_IPS === 'true') {
+      const forwarded = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim();
+      if (forwarded && !ZIINA_WEBHOOK_IPS.has(forwarded)) {
+        return res.status(403).json({ error: 'Untrusted webhook source IP' });
+      }
+    }
+
+    const rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body || {});
+    const webhookSecret = process.env.ZIINA_WEBHOOK_SECRET;
+    const sigHeader = req.headers['x-hmac-signature'];
+    if (webhookSecret && !verifyHmac(rawBody, sigHeader, webhookSecret)) {
+      return res.status(401).json({ error: 'Invalid Ziina webhook signature' });
+    }
+
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {};
     const intentId = body?.data?.id || body?.id || body?.payment_intent_id;
     if (!intentId) {
@@ -23,7 +52,7 @@ module.exports = async function handler(req, res) {
       return res.status(500).json({ error: 'ZIINA_API_KEY not configured' });
     }
 
-    // Verify directly with Ziina API so we never trust unverified webhook payloads
+    // Re-verify directly with Ziina API
     const ziinaRes = await fetch(`https://api-v2.ziina.com/api/payment_intent/${encodeURIComponent(intentId)}`, {
       method: 'GET',
       headers: { Authorization: `Bearer ${ziinaKey}` },
@@ -33,51 +62,36 @@ module.exports = async function handler(req, res) {
       return res.status(ziinaRes.status).json({ error: 'Failed to verify payment intent', details: ziinaData });
     }
 
-    if (!isSupabaseConfigured()) {
-      return res.status(200).json({ ok: true, status: ziinaData.status, supabaseSynced: false });
-    }
+    const hold = await getCheckoutHoldByIntentId(intentId);
 
     if (ziinaData.status === 'completed') {
-      const paymentRow = await getPaymentByIntentId(intentId);
-      const booking = paymentRow?.bookings;
-      let reportId = booking?.report_id || null;
-
-      await updatePaymentByIntentId(intentId, {
-        status: 'paid',
-        paid_at: new Date().toISOString(),
-        raw_response: ziinaData,
-      });
-
-      if (booking && booking.status !== 'confirmed') {
-        await updateBookingByReference(booking.booking_reference, {
-          status: 'confirmed',
+      if (!hold || !hold.payload) {
+        return res.status(200).json({
+          ok: true,
+          status: ziinaData.status,
+          note: 'No checkout_hold found for intentId; confirmation handled via redirect or table not yet created.',
         });
       }
 
-      if (booking && !reportId) {
-        try {
-          const report = await insertReport({
-            clientId: booking.client_id,
-            unitId: booking.unit_id,
-            agentId: booking.agent_id,
-            reportType: 'Handover',
-            status: 'pending',
-            ref: booking.booking_reference,
-          });
-          reportId = report?.id || null;
-          if (reportId) {
-            await updateBookingByReference(booking.booking_reference, { report_id: reportId });
-            await updatePaymentByIntentId(intentId, { report_id: reportId });
-          }
-        } catch (e) {
-          console.warn('Webhook report creation/link warning:', e.message);
-        }
-      }
-    } else if (ziinaData.status === 'failed' || ziinaData.status === 'canceled') {
-      await updatePaymentByIntentId(intentId, {
-        status: ziinaData.status === 'canceled' ? 'cancelled' : 'failed',
-        raw_response: ziinaData,
+      const result = await finalizeBooking({
+        bookingReference: hold.booking_reference,
+        paymentIntentId: intentId,
+        tokenData: hold.payload,
+        ziinaData,
       });
+
+      return res.status(200).json({
+        ok: true,
+        status: ziinaData.status,
+        bookingReference: hold.booking_reference,
+        alreadyConfirmed: Boolean(result.alreadyConfirmed),
+      });
+    }
+
+    if (ziinaData.status === 'failed' || ziinaData.status === 'canceled') {
+      if (hold?.booking_reference) {
+        await updateCheckoutHoldStatus(hold.booking_reference, 'expired');
+      }
     }
 
     return res.status(200).json({ ok: true, status: ziinaData.status });

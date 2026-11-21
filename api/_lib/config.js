@@ -115,22 +115,33 @@ function calculateQuote({ propertyType, bedrooms, bathrooms, bedroomTier, buaSqf
 
   const extraBedrooms = Math.max(0, beds - cfg.includedBedrooms);
   const extraBathrooms = Math.max(0, baths - cfg.includedBathrooms);
-  const baseWithExtras = cfg.baseRate + extraBedrooms * EXTRA_BEDROOM_AED + extraBathrooms * EXTRA_BATHROOM_AED;
+  const extraBedroomAed = extraBedrooms * EXTRA_BEDROOM_AED;
+  const extraBathroomAed = extraBathrooms * EXTRA_BATHROOM_AED;
+  const baseWithExtras = cfg.baseRate + extraBedroomAed + extraBathroomAed;
 
   const followupAddon = Math.round(cfg.baseRate * 0.4);
   const finalAddon = Math.round(cfg.baseRate * 0.5);
 
   let priceAed = baseWithExtras;
   let packageLabel = 'Initial Inspection';
+  let appliedFollowupAed = 0;
+  let appliedFinalAed = 0;
+  let bundleDiscountAed = 0;
+
   if (packageType === 'initial_followup') {
+    appliedFollowupAed = followupAddon;
     priceAed = baseWithExtras + followupAddon;
     packageLabel = 'Initial + Developer Follow-Up';
   } else if (packageType === 'initial_final') {
+    appliedFinalAed = finalAddon;
     priceAed = baseWithExtras + finalAddon;
     packageLabel = 'Initial + Final Handover Inspection';
   } else if (packageType === 'full_bundle') {
+    appliedFollowupAed = followupAddon;
+    appliedFinalAed = finalAddon;
     const subtotal = baseWithExtras + followupAddon + finalAddon;
     priceAed = Math.round(subtotal * 0.9);
+    bundleDiscountAed = subtotal - priceAed;
     packageLabel = 'Full Package Bundle (10% Off)';
   } else if (packageType && packageType !== 'initial') {
     return { error: `Unsupported packageType: ${packageType}` };
@@ -154,6 +165,17 @@ function calculateQuote({ propertyType, bedrooms, bathrooms, bedroomTier, buaSqf
     calEventTypeId: cal.calEventTypeId,
     durationMinutes: cal.durationMinutes,
     kindOfApartment: bedLabel,
+    pricingBreakdown: {
+      baseRateAed: cfg.baseRate,
+      extraBedrooms,
+      extraBedroomAed,
+      extraBathrooms,
+      extraBathroomAed,
+      followupAddonAed: appliedFollowupAed,
+      finalAddonAed: appliedFinalAed,
+      bundleDiscountAed,
+      totalAed: priceAed,
+    },
   };
 }
 

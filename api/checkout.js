@@ -1,5 +1,9 @@
 const { calculateQuote, getSiteUrl } = require('./_lib/config');
-const { signBookingToken } = require('./_lib/supabase');
+const {
+  signBookingToken,
+  getActiveCheckoutHolds,
+  createCheckoutHold,
+} = require('./_lib/supabase');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -64,6 +68,14 @@ module.exports = async function handler(req, res) {
     }
     const endDt = new Date(startDt.getTime() + quote.durationMinutes * 60 * 1000);
 
+    // Check temporary 15-minute checkout holds to prevent concurrent double-bookings
+    const holdsRes = await getActiveCheckoutHolds(startDt.toISOString(), endDt.toISOString());
+    if ((holdsRes.data || []).length > 0) {
+      return res.status(409).json({
+        error: 'This time slot is currently reserved by another customer completing checkout. Please select another slot.',
+      });
+    }
+
     const bookingReference = `VN-${Date.now().toString(36).toUpperCase()}-${Math.random()
       .toString(36)
       .slice(2, 6)
@@ -80,6 +92,7 @@ module.exports = async function handler(req, res) {
       packageLabel: quote.packageLabel,
       priceAed: quote.priceAed,
       amountFils: quote.amountFils,
+      pricingBreakdown: quote.pricingBreakdown,
       calEventTypeId: quote.calEventTypeId,
       durationMinutes: quote.durationMinutes,
       kindOfApartment: quote.kindOfApartment,
@@ -106,13 +119,11 @@ module.exports = async function handler(req, res) {
 
     const token = signBookingToken(bookingPayload);
     const siteUrl = getSiteUrl(req);
-    const successUrl = `${siteUrl}/booking-confirmation?booking_ref=${encodeURIComponent(
-      bookingReference
-    )}&token=${encodeURIComponent(token)}`;
+    const successUrl = `${siteUrl}/booking-confirmation?booking_ref=${encodeURIComponent(bookingReference)}`;
     const cancelUrl = `${siteUrl}/book?cancelled=1&booking_ref=${encodeURIComponent(bookingReference)}`;
     const isTest = process.env.ZIINA_TEST_MODE === 'true';
 
-    // Create Ziina Payment Intent (no Supabase writes until payment is confirmed)
+    // Create Ziina Payment Intent (no permanent Supabase records until payment is confirmed)
     const ziinaMessage = `Vantage North Report ${bookingReference}`.slice(0, 60);
     const ziinaRes = await fetch('https://api-v2.ziina.com/api/payment_intent', {
       method: 'POST',
@@ -138,10 +149,22 @@ module.exports = async function handler(req, res) {
       });
     }
 
+    // Store temporary 15-minute slot hold + payload for webhook & confirmation lookup
+    await createCheckoutHold({
+      booking_reference: bookingReference,
+      ziina_payment_intent_id: ziinaData.id,
+      scheduled_start: startDt.toISOString(),
+      scheduled_end: endDt.toISOString(),
+      expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+      status: 'pending',
+      payload: bookingPayload,
+    });
+
     return res.status(200).json({
       bookingReference,
       paymentIntentId: ziinaData.id,
       checkoutUrl: ziinaData.redirect_url,
+      token,
       isTest,
       priceAed: quote.priceAed,
     });

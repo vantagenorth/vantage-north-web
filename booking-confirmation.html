@@ -100,10 +100,19 @@
                     <span class="text-vnGray">Unit &amp; Project</span>
                     <span id="cUnit" class="text-right"></span>
                 </div>
+                <div id="cPaymentIdRow" class="hidden flex justify-between gap-4">
+                    <span class="text-vnGray">Payment ID</span>
+                    <span id="cPaymentId" class="text-right text-xs text-vnGray font-mono"></span>
+                </div>
+                <div id="cItemizedRows" class="pt-3 border-t border-neutral-200 space-y-1.5 text-xs text-vnDarkGray"></div>
                 <div class="flex justify-between gap-4 pt-3 border-t border-neutral-200">
-                    <span class="font-semibold">Amount Paid</span>
+                    <span class="font-semibold">Total Paid</span>
                     <span id="cAmount" class="font-bold text-base"></span>
                 </div>
+            </div>
+
+            <div id="collisionNotice" class="hidden bg-amber-50 border border-amber-200 text-amber-900 rounded-xl p-4 text-xs leading-relaxed">
+                <strong>Schedule Notice:</strong> Your payment succeeded, but your chosen time slot was taken moments earlier. Our team will reach out shortly (or WhatsApp <strong>+971 58 556 5311</strong>) to confirm an alternate time.
             </div>
 
             <p id="emailStatusNote" class="text-xs text-vnGray"></p>
@@ -114,7 +123,12 @@
                 <a id="cCancelLink" href="#" target="_blank" rel="noopener" class="text-vnGray underline hover:text-black">Cancel Booking</a>
             </div>
 
-            <div class="pt-2 flex flex-wrap gap-3">
+            <p class="text-[11px] text-vnGray pt-1">
+                Receipt issued by <strong>Al Marsad Property Observer L.L.C S.O.C</strong> trading as <strong>Vantage North</strong> · Dubai, UAE
+            </p>
+
+            <div class="pt-2 flex flex-wrap gap-3 print:hidden">
+                <button type="button" onclick="window.print()" class="border border-neutral-300 px-5 py-3 rounded-xl text-sm font-medium hover:border-black transition">Print / Save Receipt</button>
                 <a href="/" class="bg-black text-white px-6 py-3 rounded-xl text-sm font-medium hover:bg-neutral-800 transition">Return to Homepage</a>
                 <a href="/book" class="border border-neutral-300 px-6 py-3 rounded-xl text-sm font-medium hover:border-black transition">Book Another Property</a>
             </div>
@@ -136,15 +150,44 @@
             }).format(new Date(iso)) + ' (Dubai)';
         }
 
-        async function confirmBooking() {
+        function renderItemizedReceipt(b) {
+            const container = document.getElementById('cItemizedRows');
+            const pb = b.pricingBreakdown;
+            if (!pb) {
+                container.classList.add('hidden');
+                return;
+            }
+            const lines = [
+                `<div class="flex justify-between"><span>Base Inspection (${b.propertyType})</span><span>${Number(pb.baseRateAed).toLocaleString()} AED</span></div>`,
+            ];
+            if (pb.extraBedrooms > 0) {
+                lines.push(`<div class="flex justify-between"><span>Extra Bedrooms (${pb.extraBedrooms} × 350 AED)</span><span>${Number(pb.extraBedroomAed).toLocaleString()} AED</span></div>`);
+            }
+            if (pb.extraBathrooms > 0) {
+                lines.push(`<div class="flex justify-between"><span>Extra Bathrooms (${pb.extraBathrooms} × 500 AED)</span><span>${Number(pb.extraBathroomAed).toLocaleString()} AED</span></div>`);
+            }
+            if (pb.followupAddonAed > 0) {
+                lines.push(`<div class="flex justify-between"><span>Developer Follow-Up</span><span>${Number(pb.followupAddonAed).toLocaleString()} AED</span></div>`);
+            }
+            if (pb.finalAddonAed > 0) {
+                lines.push(`<div class="flex justify-between"><span>Final Handover Inspection</span><span>${Number(pb.finalAddonAed).toLocaleString()} AED</span></div>`);
+            }
+            if (pb.bundleDiscountAed > 0) {
+                lines.push(`<div class="flex justify-between text-emerald-700"><span>Full Package Discount (10%)</span><span>−${Number(pb.bundleDiscountAed).toLocaleString()} AED</span></div>`);
+            }
+            container.innerHTML = lines.join('');
+        }
+
+        async function confirmBooking(attempt = 0) {
             const params = new URLSearchParams(window.location.search);
             const bookingReference = params.get('booking_ref');
-            const token = params.get('token');
+            let token = params.get('token');
             let paymentIntentId = params.get('payment_intent_id');
 
-            if (!paymentIntentId && bookingReference) {
+            if (bookingReference) {
                 try {
-                    paymentIntentId = localStorage.getItem(`vn_intent_${bookingReference}`);
+                    if (!paymentIntentId) paymentIntentId = localStorage.getItem(`vn_intent_${bookingReference}`);
+                    if (!token) token = localStorage.getItem(`vn_token_${bookingReference}`);
                 } catch {}
             }
 
@@ -169,6 +212,11 @@
                         normWarning: data.normWarning,
                     });
                 }
+
+                if (res.status === 402 && attempt < 5) {
+                    setTimeout(() => confirmBooking(attempt + 1), 2000);
+                    return;
+                }
                 if (!res.ok) {
                     throw new Error(data.error || 'Could not confirm booking.');
                 }
@@ -180,14 +228,24 @@
                 document.getElementById('cPackage').textContent = b.packageLabel;
                 document.getElementById('cUnit').textContent = `${b.unitNumber}, ${b.projectName} (${b.areaCommunity})`;
                 document.getElementById('cAmount').textContent = `${Number(b.priceAed).toLocaleString()} AED`;
+                if (b.intentId) {
+                    document.getElementById('cPaymentId').textContent = b.intentId;
+                    document.getElementById('cPaymentIdRow').classList.remove('hidden');
+                }
+                renderItemizedReceipt(b);
 
+                if (b.calCollision) {
+                    document.getElementById('collisionNotice').classList.remove('hidden');
+                }
                 if (data.isTest) {
                     document.getElementById('testBadge').classList.remove('hidden');
                 }
 
                 const emailNote = document.getElementById('emailStatusNote');
                 if (data.emailResult?.sent) {
-                    emailNote.textContent = `A confirmation email with your booking and payment receipt has been sent to ${b.email}.`;
+                    emailNote.textContent = `A confirmation email with your itemized receipt has been sent to ${b.email}.`;
+                } else if (data.alreadyConfirmed) {
+                    emailNote.textContent = `Booking confirmed for ${b.email}.`;
                 } else {
                     emailNote.textContent = `Booking confirmed for ${b.email}. (Email delivery note: ${data.emailResult?.reason || 'pending domain verification'})`;
                 }
