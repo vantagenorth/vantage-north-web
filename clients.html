@@ -70,11 +70,6 @@
             transform-box: fill-box;
             transform-origin: center;
             animation: lensSettle 4.5s ease-in-out infinite;
-            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        h1:hover .mag-lens-group {
-            animation: none;
-            transform: scale(1.06);
         }
         .bento-card {
             border-radius: 1.5rem;
@@ -109,7 +104,7 @@
             <p class="inline-flex items-center px-4 py-1.5 rounded-full border border-neutral-300 bg-white font-urbanist text-[11px] sm:text-xs font-semibold uppercase tracking-[0.22em] text-vnGray mb-10 animate-fade-up">
                 Specialist Property Snagging &amp; Handover
             </p>
-            <h1 aria-label="Know what you're buying." class="font-urbanist text-[2.7rem] sm:text-[3.75rem] md:text-[4.6rem] lg:text-[5.1rem] font-normal tracking-tight text-vnBlack leading-[1.08] max-w-4xl mb-14 sm:mb-16 animate-fade-up delay-100">
+            <h1 aria-label="Know what you're buying." class="font-urbanist text-[3.35rem] sm:text-[4.5rem] md:text-[5.5rem] lg:text-[6.25rem] font-normal tracking-tight text-vnBlack leading-[1.06] max-w-5xl mb-14 sm:mb-16 animate-fade-up delay-100">
                 Know what<br>
                 <span class="font-bold">you're buyin<svg aria-hidden="true" viewBox="0 0 70 140" class="inline-block overflow-visible select-none" style="height: 1.4em; width: 0.7em; vertical-align: -0.58em;">
                     <defs>
@@ -149,10 +144,8 @@
                             <!-- 1.15x magnified duplicate of 'g' -->
                             <g transform="translate(34, 96) scale(1.15) translate(-34, -96)">
                                 <text x="4" y="82" font-family="'Urbanist', sans-serif" font-weight="700" font-size="100" fill="#000000">g</text>
-                                <!-- Crisp hairline crack path splitting the bottom loop of 'g' -->
-                                <path d="M 22 93 L 31 96 L 28 100 L 38 103 L 35 108 L 43 111" fill="none" stroke="#FFFFFF" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M 31 96 L 37 94" fill="none" stroke="#FFFFFF" stroke-width="1.2" stroke-linecap="round" />
-                                <path d="M 38 103 L 44 101" fill="none" stroke="#FFFFFF" stroke-width="1.1" stroke-linecap="round" />
+                                <!-- Single clean hairline crack path splitting the bottom loop of 'g' -->
+                                <path d="M 24 94 L 33 98 L 29 103 L 39 107 L 36 112" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
                             </g>
                             <!-- Diagonal glass reflection -->
                             <ellipse cx="22" cy="83" rx="18" ry="9" transform="rotate(-30 22 83)" fill="url(#glare-grad)" />
@@ -165,7 +158,7 @@
             </h1>
 
             <p class="font-epilogue text-base sm:text-lg md:text-xl text-vnDarkGray font-normal leading-relaxed max-w-2xl mb-12 animate-fade-up delay-200">
-                We uncover hidden problems,<br>so they won't become yours.
+                We uncover hidden problems, so they won't become yours.
             </p>
 
             <div class="flex flex-col sm:flex-row items-center justify-center gap-5 w-full sm:w-auto animate-fade-up delay-300">
