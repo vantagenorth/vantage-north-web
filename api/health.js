@@ -10,5 +10,6 @@ module.exports = function handler(req, res) {
     hasSupabaseUrl: Boolean(baseUrl),
     hasSupabaseServiceKey: Boolean(serviceKey),
     hasCalKey: Boolean(process.env.CAL_API_KEY),
+    hasZiinaWebhookSecret: Boolean(process.env.ZIINA_WEBHOOK_SECRET),
   });
 };
