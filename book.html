@@ -868,6 +868,27 @@
             }
         });
 
+        // Pre-load quote selections if passed from /clients
+        (function applyInitialQuery() {
+            const q = new URLSearchParams(window.location.search);
+            const t = q.get('type');
+            if (t && (PRICING[t] || t === 'Luxury')) {
+                state.propertyType = t;
+                document.querySelectorAll('#propertyTypeGroup button').forEach(b => {
+                    b.classList.toggle('active', b.dataset.type === t);
+                });
+                if (t !== 'Luxury') {
+                    const cfg = PRICING[t];
+                    const bedsParam = parseInt(q.get('beds'), 10);
+                    const bathsParam = parseInt(q.get('baths'), 10);
+                    state.bedrooms = Number.isFinite(bedsParam) ? bedsParam : cfg.includedBeds;
+                    state.bathrooms = Number.isFinite(bathsParam) ? bathsParam : cfg.includedBaths;
+                }
+            }
+            if (q.get('followup') === '1') state.addFollowup = true;
+            if (q.get('final') === '1') state.addFinal = true;
+        })();
+
         // Initialize
         renderPropertyMode();
         renderSteppers();
