@@ -6,7 +6,7 @@
 -- Before applying, store the shared secret in Supabase Vault. It must match the
 -- CRON_SECRET environment variable in Vercel:
 --
---   select vault.create_secret('<same value as CRON_SECRET>', 'payment_health_cron_secret');
+--   select vault.create_secret('<same value as CRON_SECRET>', 'CRON_SECRET');
 --
 -- The URL below is the production site. Change it here if the domain changes.
 
@@ -25,7 +25,7 @@ begin
                     'Content-Type', 'application/json',
                     'Authorization', 'Bearer ' || (
                         select decrypted_secret from vault.decrypted_secrets
-                        where name = 'payment_health_cron_secret' limit 1
+                        where name = 'CRON_SECRET' limit 1
                     )
                 ),
                 body := '{}'::jsonb,
