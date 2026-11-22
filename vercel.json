@@ -1,8 +1,20 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "regions": [
+    "sin1"
+  ],
   "cleanUrls": true,
   "redirects": [
-    { "source": "/clients", "destination": "/", "permanent": true },
-    { "source": "/agents", "destination": "/partners", "permanent": true }
+    {
+      "source": "/clients",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/agents",
+      "destination": "/partners",
+      "permanent": true
+    }
   ],
   "headers": [
     {
