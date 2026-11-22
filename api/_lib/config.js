@@ -16,7 +16,7 @@ const BASE_RATES = {
     minBathrooms: 1,
   },
   Townhouse: {
-    baseRate: 3200,
+    baseRate: 2950,
     includedBedrooms: 3,
     includedBathrooms: 3,
     minBedrooms: 1,
@@ -24,7 +24,7 @@ const BASE_RATES = {
     minBathrooms: 1,
   },
   Villa: {
-    baseRate: 6500,
+    baseRate: 4500,
     includedBedrooms: 4,
     includedBathrooms: 4,
     minBedrooms: 1,
