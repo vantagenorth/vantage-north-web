@@ -248,26 +248,57 @@ async function insertUnit(unit) {
   return Array.isArray(created.data) ? created.data[0] : created.data;
 }
 
-async function findOrCreateAgent(agent) {
-  if (!isSupabaseConfigured() || !agent?.fullName) return null;
-  if (agent.email) {
-    const existing = await supabaseFetch(
-      `agents?email=eq.${encodeURIComponent(agent.email.trim().toLowerCase())}&limit=1`,
+// A suggestion picked on the booking form: only accept it if it is still a live partner agent
+async function getPartnerAgentById(id) {
+  if (!isSupabaseConfigured() || !id) return null;
+  if (!/^[0-9a-f-]{36}$/i.test(String(id))) return null;
+  try {
+    const res = await supabaseFetch(
+      `agents?id=eq.${encodeURIComponent(id)}&outreach_status=eq.partner&opted_out=eq.false&select=id,name&limit=1`,
       { method: 'GET' }
     );
-    if (Array.isArray(existing.data) && existing.data[0]?.id) {
-      return existing.data[0];
-    }
+    return Array.isArray(res.data) && res.data[0]?.id ? res.data[0] : null;
+  } catch (err) {
+    // e.g. referral migration not applied yet: fall back to matching by details
+    console.warn('getPartnerAgentById failed:', err.message);
+    return null;
   }
+}
+
+async function findOrCreateAgent(agent) {
+  if (!isSupabaseConfigured() || !agent?.fullName) return null;
+  const name = agent.fullName.trim();
+  const email = agent.email ? agent.email.trim().toLowerCase() : null;
+  const phone = agent.phone ? agent.phone.trim() : null;
+
+  const firstMatch = async (query) => {
+    const res = await supabaseFetch(`agents?${query}&limit=1`, { method: 'GET' });
+    return Array.isArray(res.data) && res.data[0]?.id ? res.data[0] : null;
+  };
+
+  // Match an existing agent before creating a new one: email, then phone, then exact name (+ agency)
+  if (email) {
+    const byEmail = await firstMatch(`email=eq.${encodeURIComponent(email)}`);
+    if (byEmail) return byEmail;
+  }
+  if (phone) {
+    const byPhone = await firstMatch(`phone=eq.${encodeURIComponent(phone)}`);
+    if (byPhone) return byPhone;
+  }
+  const nameQuery = `name=ilike.${encodeURIComponent(name)}` +
+    (agent.agency ? `&agency_name=ilike.${encodeURIComponent(agent.agency.trim())}` : '');
+  const byName = await firstMatch(nameQuery);
+  if (byName) return byName;
+
   const created = await supabaseFetch('agents', {
     method: 'POST',
     headers: { Prefer: 'return=representation' },
     body: JSON.stringify({
       id: crypto.randomUUID(),
-      name: agent.fullName.trim(),
+      name,
       agency_name: agent.agency ? agent.agency.trim() : null,
-      email: agent.email ? agent.email.trim().toLowerCase() : null,
-      phone: agent.phone ? agent.phone.trim() : null,
+      email,
+      phone,
     }),
   });
   return Array.isArray(created.data) ? created.data[0] : created.data;
@@ -462,6 +493,8 @@ async function listPaymentEvents(query) {
 
 module.exports = {
   isSupabaseConfigured,
+  supabaseFetch,
+  getPartnerAgentById,
   listCheckoutHolds,
   deleteCheckoutHoldsWhere,
   insertPaymentEvent,

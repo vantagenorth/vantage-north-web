@@ -5,6 +5,7 @@ const {
   findOrCreateProject,
   insertUnit,
   findOrCreateAgent,
+  getPartnerAgentById,
   insertReport,
   insertBooking,
   insertPayment,
@@ -460,7 +461,11 @@ async function finalizeBookingInner({ bookingReference, paymentIntentId, tokenDa
         });
         unitId = unit?.id || null;
 
-        if (b.agentName) {
+        // A partner the client picked from the suggestion wins; otherwise match/create by details
+        const picked = b.agentId ? await getPartnerAgentById(b.agentId) : null;
+        if (picked) {
+          agentId = picked.id;
+        } else if (b.agentName) {
           const agent = await findOrCreateAgent({
             fullName: b.agentName,
             agency: b.agentAgency,
