@@ -162,9 +162,14 @@ create index if not exists agents_name_trgm_idx
   on public.agents using gin (lower(name) gin_trgm_ops);
 
 create or replace function public.suggest_partner_agents(q text)
-returns table (id uuid, name text, agency_name text)
+returns table (id uuid, name text, agency_name text, email_hint text, phone_hint text)
 language sql stable security definer set search_path = public as $$
-  select a.id, a.name, coalesce(ag.name, a.agency_name) as agency_name
+  -- Contact details are returned masked only; the full email and phone stay in the database
+  select a.id, a.name, coalesce(ag.name, a.agency_name) as agency_name,
+         case when a.email like '%@%'
+              then left(a.email, 1) || '•••@' || split_part(a.email, '@', 2) end as email_hint,
+         case when length(regexp_replace(coalesce(a.phone, ''), '\D', '', 'g')) >= 7
+              then left(a.phone, 7) || ' ••• ' || right(regexp_replace(a.phone, '\D', '', 'g'), 2) end as phone_hint
   from agents a
   left join agencies ag on ag.id = a.agency_id
   where length(trim(q)) >= 3
