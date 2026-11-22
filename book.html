@@ -314,7 +314,12 @@
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                                     <div>
                                         <label class="block text-xs font-medium mb-1">Agent Name</label>
-                                        <input id="agentName" type="text" placeholder="Agent full name" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
+                                        <div class="relative">
+                                            <input id="agentName" type="text" autocomplete="off" placeholder="Agent full name" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
+                                            <input id="agentId" type="hidden" value="">
+                                            <div id="agentSuggest" class="hidden mt-2 rounded-xl border border-neutral-200 bg-neutral-50 p-2 text-sm" role="listbox" aria-label="Matching agents"></div>
+                                            <p id="agentLinked" class="hidden mt-1.5 text-xs text-neutral-500"></p>
+                                        </div>
                                     </div>
                                     <div>
                                         <label class="block text-xs font-medium mb-1">Agency / Brokerage</label>
@@ -797,6 +802,61 @@
             });
         });
 
+        // Agent name: suggest matching partner agents after 3 letters. Free text always allowed.
+        (function () {
+            const nameEl = document.getElementById('agentName');
+            const agencyEl = document.getElementById('agentAgency');
+            const idEl = document.getElementById('agentId');
+            const box = document.getElementById('agentSuggest');
+            const linked = document.getElementById('agentLinked');
+            let timer = null;
+            let lastQuery = '';
+
+            const esc = (t) => String(t || '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+            const hide = () => { box.classList.add('hidden'); box.innerHTML = ''; };
+
+            function render(list) {
+                if (!list.length) return hide();
+                box.innerHTML = '<p class="px-2 pb-1 text-xs text-neutral-500">Did you mean</p>' + list.map((a, i) =>
+                    `<button type="button" data-i="${i}" role="option" class="w-full text-left px-2 py-1.5 rounded-lg hover:bg-white focus:bg-white focus:outline-none">
+                        <span class="font-medium text-black">${esc(a.name)}</span>${a.agency ? `<span class="text-neutral-500"> · ${esc(a.agency)}</span>` : ''}
+                    </button>`).join('');
+                box.querySelectorAll('button').forEach((btn) => btn.addEventListener('click', () => {
+                    const a = list[Number(btn.dataset.i)];
+                    nameEl.value = a.name;
+                    if (a.agency) agencyEl.value = a.agency;
+                    idEl.value = a.id;
+                    linked.textContent = 'Linked to ' + a.name + (a.agency ? ', ' + a.agency : '');
+                    linked.classList.remove('hidden');
+                    hide();
+                }));
+                box.classList.remove('hidden');
+            }
+
+            nameEl.addEventListener('input', () => {
+                // Any edit after picking unlinks the suggestion, so typed text is what gets saved
+                idEl.value = '';
+                linked.classList.add('hidden');
+                clearTimeout(timer);
+                const q = nameEl.value.trim();
+                if (q.length < 3) { lastQuery = ''; return hide(); }
+                timer = setTimeout(async () => {
+                    if (q === lastQuery) return;
+                    lastQuery = q;
+                    try {
+                        const res = await fetch('/api/agent-suggest?q=' + encodeURIComponent(q));
+                        const data = await res.json();
+                        if (nameEl.value.trim() === q) render(data.suggestions || []);
+                    } catch { hide(); }
+                }, 250);
+            });
+
+            nameEl.addEventListener('keydown', (e) => { if (e.key === 'Escape') hide(); });
+            document.addEventListener('click', (e) => {
+                if (!box.contains(e.target) && e.target !== nameEl) hide();
+            });
+        })();
+
         document.getElementById('submitBtn').addEventListener('click', async () => {
             const errorEl = document.getElementById('formError');
             errorEl.classList.add('hidden');
@@ -818,6 +878,7 @@
                 inspectionPurpose: document.getElementById('inspectionPurpose').value,
                 dewaConnected: document.getElementById('dewaConnected').value === 'true',
                 accessInstructions: document.getElementById('accessInstructions').value.trim(),
+                agentId: document.getElementById('agentId').value || null,
                 agentName: document.getElementById('agentName').value.trim(),
                 agentAgency: document.getElementById('agentAgency').value.trim(),
                 agentEmail: document.getElementById('agentEmail').value.trim(),
