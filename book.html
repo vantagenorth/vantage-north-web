@@ -807,6 +807,15 @@
             const nameEl = document.getElementById('agentName');
             const agencyEl = document.getElementById('agentAgency');
             const idEl = document.getElementById('agentId');
+            const emailEl = document.getElementById('agentEmail');
+            const phoneEl = document.getElementById('agentPhone');
+            const lockable = [agencyEl, emailEl, phoneEl];
+            const lock = (on) => lockable.forEach((el) => {
+                el.readOnly = on;
+                el.classList.toggle('bg-neutral-100', on);
+                el.classList.toggle('text-neutral-500', on);
+                if (!on && el.dataset.filled) { el.value = ''; delete el.dataset.filled; }
+            });
             const box = document.getElementById('agentSuggest');
             const linked = document.getElementById('agentLinked');
             let timer = null;
@@ -824,8 +833,14 @@
                 box.querySelectorAll('button').forEach((btn) => btn.addEventListener('click', () => {
                     const a = list[Number(btn.dataset.i)];
                     nameEl.value = a.name;
-                    if (a.agency) agencyEl.value = a.agency;
                     idEl.value = a.id;
+                    // Fill from the partner's record. Email and phone are shown masked;
+                    // the full details stay on file and are used server-side.
+                    agencyEl.value = a.agency || '';
+                    emailEl.value = a.emailHint || '';
+                    phoneEl.value = a.phoneHint || '';
+                    lockable.forEach((el) => { el.dataset.filled = '1'; });
+                    lock(true);
                     linked.textContent = 'Linked to ' + a.name + (a.agency ? ', ' + a.agency : '');
                     linked.classList.remove('hidden');
                     hide();
@@ -835,6 +850,7 @@
 
             nameEl.addEventListener('input', () => {
                 // Any edit after picking unlinks the suggestion, so typed text is what gets saved
+                if (idEl.value) lock(false);
                 idEl.value = '';
                 linked.classList.add('hidden');
                 clearTimeout(timer);
@@ -881,8 +897,8 @@
                 agentId: document.getElementById('agentId').value || null,
                 agentName: document.getElementById('agentName').value.trim(),
                 agentAgency: document.getElementById('agentAgency').value.trim(),
-                agentEmail: document.getElementById('agentEmail').value.trim(),
-                agentPhone: document.getElementById('agentPhone').value.trim(),
+                agentEmail: document.getElementById('agentId').value ? '' : document.getElementById('agentEmail').value.trim(),
+                agentPhone: document.getElementById('agentId').value ? '' : document.getElementById('agentPhone').value.trim(),
                 termsAccepted: document.getElementById('termsAccepted').checked,
             };
 

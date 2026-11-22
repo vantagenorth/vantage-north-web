@@ -25,6 +25,8 @@ module.exports = async function handler(req, res) {
         id: r.id,
         name: r.name,
         agency: r.agency_name || null,
+        emailHint: r.email_hint || null,
+        phoneHint: r.phone_hint || null,
       })),
     });
   } catch (err) {
