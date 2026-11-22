@@ -4,6 +4,7 @@ const {
   getActiveCheckoutHolds,
   createCheckoutHold,
 } = require('./_lib/supabase');
+const { logPaymentEvent, ziinaSummary } = require('./_lib/payment-log');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -137,15 +138,36 @@ module.exports = async function handler(req, res) {
       }),
     });
 
-    const ziinaData = await ziinaRes.json();
+    const ziinaData = await ziinaRes.json().catch(() => ({}));
     if (!ziinaRes.ok || !ziinaData.redirect_url) {
+      await logPaymentEvent({
+        source: 'test_checkout',
+        event: 'ziina.intent_create_failed',
+        level: 'error',
+        bookingReference,
+        intentId: ziinaData?.id,
+        httpStatus: ziinaRes.status,
+        ziinaStatus: ziinaData?.status,
+        message: ziinaData?.message || 'Ziina did not return a checkout URL',
+        details: { ziina: ziinaSummary(ziinaData), is_test_booking: true },
+      });
       return res.status(ziinaRes.status || 502).json({
         error: ziinaData?.message || 'Failed to create Ziina payment intent',
         details: ziinaData,
       });
     }
 
-    await createCheckoutHold({
+    await logPaymentEvent({
+      source: 'test_checkout',
+      event: 'ziina.intent_created',
+      bookingReference,
+      intentId: ziinaData.id,
+      httpStatus: ziinaRes.status,
+      ziinaStatus: ziinaData.status,
+      details: { ziina: ziinaSummary(ziinaData), is_test_booking: true },
+    });
+
+    const holdRes = await createCheckoutHold({
       booking_reference: bookingReference,
       ziina_payment_intent_id: ziinaData.id,
       scheduled_start: startDt.toISOString(),
@@ -154,6 +176,17 @@ module.exports = async function handler(req, res) {
       status: 'pending',
       payload: bookingPayload,
     });
+    if (!holdRes.available) {
+      await logPaymentEvent({
+        source: 'test_checkout',
+        event: 'hold.save_failed',
+        level: 'error',
+        bookingReference,
+        intentId: ziinaData.id,
+        message: holdRes.error || 'Supabase not configured; checkout hold not saved',
+        details: { is_test_booking: true },
+      });
+    }
 
     return res.status(200).json({
       redirectUrl: ziinaData.redirect_url,

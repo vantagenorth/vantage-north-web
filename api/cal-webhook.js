@@ -4,6 +4,7 @@ const {
   updateBookingByReference,
   updateBookingByCalUid,
 } = require('./_lib/supabase');
+const { logPaymentEvent, errorMessageOf } = require('./_lib/payment-log');
 
 function verifySignature(rawBody, signatureHeader, secret) {
   if (!secret || !signatureHeader) return !secret;
@@ -23,6 +24,12 @@ module.exports = async function handler(req, res) {
     const secret = process.env.CAL_WEBHOOK_SECRET;
     const sig = req.headers['x-cal-signature-256'];
     if (secret && !verifySignature(rawBody, sig, secret)) {
+      await logPaymentEvent({
+        source: 'cal_webhook',
+        event: 'webhook.rejected_signature',
+        level: 'warn',
+        httpStatus: 401,
+      });
       return res.status(401).json({ error: 'Invalid webhook signature' });
     }
 
@@ -49,6 +56,17 @@ module.exports = async function handler(req, res) {
       return null;
     }
 
+    async function logResult(updated) {
+      await logPaymentEvent({
+        source: 'cal_webhook',
+        event: `cal.${String(triggerEvent).toLowerCase()}`,
+        level: updated ? 'info' : 'warn',
+        bookingReference,
+        message: updated ? null : 'No matching booking found to update',
+        details: { cal_booking_uid: calUid, updated: Boolean(updated) },
+      });
+    }
+
     if (triggerEvent === 'BOOKING_RESCHEDULED') {
       const startTime = payload.startTime || payload.start;
       const endTime = payload.endTime || payload.end;
@@ -60,17 +78,25 @@ module.exports = async function handler(req, res) {
         ...(payload.bookingId ? { cal_booking_id: payload.bookingId } : {}),
       };
       const updated = await applyPatch(patch);
+      await logResult(updated);
       return res.status(200).json({ received: true, triggerEvent, updated: Boolean(updated) });
     }
 
     if (triggerEvent === 'BOOKING_CANCELLED') {
       const updated = await applyPatch({ status: 'cancelled' });
+      await logResult(updated);
       return res.status(200).json({ received: true, triggerEvent, updated: Boolean(updated) });
     }
 
     return res.status(200).json({ received: true, ignored: triggerEvent || 'unknown' });
   } catch (err) {
     console.error('Error in /api/cal-webhook:', err);
+    await logPaymentEvent({
+      source: 'cal_webhook',
+      event: 'webhook.exception',
+      level: 'error',
+      message: errorMessageOf(err),
+    });
     return res.status(500).json({ error: err.message || 'Internal server error' });
   }
 };

@@ -13,6 +13,7 @@ const {
   deleteCheckoutHold,
   claimCheckoutHold,
 } = require('./supabase');
+const { logPaymentEvent, errorMessageOf } = require('./payment-log');
 
 function formatDubaiTime(iso) {
   try {
@@ -140,7 +141,26 @@ function buildConfirmationHtml(b, paymentStatus, calBookingUid, calCollision) {
   </div>`;
 }
 
-async function finalizeBooking({ bookingReference, paymentIntentId, tokenData, ziinaData }) {
+async function finalizeBooking(args) {
+  const { bookingReference, paymentIntentId, trigger = null } = args;
+  try {
+    return await finalizeBookingInner(args);
+  } catch (err) {
+    await logPaymentEvent({
+      source: 'finalize',
+      event: 'finalize.failed',
+      level: 'error',
+      bookingReference,
+      intentId: paymentIntentId,
+      message: errorMessageOf(err),
+      details: { trigger },
+    });
+    throw err;
+  }
+}
+
+async function finalizeBookingInner({ bookingReference, paymentIntentId, tokenData, ziinaData, trigger = null }) {
+  const logBase = { source: 'finalize', bookingReference, intentId: paymentIntentId };
   // 1. Idempotency check if booking already persisted in Supabase
   let existingBooking = null;
   if (isSupabaseConfigured()) {
@@ -176,6 +196,12 @@ async function finalizeBooking({ bookingReference, paymentIntentId, tokenData, z
 
   // Atomic lock: ensure webhook and redirect don't both run finalizeBooking simultaneously
   const claim = await claimCheckoutHold(bookingReference);
+  await logPaymentEvent({
+    ...logBase,
+    event: claim.claimed ? 'finalize.started' : 'finalize.claim_busy',
+    message: claim.claimed ? null : 'Another request is already confirming this booking; waiting for it',
+    details: { trigger, hold_lock_available: claim.available },
+  });
   if (claim.available && !claim.claimed) {
     for (let i = 0; i < 4; i++) {
       await new Promise((r) => setTimeout(r, 1500));
@@ -208,6 +234,13 @@ async function finalizeBooking({ bookingReference, paymentIntentId, tokenData, z
         };
       }
     }
+    await logPaymentEvent({
+      ...logBase,
+      event: 'finalize.claim_wait_timeout',
+      level: 'warn',
+      message: 'Other request did not finish within 6 seconds; continuing with this one',
+      details: { trigger },
+    });
   }
 
   const b = { ...tokenData, intentId: paymentIntentId };
@@ -286,6 +319,15 @@ async function finalizeBooking({ bookingReference, paymentIntentId, tokenData, z
       let calJson = await calRes.json();
 
       if (!calRes.ok || !calJson.data) {
+        await logPaymentEvent({
+          ...logBase,
+          source: 'cal',
+          event: 'cal.full_payload_rejected',
+          level: 'warn',
+          httpStatus: calRes.status,
+          message: calJson?.error?.message || 'Cal.com rejected the full booking payload; retrying with a minimal one',
+          details: { event_type_id: Number(b.calEventTypeId) },
+        });
         const minimalPayload = {
           ...baseCalPayload,
           attendee: { name: b.fullName, email: b.email, timeZone: 'Asia/Dubai' },
@@ -301,6 +343,13 @@ async function finalizeBooking({ bookingReference, paymentIntentId, tokenData, z
       if (calRes.ok && calJson.data) {
         calBookingId = calJson.data.id || null;
         calBookingUid = calJson.data.uid || null;
+        await logPaymentEvent({
+          ...logBase,
+          source: 'cal',
+          event: 'cal.booking_created',
+          httpStatus: calRes.status,
+          details: { cal_booking_id: calBookingId, cal_booking_uid: calBookingUid },
+        });
       } else {
         calWarning = calJson?.error?.message || JSON.stringify(calJson);
         const msg = String(calWarning).toLowerCase();
@@ -325,10 +374,45 @@ async function finalizeBooking({ bookingReference, paymentIntentId, tokenData, z
             calCollision = true;
           }
         }
+        if (calBookingUid) {
+          await logPaymentEvent({
+            ...logBase,
+            source: 'cal',
+            event: 'cal.booking_matched_existing',
+            details: { cal_booking_id: calBookingId, cal_booking_uid: calBookingUid },
+          });
+        } else {
+          await logPaymentEvent({
+            ...logBase,
+            source: 'cal',
+            event: calCollision ? 'cal.slot_collision' : 'cal.booking_failed',
+            level: 'error',
+            httpStatus: calRes.status,
+            message: calCollision
+              ? 'Slot was taken during checkout; booking saved as needs_reschedule'
+              : calWarning,
+            details: { event_type_id: Number(b.calEventTypeId), start: startUtc },
+          });
+        }
       }
     } catch (calErr) {
       calWarning = calErr.message;
+      await logPaymentEvent({
+        ...logBase,
+        source: 'cal',
+        event: 'cal.request_failed',
+        level: 'error',
+        message: errorMessageOf(calErr),
+      });
     }
+  } else {
+    await logPaymentEvent({
+      ...logBase,
+      source: 'cal',
+      event: 'cal.skipped',
+      level: 'warn',
+      message: calApiKey ? 'No Cal.com event type on this booking' : 'CAL_API_KEY is not configured',
+    });
   }
 
   const bookingStatus = calCollision ? 'needs_reschedule' : 'confirmed';
@@ -339,125 +423,147 @@ async function finalizeBooking({ bookingReference, paymentIntentId, tokenData, z
   let normWarning = null;
   let reportWarning = null;
   if (isSupabaseConfigured()) {
-    const clientRes = await upsertClient({
-      fullName: b.fullName,
-      email: b.email,
-      phone: b.phone,
-    });
-    const clientId = clientRes.data.id;
-
-    let developerId = null;
-    let projectId = null;
-    let unitId = null;
-    let agentId = null;
-
     try {
-      if (b.developer && b.developer !== 'Not specified') {
-        const dev = await upsertDeveloper(b.developer);
-        developerId = dev?.id || null;
-      }
-
-      const project = await findOrCreateProject({
-        name: b.projectName,
-        area: b.areaCommunity,
-        developerId,
+      const clientRes = await upsertClient({
+        fullName: b.fullName,
+        email: b.email,
+        phone: b.phone,
       });
-      projectId = project?.id || null;
+      const clientId = clientRes.data.id;
 
-      const unit = await insertUnit({
-        unitNo: b.unitNumber,
-        type: b.propertyType,
-        beds: b.bedrooms ?? b.bedroomTier,
-        developer: developerId || (b.developer !== 'Not specified' ? b.developer : null),
-        project: projectId || b.projectName,
-        dewaActive: b.dewaConnected,
-        accessNotes: b.accessInstructions,
-      });
-      unitId = unit?.id || null;
+      let developerId = null;
+      let projectId = null;
+      let unitId = null;
+      let agentId = null;
 
-      if (b.agentName) {
-        const agent = await findOrCreateAgent({
-          fullName: b.agentName,
-          agency: b.agentAgency,
-          email: b.agentEmail,
-          phone: b.agentPhone,
-        });
-        agentId = agent?.id || null;
-      }
-    } catch (normErr) {
-      normWarning = normErr.message;
-      console.warn('Normalized property/agent sync warning:', normErr.message);
-    }
-
-    try {
-      const report = await insertReport({
-        clientId,
-        unitId,
-        agentId,
-        reportType: b.inspectionPurpose || 'Handover',
-        status: 'draft',
-      });
-      reportId = report?.id || null;
-    } catch (repErr) {
-      reportWarning = repErr.message;
-      console.warn('Report creation warning:', repErr.message);
-    }
-
-    const summaryNotes = [
-      `Package: ${b.packageLabel} (${b.priceAed} AED)`,
-      `Purpose: ${b.inspectionPurpose}`,
-      calCollision ? 'CAL_COLLISION: Slot taken during checkout — needs reschedule' : null,
-      b.notes,
-    ]
-      .filter(Boolean)
-      .join(' | ');
-
-    const bookingRes = await insertBooking({
-      booking_reference: b.bookingReference,
-      client_id: clientId,
-      unit_id: unitId,
-      agent_id: agentId,
-      report_id: reportId,
-      status: bookingStatus,
-      scheduled_date: b.scheduledStart.slice(0, 10),
-      scheduled_start: b.scheduledStart,
-      scheduled_end: b.scheduledEnd,
-      timezone: 'Asia/Dubai',
-      cal_event_type_id: b.calEventTypeId,
-      cal_booking_id: calBookingId,
-      cal_booking_uid: calBookingUid,
-      terms_accepted: true,
-      terms_accepted_at: b.termsAcceptedAt,
-      notes: summaryNotes,
-    });
-
-    await insertPayment({
-      booking_id: bookingRes.data.id,
-      client_id: clientId,
-      report_id: null,
-      provider: 'ziina',
-      ziina_payment_intent_id: b.intentId,
-      total: b.priceAed,
-      amount_aed: b.priceAed,
-      amount_fils: b.amountFils,
-      currency: 'AED',
-      status: 'paid',
-      is_test: Boolean(ziinaData?.is_test),
-      checkout_url: ziinaData?.redirect_url || null,
-      paid_at: new Date().toISOString(),
-      raw_response: ziinaData,
-    });
-
-    if (reportId) {
       try {
-        await updatePaymentByIntentId(b.intentId, { report_id: reportId });
-      } catch (payRepErr) {
-        console.warn('Payment report_id link warning:', payRepErr.message);
-      }
-    }
+        if (b.developer && b.developer !== 'Not specified') {
+          const dev = await upsertDeveloper(b.developer);
+          developerId = dev?.id || null;
+        }
 
-    await deleteCheckoutHold(b.bookingReference);
-    supabaseSynced = true;
+        const project = await findOrCreateProject({
+          name: b.projectName,
+          area: b.areaCommunity,
+          developerId,
+        });
+        projectId = project?.id || null;
+
+        const unit = await insertUnit({
+          unitNo: b.unitNumber,
+          type: b.propertyType,
+          beds: b.bedrooms ?? b.bedroomTier,
+          developer: developerId || (b.developer !== 'Not specified' ? b.developer : null),
+          project: projectId || b.projectName,
+          dewaActive: b.dewaConnected,
+          accessNotes: b.accessInstructions,
+        });
+        unitId = unit?.id || null;
+
+        if (b.agentName) {
+          const agent = await findOrCreateAgent({
+            fullName: b.agentName,
+            agency: b.agentAgency,
+            email: b.agentEmail,
+            phone: b.agentPhone,
+          });
+          agentId = agent?.id || null;
+        }
+      } catch (normErr) {
+        normWarning = normErr.message;
+        console.warn('Normalized property/agent sync warning:', normErr.message);
+      }
+
+      try {
+        const report = await insertReport({
+          clientId,
+          unitId,
+          agentId,
+          reportType: b.inspectionPurpose || 'Handover',
+          status: 'draft',
+        });
+        reportId = report?.id || null;
+      } catch (repErr) {
+        reportWarning = repErr.message;
+        console.warn('Report creation warning:', repErr.message);
+      }
+
+      const summaryNotes = [
+        `Package: ${b.packageLabel} (${b.priceAed} AED)`,
+        `Purpose: ${b.inspectionPurpose}`,
+        calCollision ? 'CAL_COLLISION: Slot taken during checkout — needs reschedule' : null,
+        b.notes,
+      ]
+        .filter(Boolean)
+        .join(' | ');
+
+      const bookingRes = await insertBooking({
+        booking_reference: b.bookingReference,
+        client_id: clientId,
+        unit_id: unitId,
+        agent_id: agentId,
+        report_id: reportId,
+        status: bookingStatus,
+        scheduled_date: b.scheduledStart.slice(0, 10),
+        scheduled_start: b.scheduledStart,
+        scheduled_end: b.scheduledEnd,
+        timezone: 'Asia/Dubai',
+        cal_event_type_id: b.calEventTypeId,
+        cal_booking_id: calBookingId,
+        cal_booking_uid: calBookingUid,
+        terms_accepted: true,
+        terms_accepted_at: b.termsAcceptedAt,
+        notes: summaryNotes,
+      });
+
+      await insertPayment({
+        booking_id: bookingRes.data.id,
+        client_id: clientId,
+        report_id: null,
+        provider: 'ziina',
+        ziina_payment_intent_id: b.intentId,
+        total: b.priceAed,
+        amount_aed: b.priceAed,
+        amount_fils: b.amountFils,
+        currency: 'AED',
+        status: 'paid',
+        is_test: Boolean(ziinaData?.is_test),
+        checkout_url: ziinaData?.redirect_url || null,
+        paid_at: new Date().toISOString(),
+        raw_response: ziinaData,
+      });
+
+      if (reportId) {
+        try {
+          await updatePaymentByIntentId(b.intentId, { report_id: reportId });
+        } catch (payRepErr) {
+          console.warn('Payment report_id link warning:', payRepErr.message);
+        }
+      }
+
+      await deleteCheckoutHold(b.bookingReference);
+      supabaseSynced = true;
+    } catch (syncErr) {
+      // The checkout hold stays in 'processing', which the health check alerts on.
+      await logPaymentEvent({
+        ...logBase,
+        source: 'finalize',
+        event: 'supabase.sync_failed',
+        level: 'error',
+        message: errorMessageOf(syncErr),
+        details: { cal_booking_uid: calBookingUid, cal_collision: calCollision },
+      });
+      throw syncErr;
+    }
+    await logPaymentEvent({
+      ...logBase,
+      event: 'supabase.synced',
+      details: {
+        booking_status: bookingStatus,
+        report_id: reportId,
+        warnings: [normWarning, reportWarning].filter(Boolean).map((w) => String(w).slice(0, 300)),
+      },
+    });
   }
 
   // 4. Send confirmation / receipt email via Resend
@@ -475,6 +581,15 @@ async function finalizeBooking({ bookingReference, paymentIntentId, tokenData, z
     html: emailHtml,
   });
 
+  await logPaymentEvent({
+    ...logBase,
+    source: 'finalize',
+    event: customerEmailResult.sent ? 'email.customer_sent' : 'email.customer_failed',
+    level: customerEmailResult.sent ? 'info' : 'error',
+    message: customerEmailResult.sent ? null : customerEmailResult.reason,
+    details: customerEmailResult.sent ? { resend_id: customerEmailResult.id } : null,
+  });
+
   const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL;
   if (adminEmail && adminEmail.toLowerCase() !== b.email.toLowerCase()) {
     await sendResendEmail({
@@ -485,6 +600,12 @@ async function finalizeBooking({ bookingReference, paymentIntentId, tokenData, z
       html: emailHtml,
     });
   }
+
+  await logPaymentEvent({
+    ...logBase,
+    event: 'finalize.completed',
+    details: { trigger, booking_status: bookingStatus, supabase_synced: supabaseSynced },
+  });
 
   return {
     confirmed: true,
@@ -507,4 +628,5 @@ async function finalizeBooking({ bookingReference, paymentIntentId, tokenData, z
 
 module.exports = {
   finalizeBooking,
+  sendResendEmail,
 };

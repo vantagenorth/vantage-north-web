@@ -5,15 +5,19 @@ const {
   isSupabaseConfigured,
 } = require('./_lib/supabase');
 const { finalizeBooking } = require('./_lib/confirm-core');
+const { logPaymentEvent, ziinaSummary, errorMessageOf } = require('./_lib/payment-log');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  let bookingReference = null;
+  let resolvedIntentId = null;
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {};
-    const { bookingReference, paymentIntentId, token } = body;
+    const { paymentIntentId, token } = body;
+    bookingReference = body.bookingReference || null;
 
     if (!bookingReference) {
       return res.status(400).json({ error: 'bookingReference is required' });
@@ -56,11 +60,28 @@ module.exports = async function handler(req, res) {
     }
 
     if (!tokenData) {
+      await logPaymentEvent({
+        source: 'confirm',
+        event: 'confirm.missing_booking_data',
+        level: 'error',
+        bookingReference,
+        intentId: paymentIntentId || hold?.ziina_payment_intent_id,
+        httpStatus: 404,
+        message: 'No valid booking token and no checkout hold payload',
+        details: { had_token: Boolean(token), had_hold: Boolean(hold) },
+      });
       return res.status(404).json({ error: 'Invalid or missing booking token' });
     }
 
-    const resolvedIntentId = paymentIntentId || hold?.ziina_payment_intent_id;
+    resolvedIntentId = paymentIntentId || hold?.ziina_payment_intent_id || null;
     if (!resolvedIntentId) {
+      await logPaymentEvent({
+        source: 'confirm',
+        event: 'confirm.missing_intent_id',
+        level: 'error',
+        bookingReference,
+        httpStatus: 400,
+      });
       return res.status(400).json({ error: 'Missing paymentIntentId to verify payment' });
     }
 
@@ -73,10 +94,29 @@ module.exports = async function handler(req, res) {
       method: 'GET',
       headers: { Authorization: `Bearer ${ziinaKey}` },
     });
-    const ziinaData = await ziinaRes.json();
+    const ziinaData = await ziinaRes.json().catch(() => ({}));
     if (!ziinaRes.ok) {
+      await logPaymentEvent({
+        source: 'confirm',
+        event: 'ziina.verify_failed',
+        level: 'error',
+        bookingReference,
+        intentId: resolvedIntentId,
+        httpStatus: ziinaRes.status,
+        message: ziinaData?.message || 'Ziina payment intent lookup failed',
+        details: { ziina: ziinaSummary(ziinaData) },
+      });
       return res.status(ziinaRes.status).json({ error: 'Failed to verify Ziina payment', details: ziinaData });
     }
+    await logPaymentEvent({
+      source: 'confirm',
+      event: 'ziina.verified',
+      bookingReference,
+      intentId: resolvedIntentId,
+      httpStatus: ziinaRes.status,
+      ziinaStatus: ziinaData.status,
+      details: { ziina: ziinaSummary(ziinaData), hold_status: hold?.status || null },
+    });
     if (ziinaData.status !== 'completed') {
       return res.status(402).json({
         error: `Payment is not completed yet (status: ${ziinaData.status})`,
@@ -89,11 +129,20 @@ module.exports = async function handler(req, res) {
       paymentIntentId: resolvedIntentId,
       tokenData,
       ziinaData,
+      trigger: 'redirect',
     });
 
     return res.status(200).json(result);
   } catch (err) {
     console.error('Error in /api/confirm-booking:', err);
+    await logPaymentEvent({
+      source: 'confirm',
+      event: 'confirm.exception',
+      level: 'error',
+      bookingReference,
+      intentId: resolvedIntentId,
+      message: errorMessageOf(err),
+    });
     return res.status(500).json({ error: err.message || 'Internal server error' });
   }
 };

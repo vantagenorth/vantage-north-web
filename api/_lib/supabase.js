@@ -342,7 +342,7 @@ async function createCheckoutHold(hold) {
     return { available: true, data: Array.isArray(res.data) ? res.data[0] : res.data };
   } catch (err) {
     console.warn('checkout_holds unavailable (createCheckoutHold):', err.message);
-    return { available: false, data: null };
+    return { available: false, data: null, error: err.message };
   }
 }
 
@@ -404,7 +404,9 @@ async function claimCheckoutHold(bookingReference) {
   if (!isSupabaseConfigured() || !bookingReference) return { available: false, claimed: true };
   try {
     const res = await supabaseFetch(
-      `checkout_holds?booking_reference=eq.${encodeURIComponent(bookingReference)}&status=eq.pending`,
+      // 'abandoned' holds were checked by the health job and found unpaid; a
+      // late payment on one must still be able to claim it.
+      `checkout_holds?booking_reference=eq.${encodeURIComponent(bookingReference)}&status=in.(pending,abandoned)`,
       {
         method: 'PATCH',
         headers: { Prefer: 'return=representation' },
@@ -427,8 +429,43 @@ async function deleteCheckoutHold(bookingReference) {
   } catch {}
 }
 
+async function listCheckoutHolds(query) {
+  if (!isSupabaseConfigured()) return [];
+  const res = await supabaseFetch(`checkout_holds?${query}`, { method: 'GET' });
+  return Array.isArray(res.data) ? res.data : [];
+}
+
+async function deleteCheckoutHoldsWhere(query) {
+  if (!isSupabaseConfigured()) return [];
+  const res = await supabaseFetch(`checkout_holds?${query}`, {
+    method: 'DELETE',
+    headers: { Prefer: 'return=representation' },
+  });
+  return Array.isArray(res.data) ? res.data : [];
+}
+
+async function insertPaymentEvent(row) {
+  if (!isSupabaseConfigured()) return { skipped: true };
+  await supabaseFetch('payment_events', {
+    method: 'POST',
+    headers: { Prefer: 'return=minimal' },
+    body: JSON.stringify(row),
+  });
+  return { skipped: false };
+}
+
+async function listPaymentEvents(query) {
+  if (!isSupabaseConfigured()) return [];
+  const res = await supabaseFetch(`payment_events?${query}`, { method: 'GET' });
+  return Array.isArray(res.data) ? res.data : [];
+}
+
 module.exports = {
   isSupabaseConfigured,
+  listCheckoutHolds,
+  deleteCheckoutHoldsWhere,
+  insertPaymentEvent,
+  listPaymentEvents,
   upsertClient,
   insertBooking,
   getBookingByReference,
