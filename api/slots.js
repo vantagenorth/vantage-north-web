@@ -1,5 +1,6 @@
 const { resolveTierConfig } = require('./_lib/config');
 const { getActiveCheckoutHolds } = require('./_lib/supabase');
+const { logPaymentEvent, errorMessageOf } = require('./_lib/payment-log');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -42,8 +43,17 @@ module.exports = async function handler(req, res) {
       getActiveCheckoutHolds(startIso, endIso),
     ]);
 
-    const calJson = await calRes.json();
+    const calJson = await calRes.json().catch(() => ({}));
     if (!calRes.ok || calJson.status === 'error') {
+      // Only failures are logged here; successful slot lookups are too frequent.
+      await logPaymentEvent({
+        source: 'cal',
+        event: 'cal.slots_failed',
+        level: 'error',
+        httpStatus: calRes.status,
+        message: calJson?.error?.message || 'Failed to fetch availability from Cal.com',
+        details: { event_type_id: tier.calEventTypeId },
+      });
       return res.status(calRes.status || 502).json({
         error: calJson?.error?.message || 'Failed to fetch availability from Cal.com',
       });
@@ -75,6 +85,12 @@ module.exports = async function handler(req, res) {
     });
   } catch (err) {
     console.error('Error in /api/slots:', err);
+    await logPaymentEvent({
+      source: 'cal',
+      event: 'cal.slots_exception',
+      level: 'error',
+      message: errorMessageOf(err),
+    });
     return res.status(500).json({ error: err.message || 'Internal server error' });
   }
 };

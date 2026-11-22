@@ -4,12 +4,14 @@ const {
   getActiveCheckoutHolds,
   createCheckoutHold,
 } = require('./_lib/supabase');
+const { logPaymentEvent, ziinaSummary, errorMessageOf } = require('./_lib/payment-log');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  let bookingReference = null;
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {};
 
@@ -76,7 +78,7 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    const bookingReference = `VN-${Date.now().toString(36).toUpperCase()}-${Math.random()
+    bookingReference = `VN-${Date.now().toString(36).toUpperCase()}-${Math.random()
       .toString(36)
       .slice(2, 6)
       .toUpperCase()}`;
@@ -125,24 +127,48 @@ module.exports = async function handler(req, res) {
 
     // Create Ziina Payment Intent (no permanent Supabase records until payment is confirmed)
     const ziinaMessage = `Vantage North Booking ${bookingReference}`.slice(0, 60);
-    const ziinaRes = await fetch('https://api-v2.ziina.com/api/payment_intent', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${ziinaKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        amount: quote.amountFils,
-        currency_code: 'AED',
-        message: ziinaMessage,
-        success_url: successUrl,
-        cancel_url: cancelUrl,
-        test: isTest,
-      }),
-    });
+    let ziinaRes;
+    try {
+      ziinaRes = await fetch('https://api-v2.ziina.com/api/payment_intent', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${ziinaKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          amount: quote.amountFils,
+          currency_code: 'AED',
+          message: ziinaMessage,
+          success_url: successUrl,
+          cancel_url: cancelUrl,
+          test: isTest,
+        }),
+      });
+    } catch (fetchErr) {
+      await logPaymentEvent({
+        source: 'checkout',
+        event: 'ziina.intent_request_failed',
+        level: 'error',
+        bookingReference,
+        message: `Could not reach Ziina: ${errorMessageOf(fetchErr)}`,
+        details: { amount_fils: quote.amountFils, is_test: isTest },
+      });
+      return res.status(502).json({ error: 'Could not reach the payment provider. Please try again.' });
+    }
 
-    const ziinaData = await ziinaRes.json();
+    const ziinaData = await ziinaRes.json().catch(() => ({}));
     if (!ziinaRes.ok || !ziinaData.redirect_url) {
+      await logPaymentEvent({
+        source: 'checkout',
+        event: 'ziina.intent_create_failed',
+        level: 'error',
+        bookingReference,
+        intentId: ziinaData?.id,
+        httpStatus: ziinaRes.status,
+        ziinaStatus: ziinaData?.status,
+        message: ziinaData?.message || 'Ziina did not return a checkout URL',
+        details: { ziina: ziinaSummary(ziinaData), amount_fils: quote.amountFils, is_test: isTest },
+      });
       return res.status(ziinaRes.status || 502).json({
         error: ziinaData?.message || 'Failed to create Ziina payment intent',
         details: ziinaData,
@@ -150,7 +176,21 @@ module.exports = async function handler(req, res) {
     }
 
     // Store temporary 15-minute slot hold + payload for webhook & confirmation lookup
-    await createCheckoutHold({
+    await logPaymentEvent({
+      source: 'checkout',
+      event: 'ziina.intent_created',
+      bookingReference,
+      intentId: ziinaData.id,
+      httpStatus: ziinaRes.status,
+      ziinaStatus: ziinaData.status,
+      details: {
+        ziina: ziinaSummary(ziinaData),
+        price_aed: quote.priceAed,
+        scheduled_start: startDt.toISOString(),
+      },
+    });
+
+    const holdRes = await createCheckoutHold({
       booking_reference: bookingReference,
       ziina_payment_intent_id: ziinaData.id,
       scheduled_start: startDt.toISOString(),
@@ -159,6 +199,20 @@ module.exports = async function handler(req, res) {
       status: 'pending',
       payload: bookingPayload,
     });
+    if (!holdRes.available) {
+      // The customer can still pay and the redirect page can still confirm the
+      // booking from the signed token, but the webhook will have nothing to
+      // work from and the slot is not reserved.
+      await logPaymentEvent({
+        source: 'checkout',
+        event: 'hold.save_failed',
+        level: 'error',
+        bookingReference,
+        intentId: ziinaData.id,
+        message: holdRes.error || 'Supabase not configured; checkout hold not saved',
+        details: { scheduled_start: startDt.toISOString() },
+      });
+    }
 
     return res.status(200).json({
       bookingReference,
@@ -170,6 +224,13 @@ module.exports = async function handler(req, res) {
     });
   } catch (err) {
     console.error('Error in /api/checkout:', err);
+    await logPaymentEvent({
+      source: 'checkout',
+      event: 'checkout.exception',
+      level: 'error',
+      bookingReference,
+      message: errorMessageOf(err),
+    });
     return res.status(500).json({ error: err.message || 'Internal server error' });
   }
 };
