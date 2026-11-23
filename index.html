@@ -367,13 +367,24 @@
 
                 <!-- 8. Fully licensed (Under Fast booking, 4x1 card) -->
                 <div class="md:col-span-3 lg:col-span-4 lg:row-span-1 bento-card bg-white border border-neutral-200 hover:border-neutral-400 hover:shadow-[0_14px_36px_rgba(0,0,0,0.06)] p-7 flex flex-col justify-between gap-5">
-                    <div class="w-14 h-14 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700">
-                        <i data-lucide="shield-check" class="w-7 h-7"></i>
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="shrink-0 w-14 h-14 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700">
+                            <i data-lucide="shield-check" class="w-7 h-7"></i>
+                        </div>
+                        <!-- InterNACHI mark: any transparent PNG/SVG at /logo/internachi.png is shown as one flat gray tone.
+                             Until that file exists, a gray text wordmark is shown instead. -->
+                        <div class="h-14 flex items-center text-vnGray" title="Certified by InterNACHI®">
+                            <img src="/logo/internachi.png" alt="InterNACHI® Certified"
+                                 class="h-11 w-auto max-w-[150px] object-contain"
+                                 style="filter: brightness(0); opacity: 0.5"
+                                 onerror="this.hidden=true;this.nextElementSibling.hidden=false">
+                            <span hidden class="font-urbanist text-xl font-bold tracking-tight">InterNACHI<sup class="text-[0.55em] font-semibold">&reg;</sup></span>
+                        </div>
                     </div>
                     <div>
                         <h2 class="text-lg sm:text-xl font-bold text-vnBlack mb-1.5 font-urbanist">Fully licensed</h2>
                         <p class="text-sm leading-relaxed text-vnDarkGray">
-                            Vantage North is fully licensed and RERA registered. We pride ourselves on being reliable.
+                            Fully licensed, RERA registered and InterNACHI&reg; certified. InterNACHI is the world's largest association of property inspectors, so every inspection follows internationally recognised Standards of Practice, a strict Code of Ethics and ongoing professional training.
                         </p>
                     </div>
                 </div>
