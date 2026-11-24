@@ -161,20 +161,16 @@
             const lines = [
                 `<div class="flex justify-between"><span>Base Inspection (${b.propertyType})</span><span>${Number(pb.baseRateAed).toLocaleString()} AED</span></div>`,
             ];
+            // Per-room rate: stored on new bookings, derived for older ones.
+            const roomRate = (count, amount) => Number(pb.extraRoomRateAed) || Math.round(Number(amount) / count);
             if (pb.extraBedrooms > 0) {
-                lines.push(`<div class="flex justify-between"><span>Extra Bedrooms (${pb.extraBedrooms} × 350 AED)</span><span>${Number(pb.extraBedroomAed).toLocaleString()} AED</span></div>`);
+                lines.push(`<div class="flex justify-between"><span>Extra Bedrooms (${pb.extraBedrooms} × ${roomRate(pb.extraBedrooms, pb.extraBedroomAed)} AED)</span><span>${Number(pb.extraBedroomAed).toLocaleString()} AED</span></div>`);
             }
             if (pb.extraBathrooms > 0) {
-                lines.push(`<div class="flex justify-between"><span>Extra Bathrooms (${pb.extraBathrooms} × 500 AED)</span><span>${Number(pb.extraBathroomAed).toLocaleString()} AED</span></div>`);
+                lines.push(`<div class="flex justify-between"><span>Extra Bathrooms (${pb.extraBathrooms} × ${roomRate(pb.extraBathrooms, pb.extraBathroomAed)} AED)</span><span>${Number(pb.extraBathroomAed).toLocaleString()} AED</span></div>`);
             }
-            if (pb.followupAddonAed > 0) {
-                lines.push(`<div class="flex justify-between"><span>Developer Follow-Up</span><span>${Number(pb.followupAddonAed).toLocaleString()} AED</span></div>`);
-            }
-            if (pb.finalAddonAed > 0) {
-                lines.push(`<div class="flex justify-between"><span>Final Handover Inspection</span><span>${Number(pb.finalAddonAed).toLocaleString()} AED</span></div>`);
-            }
-            if (pb.bundleDiscountAed > 0) {
-                lines.push(`<div class="flex justify-between text-emerald-700"><span>Full Package Discount (10%)</span><span>−${Number(pb.bundleDiscountAed).toLocaleString()} AED</span></div>`);
+            if (pb.recheckAed > 0) {
+                lines.push(`<div class="flex justify-between"><span>Re-Check (one return visit within 90 days)</span><span>${Number(pb.recheckAed).toLocaleString()} AED</span></div>`);
             }
             container.innerHTML = lines.join('');
         }

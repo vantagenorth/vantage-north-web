@@ -91,7 +91,7 @@ module.exports = async function handler(req, res) {
           <p style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#646464;margin:0 0 8px;">Vantage North — Luxury Home Quote Request</p>
           <h1 style="font-size:24px;margin:0 0 16px;font-weight:600;">We've Received Your Custom Inspection Request</h1>
           <p style="font-size:15px;line-height:1.6;color:#2B2B2B;margin:0 0 20px;">
-            Hi ${fullName}, thank you for contacting Vantage North. Because your villa exceeds 6,500 sq ft or 5 bedrooms, our senior inspection team will prepare a tailored scope and quote within 2 business hours.
+            Hi ${fullName}, thank you for contacting Vantage North. Because your home is a luxury property, is over 5,000 sq ft or has 6 or more bedrooms, our senior inspection team will prepare a tailored scope and quote within 2 business hours.
           </p>
           <div style="background:#FAFAFA;border:1px solid #E5E5E5;border-radius:8px;padding:16px;font-size:14px;">
             <p style="margin:4px 0;"><strong>Reference:</strong> ${bookingReference}</p>

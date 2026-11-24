@@ -62,20 +62,16 @@ function buildItemizedRowsHtml(b) {
   const rows = [
     `<tr><td style="padding:4px 0; color:#646464;">Base Inspection (${b.propertyType})</td><td style="padding:4px 0; text-align:right;">${Number(pb.baseRateAed).toLocaleString()} AED</td></tr>`,
   ];
+  // Per-room rate: stored on new bookings, derived for older ones.
+  const roomRate = (count, amount) => Number(pb.extraRoomRateAed) || Math.round(Number(amount) / count);
   if (pb.extraBedrooms > 0) {
-    rows.push(`<tr><td style="padding:4px 0; color:#646464;">Extra Bedrooms (${pb.extraBedrooms} × 350 AED)</td><td style="padding:4px 0; text-align:right;">${Number(pb.extraBedroomAed).toLocaleString()} AED</td></tr>`);
+    rows.push(`<tr><td style="padding:4px 0; color:#646464;">Extra Bedrooms (${pb.extraBedrooms} × ${roomRate(pb.extraBedrooms, pb.extraBedroomAed)} AED)</td><td style="padding:4px 0; text-align:right;">${Number(pb.extraBedroomAed).toLocaleString()} AED</td></tr>`);
   }
   if (pb.extraBathrooms > 0) {
-    rows.push(`<tr><td style="padding:4px 0; color:#646464;">Extra Bathrooms (${pb.extraBathrooms} × 500 AED)</td><td style="padding:4px 0; text-align:right;">${Number(pb.extraBathroomAed).toLocaleString()} AED</td></tr>`);
+    rows.push(`<tr><td style="padding:4px 0; color:#646464;">Extra Bathrooms (${pb.extraBathrooms} × ${roomRate(pb.extraBathrooms, pb.extraBathroomAed)} AED)</td><td style="padding:4px 0; text-align:right;">${Number(pb.extraBathroomAed).toLocaleString()} AED</td></tr>`);
   }
-  if (pb.followupAddonAed > 0) {
-    rows.push(`<tr><td style="padding:4px 0; color:#646464;">Developer Follow-Up</td><td style="padding:4px 0; text-align:right;">${Number(pb.followupAddonAed).toLocaleString()} AED</td></tr>`);
-  }
-  if (pb.finalAddonAed > 0) {
-    rows.push(`<tr><td style="padding:4px 0; color:#646464;">Final Handover Inspection</td><td style="padding:4px 0; text-align:right;">${Number(pb.finalAddonAed).toLocaleString()} AED</td></tr>`);
-  }
-  if (pb.bundleDiscountAed > 0) {
-    rows.push(`<tr><td style="padding:4px 0; color:#047857;">Full Package Discount (10%)</td><td style="padding:4px 0; text-align:right; color:#047857;">−${Number(pb.bundleDiscountAed).toLocaleString()} AED</td></tr>`);
+  if (pb.recheckAed > 0) {
+    rows.push(`<tr><td style="padding:4px 0; color:#646464;">Re-Check (one return visit within 90 days)</td><td style="padding:4px 0; text-align:right;">${Number(pb.recheckAed).toLocaleString()} AED</td></tr>`);
   }
   return rows.join('');
 }
