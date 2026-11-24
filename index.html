@@ -447,29 +447,14 @@
                     <i data-lucide="arrow-right" class="w-6 h-6 hidden lg:block"></i>
                 </div>
 
+
                 <div class="flex-1 bg-white border border-neutral-200 rounded-2xl p-6 flex flex-col justify-start">
                     <div class="flex items-center justify-between mb-4">
                         <span class="w-8 h-8 rounded-full bg-neutral-200 text-black text-xs font-bold flex items-center justify-center">3</span>
                         <span class="text-[10px] font-urbanist font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-neutral-100 text-vnGray">Add-on</span>
                     </div>
                     <div>
-                        <h3 class="font-bold text-base mb-1">Follow-up</h3>
-                        <p class="text-xs text-vnDarkGray leading-relaxed">We coordinate directly with the developer until defects are fixed.</p>
-                    </div>
-                </div>
-
-                <div class="flex items-center justify-center py-1 lg:py-0 text-neutral-500 shrink-0" aria-hidden="true">
-                    <i data-lucide="arrow-down" class="w-6 h-6 lg:hidden"></i>
-                    <i data-lucide="arrow-right" class="w-6 h-6 hidden lg:block"></i>
-                </div>
-
-                <div class="flex-1 bg-white border border-neutral-200 rounded-2xl p-6 flex flex-col justify-start">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="w-8 h-8 rounded-full bg-neutral-200 text-black text-xs font-bold flex items-center justify-center">4</span>
-                        <span class="text-[10px] font-urbanist font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-neutral-100 text-vnGray">Add-on</span>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-base mb-1">Final inspection</h3>
+                        <h3 class="font-bold text-base mb-1">Re-Check</h3>
                         <p class="text-xs text-vnDarkGray leading-relaxed">On-site verification to confirm every repair meets standard.</p>
                     </div>
                 </div>
@@ -481,7 +466,7 @@
 
                 <div class="flex-1 bg-emerald-50/70 border border-emerald-200 rounded-2xl p-6 flex flex-col justify-start">
                     <div class="flex items-center justify-between mb-4">
-                        <span class="w-8 h-8 rounded-full bg-emerald-600 text-white text-xs font-bold flex items-center justify-center">5</span>
+                        <span class="w-8 h-8 rounded-full bg-emerald-600 text-white text-xs font-bold flex items-center justify-center">4</span>
                         <i data-lucide="key-round" class="w-5 h-5 text-emerald-700"></i>
                     </div>
                     <div>
@@ -529,7 +514,7 @@
                             <button type="button" data-type="Luxury" class="option-card border border-neutral-200 rounded-xl p-3 text-left hover:border-neutral-400 col-span-2 sm:col-span-1">
                                 <svg class="w-5 h-5 mb-2 text-vnDarkGray" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5L12 3z"></path></svg>
                                 <div class="font-urbanist font-semibold text-sm">Luxury</div>
-                                <div class="sub-text text-xs text-vnGray mt-0.5">Over 5,000 sq ft or 6+ beds</div>
+                                <div class="sub-text text-xs text-vnGray mt-0.5">On request</div>
                             </button>
                         </div>
                     </div>
@@ -544,7 +529,7 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div class="border border-neutral-200 rounded-xl p-4 flex items-center justify-between">
                                 <div>
-                                    <span class="block font-urbanist font-semibold text-sm">Bedrooms</span>
+                                    <span class="flex items-center font-urbanist font-semibold text-sm">Bedrooms<span class="relative inline-flex align-middle"><button type="button" class="info-btn ml-1 w-4 h-4 rounded-full border border-neutral-400 text-[10px] leading-none font-semibold text-vnGray hover:border-black hover:text-black flex items-center justify-center" aria-label="What counts as a bedroom?" aria-expanded="false" aria-controls="qBedInfo">i</button><span id="qBedInfo" role="tooltip" class="info-pop hidden absolute left-0 top-6 z-20 w-60 rounded-lg bg-neutral-900 text-white text-xs font-normal leading-relaxed p-3 shadow-lg">Count a maid's room, driver's room, majlis or study as a bedroom.</span></span></span>
                                     <span id="qBedHint" class="text-[11px] text-vnGray">1 included</span>
                                 </div>
                                 <div class="flex items-center gap-2">
@@ -556,7 +541,7 @@
 
                             <div class="border border-neutral-200 rounded-xl p-4 flex items-center justify-between">
                                 <div>
-                                    <span class="block font-urbanist font-semibold text-sm">Bathrooms</span>
+                                    <span class="flex items-center font-urbanist font-semibold text-sm">Bathrooms<span class="relative inline-flex align-middle"><button type="button" class="info-btn ml-1 w-4 h-4 rounded-full border border-neutral-400 text-[10px] leading-none font-semibold text-vnGray hover:border-black hover:text-black flex items-center justify-center" aria-label="What counts as a bathroom?" aria-expanded="false" aria-controls="qBathInfo">i</button><span id="qBathInfo" role="tooltip" class="info-pop hidden absolute left-0 top-6 z-20 w-60 rounded-lg bg-neutral-900 text-white text-xs font-normal leading-relaxed p-3 shadow-lg">Count any room with plumbing (including a powder room) as a bathroom.</span></span></span>
                                     <span id="qBathHint" class="text-[11px] text-vnGray">2 included</span>
                                 </div>
                                 <div class="flex items-center gap-2">
@@ -566,8 +551,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <p class="-mt-3 text-xs text-vnGray leading-relaxed">Count a maid's room, driver's room, majlis or study as a bedroom, and any room with plumbing (including a powder room) as a bathroom.</p>
 
                         <div id="qAddonBlock">
                             <label class="block text-xs uppercase tracking-wider text-vnGray font-medium mb-2.5">Optional Add-On</label>
@@ -744,10 +727,10 @@
                 document.getElementById('qBathPlus').disabled = qState.baths >= cfg.maxBaths;
                 document.getElementById('qBedHint').textContent = cfg.maxBeds === 0
                     ? 'Studio (0 bedrooms)'
-                    : qState.beds >= Q_CUSTOM_QUOTE_BEDS ? 'Custom quote' : `${cfg.includedBeds} included, +${cfg.extraRoom} AED each extra`;
+                    : qState.beds >= Q_CUSTOM_QUOTE_BEDS ? 'Custom quote' : `${cfg.includedBeds} included`;
                 document.getElementById('qBathHint').textContent = cfg.extraRoom === 0
                     ? 'Studio (1 bathroom)'
-                    : `${cfg.includedBaths} included, +${cfg.extraRoom} AED each extra`;
+                    : `${cfg.includedBaths} included`;
             }
 
             const custom = isLux || qState.beds >= Q_CUSTOM_QUOTE_BEDS;
@@ -802,6 +785,28 @@
         document.getElementById('qRecheckInput').addEventListener('change', (e) => { qState.recheck = e.target.checked; renderQuote(); });
 
         renderQuote();
+
+        // (i) pop-ups next to the room counters: tap or click to open, tap elsewhere or Escape to close.
+        (function () {
+            const closeAll = (except) => document.querySelectorAll('.info-btn').forEach(b => {
+                if (b === except) return;
+                b.setAttribute('aria-expanded', 'false');
+                document.getElementById(b.getAttribute('aria-controls')).classList.add('hidden');
+            });
+            document.querySelectorAll('.info-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const pop = document.getElementById(btn.getAttribute('aria-controls'));
+                    const open = pop.classList.contains('hidden');
+                    closeAll(btn);
+                    pop.classList.toggle('hidden', !open);
+                    btn.setAttribute('aria-expanded', String(open));
+                });
+            });
+            document.addEventListener('click', () => closeAll());
+            document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeAll(); });
+        })();
 
         // Mobile Navbar Hamburger Menu
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
