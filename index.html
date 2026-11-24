@@ -19,6 +19,7 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="/pricing.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@300;400;500;600&family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -135,6 +136,7 @@
                     <a href="#what-we-check" class="hover:text-vnBlack transition">What we check</a>
                     <a href="#process" class="hover:text-vnBlack transition">Process</a>
                     <a href="#pricing" class="hover:text-vnBlack transition">Pricing</a>
+                    <a href="/savings-calculator" class="hidden lg:inline hover:text-vnBlack transition">Savings calculator</a>
                 </nav>
             </div>
             <div class="flex items-center gap-2.5 sm:gap-3 text-sm shrink-0">
@@ -161,6 +163,7 @@
                 <a href="#what-we-check" class="mobile-nav-link px-3 py-2 rounded-xl hover:bg-neutral-100 hover:text-vnBlack transition">What we check</a>
                 <a href="#process" class="mobile-nav-link px-3 py-2 rounded-xl hover:bg-neutral-100 hover:text-vnBlack transition">Process</a>
                 <a href="#pricing" class="mobile-nav-link px-3 py-2 rounded-xl hover:bg-neutral-100 hover:text-vnBlack transition">Pricing</a>
+                <a href="/savings-calculator" class="mobile-nav-link px-3 py-2 rounded-xl hover:bg-neutral-100 hover:text-vnBlack transition">Savings calculator</a>
             </nav>
             <div class="pt-2 border-t border-neutral-100">
                 <a href="https://wa.me/971585565311" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center px-4 py-2.5 rounded-full border border-neutral-300 text-vnBlack hover:border-vnBlack transition font-medium text-sm">
@@ -837,90 +840,19 @@
             </div>
         </section>
 
-        <!-- Snagging Savings Calculator -->
-        <section id="savings" aria-label="Savings Calculator" class="max-w-6xl mx-auto scroll-mt-24">
-            <div class="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
-                <span class="text-xs font-semibold uppercase tracking-wider text-vnGray font-urbanist">Is It Worth It?</span>
-                <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight mt-2">What could you miss without a snag?</h2>
-                <p class="text-sm sm:text-base text-vnDarkGray mt-3">Enter what you paid. We'll estimate the repairs you might end up paying for yourself, next to the cost of an inspection.</p>
-            </div>
-
-            <div class="bg-white border border-neutral-200 rounded-3xl p-6 sm:p-10 shadow-[0_14px_40px_rgba(0,0,0,0.04)] grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                <!-- Left: inputs -->
-                <div class="lg:col-span-7 lg:row-start-1 space-y-7">
-                    <div>
-                        <label for="svPriceInput" class="block text-xs uppercase tracking-wider text-vnGray font-medium mb-2.5">Purchase price</label>
-                        <div class="flex items-center border border-neutral-300 rounded-xl px-4 focus-within:border-black transition">
-                            <span class="font-urbanist font-semibold text-sm text-vnGray mr-2">AED</span>
-                            <input id="svPriceInput" type="text" inputmode="numeric" autocomplete="off" value="1,500,000" class="w-full py-3.5 bg-transparent font-urbanist font-bold text-2xl sm:text-3xl tracking-tight outline-none" aria-describedby="svPriceHint">
-                        </div>
-                        <input id="svPriceRange" type="range" min="300000" max="15000000" step="50000" value="1500000" class="w-full mt-4 accent-black cursor-pointer" aria-label="Purchase price slider">
-                        <div id="svPriceHint" class="flex justify-between text-[11px] text-vnGray mt-1"><span>300K</span><span>15M+</span></div>
+        <!-- Savings calculator teaser (links to /savings-calculator) -->
+        <section aria-label="Savings Calculator" class="max-w-6xl mx-auto">
+            <a href="/savings-calculator" class="group block rounded-3xl bg-neutral-950 text-white p-6 sm:p-10 hover:bg-black transition">
+                <div class="flex flex-col md:flex-row md:items-center gap-6 md:gap-10">
+                    <span class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center shrink-0"><i data-lucide="calculator" class="w-6 h-6"></i></span>
+                    <div class="flex-1">
+                        <span class="text-[11px] uppercase tracking-widest text-neutral-400 font-urbanist font-semibold">Savings calculator</span>
+                        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight mt-1.5">Is a snag worth it for your property?</h2>
+                        <p class="text-sm sm:text-base text-neutral-300 mt-2 max-w-2xl">Enter what you paid and see an estimate of the repairs you might miss, next to the cost of an inspection.</p>
                     </div>
-
-                    <div>
-                        <span class="block text-xs uppercase tracking-wider text-vnGray font-medium mb-2.5">Property type</span>
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5" id="svTypeGroup" role="radiogroup" aria-label="Property type">
-                            <button type="button" role="radio" aria-checked="false" data-type="Studio" class="option-card border border-neutral-200 rounded-xl px-3 py-2.5 text-left hover:border-neutral-400"><div class="font-urbanist font-semibold text-sm">Studio</div></button>
-                            <button type="button" role="radio" aria-checked="true" data-type="Apartment" class="option-card active border border-neutral-200 rounded-xl px-3 py-2.5 text-left hover:border-neutral-400"><div class="font-urbanist font-semibold text-sm">Apartment</div></button>
-                            <button type="button" role="radio" aria-checked="false" data-type="Townhouse" class="option-card border border-neutral-200 rounded-xl px-3 py-2.5 text-left hover:border-neutral-400"><div class="font-urbanist font-semibold text-sm">Townhouse</div></button>
-                            <button type="button" role="radio" aria-checked="false" data-type="Villa" class="option-card border border-neutral-200 rounded-xl px-3 py-2.5 text-left hover:border-neutral-400"><div class="font-urbanist font-semibold text-sm">Villa</div></button>
-                        </div>
-                    </div>
-
+                    <span class="inline-flex self-start md:self-center items-center gap-2 bg-white text-black font-urbanist text-sm font-semibold uppercase tracking-wider px-6 py-4 rounded-xl group-hover:bg-neutral-200 transition whitespace-nowrap">Calculate my savings<i data-lucide="arrow-right" class="w-4 h-4"></i></span>
                 </div>
-
-                <!-- Right: result card -->
-                <div class="lg:col-span-5 lg:col-start-8 lg:row-start-1 lg:row-span-2 bg-neutral-950 text-white rounded-2xl p-6 sm:p-7 space-y-5" aria-live="polite">
-                    <div>
-                        <span class="text-[11px] uppercase tracking-widest text-neutral-400 font-urbanist font-semibold">Estimated saving</span>
-                        <div id="svSaving" class="text-3xl sm:text-4xl font-urbanist font-bold tracking-tight mt-2">3,601–12,601 AED</div>
-                        <p class="text-xs text-neutral-400 mt-1">Repairs the developer fixes for free, minus the inspection.</p>
-                    </div>
-                    <div class="border-t border-white/10 pt-4 space-y-2.5 text-sm">
-                        <div class="flex items-baseline justify-between gap-3"><span class="text-neutral-300">Repairs you might miss</span><span id="svMiss" class="font-urbanist font-semibold whitespace-nowrap">4,500–13,500 AED</span></div>
-                        <div class="flex items-baseline justify-between gap-3"><span class="text-neutral-300"><span id="svTypeLabel">Apartment</span> inspection</span><span id="svInsp" class="font-urbanist font-semibold whitespace-nowrap">from 899 AED</span></div>
-                        <div class="flex items-baseline justify-between gap-3"><span class="text-neutral-300">Return on the inspection</span><span id="svMultiple" class="font-urbanist font-semibold whitespace-nowrap text-emerald-300">5× to 15×</span></div>
-                    </div>
-                    <a id="svQuoteLink" href="#pricing" class="w-full inline-flex items-center justify-center gap-2 bg-white text-black font-urbanist text-sm font-semibold uppercase tracking-wider px-6 py-4 rounded-xl hover:bg-neutral-200 transition">
-                        <span>Get my exact quote</span>
-                        <span aria-hidden="true">→</span>
-                    </a>
-                    <p class="text-[11px] text-neutral-500 leading-relaxed">Estimate only. See how we estimate this for the assumptions.</p>
-                </div>
-
-                <!-- Left, below inputs (after the result card on phones): comparison + assumptions -->
-                <div class="lg:col-span-7 lg:row-start-2 space-y-7">
-                    <!-- Comparison bars -->
-                    <div class="rounded-2xl bg-neutral-50 border border-neutral-200 p-5 space-y-4" aria-hidden="true">
-                        <div>
-                            <div class="flex items-baseline justify-between text-sm mb-1.5"><span class="font-urbanist font-semibold">Inspection</span><span id="svBarInspLabel" class="font-urbanist font-bold">899 AED</span></div>
-                            <div class="h-3 rounded-full bg-neutral-200 overflow-hidden"><div id="svBarInsp" class="h-full rounded-full bg-black transition-all duration-500" style="width:8%"></div></div>
-                        </div>
-                        <div>
-                            <div class="flex items-baseline justify-between gap-3 text-sm mb-1.5"><span class="font-urbanist font-semibold">Repairs you might miss</span><span id="svBarMissLabel" class="font-urbanist font-bold whitespace-nowrap">4,500–13,500 AED</span></div>
-                            <div class="relative h-3 rounded-full bg-neutral-200 overflow-hidden">
-                                <div id="svBarMissHigh" class="absolute inset-y-0 left-0 rounded-full bg-amber-300 transition-all duration-500" style="width:100%"></div>
-                                <div id="svBarMissLow" class="absolute inset-y-0 left-0 rounded-full bg-amber-500 transition-all duration-500" style="width:33%"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <details class="group rounded-2xl border border-neutral-200 px-5 py-4">
-                        <summary class="flex items-center justify-between cursor-pointer list-none font-urbanist font-semibold text-sm">
-                            How we estimate this
-                            <i data-lucide="chevron-down" class="w-4 h-4 text-vnGray transition group-open:rotate-180"></i>
-                        </summary>
-                        <ul class="mt-3 space-y-2 text-xs sm:text-sm text-vnDarkGray leading-relaxed">
-                            <li class="flex gap-2"><span class="text-vnGray">1.</span><span>Defects at handover typically cost <strong id="svAsmRate">0.5% to 1.5%</strong> of the purchase price to repair, based on the defects we typically find in Dubai handovers.</span></li>
-                            <li class="flex gap-2"><span class="text-vnGray">2.</span><span>About <strong id="svAsmMiss">60%</strong> of that value is in problems most buyers don't spot on a walk-through: hidden leaks, weak AC, hollow tiles and wiring faults.</span></li>
-                            <li class="flex gap-2"><span class="text-vnGray">3.</span><span>The inspection price is our standard rate for the property type. Extra rooms can add to it, so check the quote below.</span></li>
-                        </ul>
-                        <p class="mt-3 text-[11px] text-vnGray leading-relaxed">This is an estimate, not a guarantee. Every property is different, and what you save depends on the developer fixing the items in our report.</p>
-                    </details>
-                </div>
-
-            </div>
+            </a>
         </section>
 
         <!-- Interactive Price & Packages Quote Calculator -->
@@ -929,6 +861,7 @@
                 <span class="text-xs font-semibold uppercase tracking-wider text-vnGray font-urbanist">Price &amp; Packages</span>
                 <h2 class="text-3xl sm:text-4xl font-bold tracking-tight mt-2">Get an instant quote</h2>
                 <p class="text-sm sm:text-base text-vnDarkGray mt-2">Transparent flat-rate pricing based on your property type and size.</p>
+                <a href="/savings-calculator" class="inline-flex items-center gap-1.5 mt-3 text-sm font-medium text-vnBlack underline underline-offset-4 decoration-neutral-300 hover:decoration-black transition"><i data-lucide="calculator" class="w-4 h-4"></i>Not sure it's worth it? See what you could save</a>
             </div>
 
             <div class="bg-white border border-neutral-200 rounded-3xl p-6 sm:p-10 shadow-[0_14px_40px_rgba(0,0,0,0.04)] grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -1123,6 +1056,7 @@
             </div>
 
             <nav aria-label="Footer" class="flex flex-wrap items-center gap-6 text-sm font-urbanist font-medium text-vnGray">
+                <a href="/savings-calculator" class="hover:text-vnBlack transition">Savings calculator</a>
                 <a href="/partners" class="hover:text-vnBlack transition">For partners</a>
                 <a href="/terms" class="hover:text-vnBlack transition">Terms</a>
             </nav>
@@ -1186,13 +1120,9 @@
             selectCheck(0);
         })();
 
-        // Pricing (AED). Keep in sync with BASE_RATES in api/_lib/config.js and PRICING in book.html.
-        const Q_PRICING = {
-            Studio: { base: 699, includedBeds: 0, includedBaths: 1, minBeds: 0, maxBeds: 0, minBaths: 1, maxBaths: 1, extraRoom: 0, recheck: 299 },
-            Apartment: { base: 899, includedBeds: 1, includedBaths: 2, minBeds: 1, maxBeds: 5, minBaths: 1, maxBaths: 15, extraRoom: 99, recheck: 299 },
-            Townhouse: { base: 1999, includedBeds: 3, includedBaths: 3, minBeds: 1, maxBeds: 5, minBaths: 1, maxBaths: 15, extraRoom: 199, recheck: 499 },
-            Villa: { base: 2499, includedBeds: 4, includedBaths: 4, minBeds: 1, maxBeds: 5, minBaths: 1, maxBaths: 15, extraRoom: 199, recheck: 499 }
-        };
+        // Pricing (AED) comes from /pricing.js (shared with the savings calculator).
+        // Keep pricing.js in sync with BASE_RATES in api/_lib/config.js and PRICING in book.html.
+        const Q_PRICING = window.VN_PRICING;
         const Q_CUSTOM_QUOTE_BEDS = 6; // 6+ bedrooms: custom quote via WhatsApp
         const qState = { type: 'Apartment', beds: 1, baths: 2, recheck: false };
 
@@ -1273,71 +1203,11 @@
 
         renderQuote();
 
-        // Savings calculator. Inspection prices come from Q_PRICING (the quote tool), so they stay in sync.
-        // Assumptions are the business's typical findings, not published statistics; keep them in step with the
-        // "How we estimate this" text in the #savings section.
+        // Coming from the savings calculator (/?type=Villa#pricing): preselect that property type.
         (function () {
-            const SV_DEFECT_RATE_LOW = 0.005;   // 0.5% of purchase price
-            const SV_DEFECT_RATE_HIGH = 0.015;  // 1.5% of purchase price
-            const SV_MISSED_SHARE = 0.6;        // share a buyer would likely miss on their own
-            const svState = { price: 1500000, type: 'Apartment' };
-            const input = document.getElementById('svPriceInput');
-            const range = document.getElementById('svPriceRange');
-            const fmt = (n) => Math.round(n).toLocaleString('en-US');
-            const round50 = (n) => Math.round(n / 50) * 50;
-            const span = (a, b) => a === b ? `${fmt(a)} AED` : `${fmt(a)}–${fmt(b)} AED`;
-
-            function renderSavings() {
-                const insp = Q_PRICING[svState.type].base;
-                const missLow = round50(svState.price * SV_DEFECT_RATE_LOW * SV_MISSED_SHARE);
-                const missHigh = round50(svState.price * SV_DEFECT_RATE_HIGH * SV_MISSED_SHARE);
-                const saveLow = Math.max(0, missLow - insp);
-                const saveHigh = Math.max(0, missHigh - insp);
-
-                document.getElementById('svSaving').textContent = saveHigh === 0 ? 'Around break-even' : span(saveLow, saveHigh);
-                document.getElementById('svMiss').textContent = span(missLow, missHigh);
-                document.getElementById('svBarMissLabel').textContent = span(missLow, missHigh);
-                document.getElementById('svInsp').textContent = `from ${fmt(insp)} AED`;
-                document.getElementById('svBarInspLabel').textContent = `${fmt(insp)} AED`;
-                document.getElementById('svTypeLabel').textContent = svState.type;
-                const mLow = missLow / insp, mHigh = missHigh / insp;
-                const mf = (m) => m >= 10 ? Math.round(m) : Math.round(m * 10) / 10;
-                document.getElementById('svMultiple').textContent = `${mf(mLow)}× to ${mf(mHigh)}×`;
-
-                const max = Math.max(missHigh, insp);
-                document.getElementById('svBarInsp').style.width = `${Math.max(2, insp / max * 100)}%`;
-                document.getElementById('svBarMissLow').style.width = `${Math.max(2, missLow / max * 100)}%`;
-                document.getElementById('svBarMissHigh').style.width = `${Math.max(2, missHigh / max * 100)}%`;
-            }
-
-            input.addEventListener('input', () => {
-                const digits = input.value.replace(/[^0-9]/g, '').slice(0, 10);
-                svState.price = Number(digits) || 0;
-                input.value = digits ? fmt(svState.price) : '';
-                range.value = String(Math.min(Number(range.max), Math.max(Number(range.min), svState.price)));
-                renderSavings();
-            });
-            input.addEventListener('blur', () => {
-                if (svState.price < 100000) { svState.price = Number(range.min); input.value = fmt(svState.price); range.value = String(svState.price); renderSavings(); }
-            });
-            range.addEventListener('input', () => {
-                svState.price = Number(range.value);
-                input.value = fmt(svState.price);
-                renderSavings();
-            });
-            document.querySelectorAll('#svTypeGroup button').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.querySelectorAll('#svTypeGroup button').forEach(b => { b.classList.toggle('active', b === btn); b.setAttribute('aria-checked', String(b === btn)); });
-                    svState.type = btn.dataset.type;
-                    renderSavings();
-                });
-            });
-            // "Get my exact quote" preselects the same property type in the quote tool.
-            document.getElementById('svQuoteLink').addEventListener('click', () => {
-                const qBtn = document.querySelector(`#qTypeGroup button[data-type="${svState.type}"]`);
-                if (qBtn) qBtn.click();
-            });
-            renderSavings();
+            const t = new URLSearchParams(location.search).get('type');
+            const btn = t && document.querySelector(`#qTypeGroup button[data-type="${CSS.escape(t)}"]`);
+            if (btn && t !== 'Luxury') btn.click();
         })();
 
         // (i) pop-ups next to the room counters: tap or click to open, tap elsewhere or Escape to close.
