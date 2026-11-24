@@ -19,6 +19,7 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="/pricing.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@300;400;500;600&family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -837,12 +838,28 @@
             </div>
         </section>
 
+        <!-- Savings calculator teaser (links to /savings-calculator) -->
+        <section aria-label="Savings Calculator" class="max-w-6xl mx-auto">
+            <a href="/savings-calculator" class="group block rounded-3xl bg-neutral-950 text-white p-6 sm:p-10 hover:bg-black transition">
+                <div class="flex flex-col md:flex-row md:items-center gap-6 md:gap-10">
+                    <span class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center shrink-0"><i data-lucide="calculator" class="w-6 h-6"></i></span>
+                    <div class="flex-1">
+                        <span class="text-[11px] uppercase tracking-widest text-neutral-400 font-urbanist font-semibold">Savings calculator</span>
+                        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight mt-1.5">Is a snag worth it for your property?</h2>
+                        <p class="text-sm sm:text-base text-neutral-300 mt-2 max-w-2xl">Enter what you paid and see an estimate of the repairs you might miss, next to the cost of an inspection.</p>
+                    </div>
+                    <span class="inline-flex self-start md:self-center items-center gap-2 bg-white text-black font-urbanist text-sm font-semibold uppercase tracking-wider px-6 py-4 rounded-xl group-hover:bg-neutral-200 transition whitespace-nowrap">Calculate my savings<i data-lucide="arrow-right" class="w-4 h-4"></i></span>
+                </div>
+            </a>
+        </section>
+
         <!-- Interactive Price & Packages Quote Calculator -->
         <section id="pricing" aria-label="Price and Packages" class="max-w-6xl mx-auto scroll-mt-24">
             <div class="text-center max-w-2xl mx-auto mb-12">
                 <span class="text-xs font-semibold uppercase tracking-wider text-vnGray font-urbanist">Price &amp; Packages</span>
                 <h2 class="text-3xl sm:text-4xl font-bold tracking-tight mt-2">Get an instant quote</h2>
                 <p class="text-sm sm:text-base text-vnDarkGray mt-2">Transparent flat-rate pricing based on your property type and size.</p>
+                <a href="/savings-calculator" class="inline-flex items-center gap-1.5 mt-3 text-sm font-medium text-vnBlack underline underline-offset-4 decoration-neutral-300 hover:decoration-black transition"><i data-lucide="calculator" class="w-4 h-4"></i>Not sure it's worth it? See what you could save</a>
             </div>
 
             <div class="bg-white border border-neutral-200 rounded-3xl p-6 sm:p-10 shadow-[0_14px_40px_rgba(0,0,0,0.04)] grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -1037,6 +1054,7 @@
             </div>
 
             <nav aria-label="Footer" class="flex flex-wrap items-center gap-6 text-sm font-urbanist font-medium text-vnGray">
+                <a href="/savings-calculator" class="hover:text-vnBlack transition">Savings calculator</a>
                 <a href="/partners" class="hover:text-vnBlack transition">For partners</a>
                 <a href="/terms" class="hover:text-vnBlack transition">Terms</a>
             </nav>
@@ -1100,13 +1118,9 @@
             selectCheck(0);
         })();
 
-        // Pricing (AED). Keep in sync with BASE_RATES in api/_lib/config.js and PRICING in book.html.
-        const Q_PRICING = {
-            Studio: { base: 699, includedBeds: 0, includedBaths: 1, minBeds: 0, maxBeds: 0, minBaths: 1, maxBaths: 1, extraRoom: 0, recheck: 299 },
-            Apartment: { base: 899, includedBeds: 1, includedBaths: 2, minBeds: 1, maxBeds: 5, minBaths: 1, maxBaths: 15, extraRoom: 99, recheck: 299 },
-            Townhouse: { base: 1999, includedBeds: 3, includedBaths: 3, minBeds: 1, maxBeds: 5, minBaths: 1, maxBaths: 15, extraRoom: 199, recheck: 499 },
-            Villa: { base: 2499, includedBeds: 4, includedBaths: 4, minBeds: 1, maxBeds: 5, minBaths: 1, maxBaths: 15, extraRoom: 199, recheck: 499 }
-        };
+        // Pricing (AED) comes from /pricing.js (shared with the savings calculator).
+        // Keep pricing.js in sync with BASE_RATES in api/_lib/config.js and PRICING in book.html.
+        const Q_PRICING = window.VN_PRICING;
         const Q_CUSTOM_QUOTE_BEDS = 6; // 6+ bedrooms: custom quote via WhatsApp
         const qState = { type: 'Apartment', beds: 1, baths: 2, recheck: false };
 
@@ -1186,6 +1200,13 @@
         document.getElementById('qRecheckInput').addEventListener('change', (e) => { qState.recheck = e.target.checked; renderQuote(); });
 
         renderQuote();
+
+        // Coming from the savings calculator (/?type=Villa#pricing): preselect that property type.
+        (function () {
+            const t = new URLSearchParams(location.search).get('type');
+            const btn = t && document.querySelector(`#qTypeGroup button[data-type="${CSS.escape(t)}"]`);
+            if (btn && t !== 'Luxury') btn.click();
+        })();
 
         // (i) pop-ups next to the room counters: tap or click to open, tap elsewhere or Escape to close.
         (function () {

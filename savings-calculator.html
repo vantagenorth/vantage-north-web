@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snagging Savings Calculator | Vantage North Dubai</title>
+
+    <meta name="description" content="Estimate the repair costs you could miss on a Dubai property without a snagging inspection, next to the cost of an inspection.">
+    <link rel="canonical" href="https://vantagenorth.ae/savings-calculator">
+    <meta name="theme-color" content="#FAFAFA">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://vantagenorth.ae/savings-calculator">
+    <meta property="og:site_name" content="Vantage North">
+    <meta property="og:title" content="Snagging Savings Calculator | Vantage North">
+    <meta property="og:description" content="What could you miss without a snag? Estimate it in seconds.">
+    <meta property="og:image" content="https://vantagenorth.ae/reports_snapshot.png">
+
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="/pricing.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@300;400;500;600&family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        vnBg: '#FAFAFA',
+                        vnGray: '#646464',
+                        vnDarkGray: '#2B2B2B',
+                        vnBlack: '#000000',
+                        vnWhite: '#FFFFFF',
+                    },
+                    fontFamily: {
+                        urbanist: ['"Urbanist"', 'sans-serif'],
+                        epilogue: ['"Epilogue"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #FAFAFA;
+            color: #000000;
+            font-family: 'Epilogue', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        h1, h2, h3, h4, .font-heading {
+            font-family: 'Urbanist', sans-serif;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-up {
+            animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .delay-100 { animation-delay: 0.1s; opacity: 0; }
+        .delay-200 { animation-delay: 0.2s; opacity: 0; }
+        .delay-300 { animation-delay: 0.3s; opacity: 0; }
+        @keyframes lensSettle {
+            0%, 100% { transform: scale(1) translateY(0px); }
+            50% { transform: scale(1.025) translateY(-1.5px); }
+        }
+        .mag-lens-group {
+            transform-box: fill-box;
+            transform-origin: center;
+            animation: lensSettle 4.5s ease-in-out infinite;
+        }
+        .bento-card {
+            border-radius: 1.5rem;
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+        .bento-card:hover {
+            transform: translateY(-2px);
+        }
+        .option-card {
+            transition: all 0.15s ease;
+        }
+        .option-card.active {
+            border-color: #000000;
+            background-color: #000000;
+            color: #FFFFFF;
+        }
+        .option-card.active .sub-text,
+        .option-card.active svg {
+            color: #FFFFFF;
+        }
+        /* Who it's for picker */
+        .who-scroll { scrollbar-width: none; }
+        .who-scroll::-webkit-scrollbar { display: none; }
+        .who-tab { background: #fff; border-color: #e5e5e5; color: #2B2B2B; }
+        .who-tab:hover { border-color: #a3a3a3; }
+        .who-tab .who-tab-icon { background: #f5f5f5; color: #000; }
+        .who-tab .who-tab-arrow { opacity: 0; transform: translateX(-4px); }
+        .who-tab[aria-selected="true"] { background: #000; border-color: #000; color: #fff; }
+        .who-tab[aria-selected="true"] .who-tab-icon { background: rgba(255,255,255,0.12); color: #fff; }
+        .who-tab[aria-selected="true"] .who-tab-arrow { opacity: 1; transform: none; }
+        .who-panel:not(.hidden) { animation: fadeUp 0.45s cubic-bezier(0.16, 1, 0.3, 1); }
+        /* What we check diagram */
+        .check-spot { background: #000; color: #fff; box-shadow: 0 0 0 4px rgba(255,255,255,0.9); }
+        .check-spot .check-ping { background: rgba(0,0,0,0.25); animation: checkPing 2.2s cubic-bezier(0, 0, 0.2, 1) infinite; }
+        .check-spot.is-active { background: #10b981; transform: translate(-50%, -50%) scale(1.15); }
+        .check-spot.is-active .check-ping { background: rgba(16,185,129,0.35); }
+        @keyframes checkPing { 0% { transform: scale(1); opacity: 1; } 80%, 100% { transform: scale(2.1); opacity: 0; } }
+        .check-item { border-color: #e5e5e5; background: #fff; }
+        .check-item:hover { border-color: #a3a3a3; }
+        .check-item .check-icon { background: #f5f5f5; color: #000; }
+        .check-item .check-desc { max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease; }
+        .check-item.is-active { border-color: #000; }
+        .check-item.is-active .check-icon { background: #000; color: #fff; }
+        .check-item.is-active .check-desc { max-height: 12rem; opacity: 1; margin-top: 0.5rem; }
+        @media (max-width: 639px) { .check-spot { box-shadow: 0 0 0 2px rgba(255,255,255,0.9); } }
+        @media (prefers-reduced-motion: reduce) { .check-spot .check-ping { animation: none; } .who-panel:not(.hidden) { animation: none; } }
+        details > summary::-webkit-details-marker {
+            display: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between bg-vnBg text-vnBlack selection:bg-vnBlack selection:text-vnWhite">
+
+    <!-- Navbar -->
+    <header class="border-b border-neutral-200 bg-white sticky top-0 z-30">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-8">
+                <a href="/" class="flex items-center shrink-0">
+                    <img src="/logo/vantage_north_logo_light.png" alt="Vantage North" class="h-6 sm:h-7 w-auto">
+                </a>
+                <nav aria-label="Page sections" class="hidden md:flex items-center gap-6 text-sm font-medium text-vnDarkGray">
+                    <a href="/#who" class="hover:text-vnBlack transition">Who it's for</a>
+                    <a href="/#what-we-check" class="hover:text-vnBlack transition">What we check</a>
+                    <a href="/#process" class="hover:text-vnBlack transition">Process</a>
+                    <a href="/#pricing" class="hover:text-vnBlack transition">Pricing</a>
+                </nav>
+            </div>
+            <div class="flex items-center gap-2.5 sm:gap-3 text-sm shrink-0">
+                <a href="https://wa.me/971585565311" target="_blank" rel="noopener noreferrer" class="hidden md:inline-flex px-4 py-2 rounded-full border border-neutral-300 text-vnBlack hover:border-vnBlack transition font-medium whitespace-nowrap">Let's chat</a>
+                <a href="/book" class="px-4 py-2 rounded-full bg-vnBlack text-vnWhite hover:bg-neutral-800 transition font-medium whitespace-nowrap">
+                    Book now
+                </a>
+                <button
+                    id="mobileMenuBtn"
+                    type="button"
+                    aria-label="Toggle navigation menu"
+                    aria-expanded="false"
+                    aria-controls="mobileNavMenu"
+                    class="md:hidden w-9 h-9 rounded-full border border-neutral-300 flex items-center justify-center text-vnBlack hover:border-vnBlack transition"
+                >
+                    <i data-lucide="menu" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Dropdown Menu -->
+        <div id="mobileNavMenu" class="hidden md:hidden border-t border-neutral-200 bg-white px-4 py-4 space-y-2">
+            <nav aria-label="Mobile sections" class="flex flex-col space-y-1 text-sm font-medium text-vnDarkGray">
+                <a href="/#who" class="mobile-nav-link px-3 py-2 rounded-xl hover:bg-neutral-100 hover:text-vnBlack transition">Who it's for</a>
+                <a href="/#what-we-check" class="mobile-nav-link px-3 py-2 rounded-xl hover:bg-neutral-100 hover:text-vnBlack transition">What we check</a>
+                <a href="/#process" class="mobile-nav-link px-3 py-2 rounded-xl hover:bg-neutral-100 hover:text-vnBlack transition">Process</a>
+                <a href="/#pricing" class="mobile-nav-link px-3 py-2 rounded-xl hover:bg-neutral-100 hover:text-vnBlack transition">Pricing</a>
+            </nav>
+            <div class="pt-2 border-t border-neutral-100">
+                <a href="https://wa.me/971585565311" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center px-4 py-2.5 rounded-full border border-neutral-300 text-vnBlack hover:border-vnBlack transition font-medium text-sm">
+                    Let's chat
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow pt-16 sm:pt-24 pb-24 px-4 sm:px-6 space-y-16 sm:space-y-20">
+
+        <!-- Snagging Savings Calculator -->
+        <section id="savings" aria-label="Savings Calculator" class="max-w-6xl mx-auto">
+            <div class="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
+                <span class="text-xs font-semibold uppercase tracking-wider text-vnGray font-urbanist">Savings Calculator</span>
+                <h1 class="font-urbanist text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mt-3">What could you miss without a snag?</h1>
+                <p class="text-base sm:text-lg text-vnDarkGray mt-4">Enter what you paid. We'll estimate the repairs you might end up paying for yourself, next to the cost of an inspection.</p>
+            </div>
+
+            <div class="bg-white border border-neutral-200 rounded-3xl p-6 sm:p-10 shadow-[0_14px_40px_rgba(0,0,0,0.04)] grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <!-- Left: inputs -->
+                <div class="lg:col-span-7 lg:row-start-1 space-y-7">
+                    <div>
+                        <label for="svPriceInput" class="block text-xs uppercase tracking-wider text-vnGray font-medium mb-2.5">Purchase price</label>
+                        <div class="flex items-center border border-neutral-300 rounded-xl px-4 focus-within:border-black transition">
+                            <span class="font-urbanist font-semibold text-sm text-vnGray mr-2">AED</span>
+                            <input id="svPriceInput" type="text" inputmode="numeric" autocomplete="off" value="1,500,000" class="w-full py-3.5 bg-transparent font-urbanist font-bold text-2xl sm:text-3xl tracking-tight outline-none" aria-describedby="svPriceHint">
+                        </div>
+                        <input id="svPriceRange" type="range" min="300000" max="15000000" step="50000" value="1500000" class="w-full mt-4 accent-black cursor-pointer" aria-label="Purchase price slider">
+                        <div id="svPriceHint" class="flex justify-between text-[11px] text-vnGray mt-1"><span>300K</span><span>15M+</span></div>
+                    </div>
+
+                    <div>
+                        <span class="block text-xs uppercase tracking-wider text-vnGray font-medium mb-2.5">Property type</span>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5" id="svTypeGroup" role="radiogroup" aria-label="Property type">
+                            <button type="button" role="radio" aria-checked="false" data-type="Studio" class="option-card border border-neutral-200 rounded-xl px-3 py-2.5 text-left hover:border-neutral-400"><div class="font-urbanist font-semibold text-sm">Studio</div></button>
+                            <button type="button" role="radio" aria-checked="true" data-type="Apartment" class="option-card active border border-neutral-200 rounded-xl px-3 py-2.5 text-left hover:border-neutral-400"><div class="font-urbanist font-semibold text-sm">Apartment</div></button>
+                            <button type="button" role="radio" aria-checked="false" data-type="Townhouse" class="option-card border border-neutral-200 rounded-xl px-3 py-2.5 text-left hover:border-neutral-400"><div class="font-urbanist font-semibold text-sm">Townhouse</div></button>
+                            <button type="button" role="radio" aria-checked="false" data-type="Villa" class="option-card border border-neutral-200 rounded-xl px-3 py-2.5 text-left hover:border-neutral-400"><div class="font-urbanist font-semibold text-sm">Villa</div></button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Right: result card -->
+                <div class="lg:col-span-5 lg:col-start-8 lg:row-start-1 lg:row-span-2 bg-neutral-950 text-white rounded-2xl p-6 sm:p-7 space-y-5" aria-live="polite">
+                    <div>
+                        <span class="text-[11px] uppercase tracking-widest text-neutral-400 font-urbanist font-semibold">Estimated saving</span>
+                        <div id="svSaving" class="text-3xl sm:text-4xl font-urbanist font-bold tracking-tight mt-2">3,601–12,601 AED</div>
+                        <p class="text-xs text-neutral-400 mt-1">Repairs the developer fixes for free, minus the inspection.</p>
+                    </div>
+                    <div class="border-t border-white/10 pt-4 space-y-2.5 text-sm">
+                        <div class="flex items-baseline justify-between gap-3"><span class="text-neutral-300">Repairs you might miss</span><span id="svMiss" class="font-urbanist font-semibold whitespace-nowrap">4,500–13,500 AED</span></div>
+                        <div class="flex items-baseline justify-between gap-3"><span class="text-neutral-300"><span id="svTypeLabel">Apartment</span> inspection</span><span id="svInsp" class="font-urbanist font-semibold whitespace-nowrap">from 899 AED</span></div>
+                        <div class="flex items-baseline justify-between gap-3"><span class="text-neutral-300">Return on the inspection</span><span id="svMultiple" class="font-urbanist font-semibold whitespace-nowrap text-emerald-300">5× to 15×</span></div>
+                    </div>
+                    <a id="svQuoteLink" href="/?type=Apartment#pricing" class="w-full inline-flex items-center justify-center gap-2 bg-white text-black font-urbanist text-sm font-semibold uppercase tracking-wider px-6 py-4 rounded-xl hover:bg-neutral-200 transition">
+                        <span>Get my exact quote</span>
+                        <span aria-hidden="true">→</span>
+                    </a>
+                    <p class="text-[11px] text-neutral-500 leading-relaxed">Estimate only. See how we estimate this for the assumptions.</p>
+                </div>
+
+                <!-- Left, below inputs (after the result card on phones): comparison + assumptions -->
+                <div class="lg:col-span-7 lg:row-start-2 space-y-7">
+                    <!-- Comparison bars -->
+                    <div class="rounded-2xl bg-neutral-50 border border-neutral-200 p-5 space-y-4" aria-hidden="true">
+                        <div>
+                            <div class="flex items-baseline justify-between text-sm mb-1.5"><span class="font-urbanist font-semibold">Inspection</span><span id="svBarInspLabel" class="font-urbanist font-bold">899 AED</span></div>
+                            <div class="h-3 rounded-full bg-neutral-200 overflow-hidden"><div id="svBarInsp" class="h-full rounded-full bg-black transition-all duration-500" style="width:8%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex items-baseline justify-between gap-3 text-sm mb-1.5"><span class="font-urbanist font-semibold">Repairs you might miss</span><span id="svBarMissLabel" class="font-urbanist font-bold whitespace-nowrap">4,500–13,500 AED</span></div>
+                            <div class="relative h-3 rounded-full bg-neutral-200 overflow-hidden">
+                                <div id="svBarMissHigh" class="absolute inset-y-0 left-0 rounded-full bg-amber-300 transition-all duration-500" style="width:100%"></div>
+                                <div id="svBarMissLow" class="absolute inset-y-0 left-0 rounded-full bg-amber-500 transition-all duration-500" style="width:33%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <details class="group rounded-2xl border border-neutral-200 px-5 py-4">
+                        <summary class="flex items-center justify-between cursor-pointer list-none font-urbanist font-semibold text-sm">
+                            How we estimate this
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-vnGray transition group-open:rotate-180"></i>
+                        </summary>
+                        <ul class="mt-3 space-y-2 text-xs sm:text-sm text-vnDarkGray leading-relaxed">
+                            <li class="flex gap-2"><span class="text-vnGray">1.</span><span>For <span id="svAsmType">an apartment</span>, defects at handover typically cost <strong id="svAsmRate">0.5% to 1.5%</strong> of the purchase price to repair, based on the defects we typically find in Dubai handovers. Townhouses and villas sit higher because they have more to check: roofs, external walls, outdoor areas, more AC units and more plumbing and electrics.</span></li>
+                            <li class="flex gap-2"><span class="text-vnGray">2.</span><span>About <strong id="svAsmMiss">60%</strong> of that value is in problems most buyers don't spot on a walk-through: hidden leaks, weak AC, hollow tiles and wiring faults.</span></li>
+                            <li class="flex gap-2"><span class="text-vnGray">3.</span><span>The inspection price is our standard rate for the property type. Extra rooms can add to it, so get an exact quote before you book.</span></li>
+                        </ul>
+                        <p class="mt-3 text-[11px] text-vnGray leading-relaxed">This is an estimate, not a guarantee. Every property is different, and what you save depends on the developer fixing the items in our report.</p>
+                    </details>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- What happens next -->
+        <section aria-label="What happens next" class="max-w-6xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+                <div class="bg-white border border-neutral-200 rounded-2xl p-6">
+                    <i data-lucide="search" class="w-5 h-5 text-vnGray"></i>
+                    <h3 class="font-bold text-base mt-4 mb-1">We find it</h3>
+                    <p class="text-xs text-vnDarkGray leading-relaxed">A full inspection of every room, using non-invasive diagnostic equipment to look behind walls, ceilings and floors.</p>
+                </div>
+                <div class="bg-white border border-neutral-200 rounded-2xl p-6">
+                    <i data-lucide="file-text" class="w-5 h-5 text-vnGray"></i>
+                    <h3 class="font-bold text-base mt-4 mb-1">We document it</h3>
+                    <p class="text-xs text-vnDarkGray leading-relaxed">An interactive report within 24 hours, ready to send to your developer.</p>
+                </div>
+                <div class="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-6">
+                    <i data-lucide="key-round" class="w-5 h-5 text-emerald-700"></i>
+                    <h3 class="font-bold text-base mt-4 mb-1">The developer fixes it</h3>
+                    <p class="text-xs text-vnDarkGray leading-relaxed">Defects reported before handover or within the defect liability period are the developer's to repair.</p>
+                </div>
+            </div>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10">
+                <a href="/book" class="inline-flex items-center justify-center gap-3 bg-vnBlack text-vnWhite font-urbanist text-sm font-semibold tracking-[0.12em] uppercase px-8 py-4 rounded-3xl hover:bg-vnDarkGray transition">Book an inspection<span aria-hidden="true">→</span></a>
+                <a href="https://reports.vantagenorth.ae/sample" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center border border-neutral-300 text-vnBlack font-urbanist text-sm font-semibold tracking-[0.12em] uppercase px-8 py-4 rounded-3xl hover:border-vnBlack transition">See a sample report</a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="border-t border-neutral-200 bg-white">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+            <div class="space-y-2">
+                <img src="/logo/vantage_north_logo_light.png" alt="Vantage North" class="h-6 w-auto mb-3">
+                <p class="text-xs text-vnGray">
+                    Phone: <a href="https://wa.me/971585565311" target="_blank" rel="noopener noreferrer" class="underline hover:text-black">+971 58 556 5311</a> · Email: <a href="mailto:hello@vantagenorth.ae" class="underline hover:text-black">hello@vantagenorth.ae</a> · Dubai, UAE
+                </p>
+                <p class="text-[11px] text-vnGray pt-1">
+                    &copy; <span id="year"></span> Al Marsad Property Observer L.L.C S.O.C trading as Vantage North · RERA 65910. All rights reserved.
+                </p>
+            </div>
+
+            <nav aria-label="Footer" class="flex flex-wrap items-center gap-6 text-sm font-urbanist font-medium text-vnGray">
+                <a href="/savings-calculator" class="hover:text-vnBlack transition">Savings calculator</a>
+                <a href="/partners" class="hover:text-vnBlack transition">For partners</a>
+                <a href="/terms" class="hover:text-vnBlack transition">Terms</a>
+            </nav>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Savings calculator. Inspection prices come from /pricing.js, shared with the homepage quote tool.
+        // Assumptions are the business's typical findings, not published statistics; keep them in step with the
+        // "How we estimate this" text above.
+        (function () {
+            // Repair cost of defects at handover, as a share of purchase price, by property type.
+            // Houses have more to go wrong per dirham: roofs, external walls, outdoor areas, more AC units and more MEP.
+            const SV_DEFECT_RATES = {
+                Studio:    { low: 0.004, high: 0.012 },  // 0.4% to 1.2%
+                Apartment: { low: 0.005, high: 0.015 },  // 0.5% to 1.5%
+                Townhouse: { low: 0.007, high: 0.020 },  // 0.7% to 2.0%
+                Villa:     { low: 0.008, high: 0.024 }   // 0.8% to 2.4%
+            };
+            const SV_MISSED_SHARE = 0.6;        // share a buyer would likely miss on their own
+            const svState = { price: 1500000, type: 'Apartment' };
+            const input = document.getElementById('svPriceInput');
+            const range = document.getElementById('svPriceRange');
+            const fmt = (n) => Math.round(n).toLocaleString('en-US');
+            const round50 = (n) => Math.round(n / 50) * 50;
+            const span = (a, b) => a === b ? `${fmt(a)} AED` : `${fmt(a)}–${fmt(b)} AED`;
+
+            function renderSavings() {
+                const insp = window.VN_PRICING[svState.type].base;
+                const rate = SV_DEFECT_RATES[svState.type];
+                const missLow = round50(svState.price * rate.low * SV_MISSED_SHARE);
+                const missHigh = round50(svState.price * rate.high * SV_MISSED_SHARE);
+                const pct = (r) => `${Math.round(r * 1000) / 10}%`;
+                document.getElementById('svAsmRate').textContent = `${pct(rate.low)} to ${pct(rate.high)}`;
+                document.getElementById('svAsmType').textContent = (svState.type === 'Apartment' ? 'an ' : 'a ') + svState.type.toLowerCase();
+                const saveLow = Math.max(0, missLow - insp);
+                const saveHigh = Math.max(0, missHigh - insp);
+
+                document.getElementById('svSaving').textContent = saveHigh === 0 ? 'Around break-even' : span(saveLow, saveHigh);
+                document.getElementById('svMiss').textContent = span(missLow, missHigh);
+                document.getElementById('svBarMissLabel').textContent = span(missLow, missHigh);
+                document.getElementById('svInsp').textContent = `from ${fmt(insp)} AED`;
+                document.getElementById('svBarInspLabel').textContent = `${fmt(insp)} AED`;
+                document.getElementById('svTypeLabel').textContent = svState.type;
+                // "Get my exact quote" opens the homepage quote tool with the same property type selected.
+                document.getElementById('svQuoteLink').href = `/?type=${encodeURIComponent(svState.type)}#pricing`;
+                const mLow = missLow / insp, mHigh = missHigh / insp;
+                const mf = (m) => m >= 10 ? Math.round(m) : Math.round(m * 10) / 10;
+                document.getElementById('svMultiple').textContent = `${mf(mLow)}× to ${mf(mHigh)}×`;
+
+                const max = Math.max(missHigh, insp);
+                document.getElementById('svBarInsp').style.width = `${Math.max(2, insp / max * 100)}%`;
+                document.getElementById('svBarMissLow').style.width = `${Math.max(2, missLow / max * 100)}%`;
+                document.getElementById('svBarMissHigh').style.width = `${Math.max(2, missHigh / max * 100)}%`;
+            }
+
+            input.addEventListener('input', () => {
+                const digits = input.value.replace(/[^0-9]/g, '').slice(0, 10);
+                svState.price = Number(digits) || 0;
+                input.value = digits ? fmt(svState.price) : '';
+                range.value = String(Math.min(Number(range.max), Math.max(Number(range.min), svState.price)));
+                renderSavings();
+            });
+            input.addEventListener('blur', () => {
+                if (svState.price < 100000) { svState.price = Number(range.min); input.value = fmt(svState.price); range.value = String(svState.price); renderSavings(); }
+            });
+            range.addEventListener('input', () => {
+                svState.price = Number(range.value);
+                input.value = fmt(svState.price);
+                renderSavings();
+            });
+            document.querySelectorAll('#svTypeGroup button').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('#svTypeGroup button').forEach(b => { b.classList.toggle('active', b === btn); b.setAttribute('aria-checked', String(b === btn)); });
+                    svState.type = btn.dataset.type;
+                    renderSavings();
+                });
+            });
+            renderSavings();
+        })();
+
+        // Mobile Navbar Hamburger Menu
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileNavMenu = document.getElementById('mobileNavMenu');
+        if (mobileMenuBtn && mobileNavMenu) {
+            mobileMenuBtn.addEventListener('click', () => {
+                const isOpen = !mobileNavMenu.classList.contains('hidden');
+                mobileNavMenu.classList.toggle('hidden', isOpen);
+                mobileMenuBtn.setAttribute('aria-expanded', String(!isOpen));
+            });
+            mobileNavMenu.querySelectorAll('.mobile-nav-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileNavMenu.classList.add('hidden');
+                    mobileMenuBtn.setAttribute('aria-expanded', 'false');
+                });
+            });
+        }
+    </script>
+</body>
+</html>
