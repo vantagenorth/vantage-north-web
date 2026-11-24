@@ -1,50 +1,66 @@
+// Pricing (AED). Keep in sync with the PRICING tables in book.html and index.html.
 const BASE_RATES = {
   Studio: {
-    baseRate: 1100,
+    baseRate: 699,
     includedBedrooms: 0,
     includedBathrooms: 1,
     minBedrooms: 0,
     maxBedrooms: 0,
     minBathrooms: 1,
+    maxBathrooms: 1, // studios have fixed room counts
+    extraRoomAed: 0,
+    recheckAed: 299,
   },
   Apartment: {
-    baseRate: 1800,
+    baseRate: 899,
     includedBedrooms: 1,
     includedBathrooms: 2,
     minBedrooms: 1,
-    maxBedrooms: 15,
+    maxBedrooms: 5,
     minBathrooms: 1,
+    maxBathrooms: 15,
+    extraRoomAed: 99,
+    recheckAed: 299,
   },
   Townhouse: {
-    baseRate: 2950,
+    baseRate: 1999,
     includedBedrooms: 3,
     includedBathrooms: 3,
     minBedrooms: 1,
-    maxBedrooms: 15,
+    maxBedrooms: 5,
     minBathrooms: 1,
+    maxBathrooms: 15,
+    extraRoomAed: 199,
+    recheckAed: 499,
   },
   Villa: {
-    baseRate: 4500,
+    baseRate: 2499,
     includedBedrooms: 4,
     includedBathrooms: 4,
     minBedrooms: 1,
-    maxBedrooms: 15,
+    maxBedrooms: 5,
     minBathrooms: 1,
+    maxBathrooms: 15,
+    extraRoomAed: 199,
+    recheckAed: 499,
   },
 };
 
-const EXTRA_BEDROOM_AED = 350;
-const EXTRA_BATHROOM_AED = 500;
-const LUXURY_VILLA_MAX_SQFT = 6500;
+// Luxury, over 5,000 sq ft, or 6+ bedrooms: custom quote via WhatsApp.
+const CUSTOM_QUOTE_MIN_BEDROOMS = 6;
+const CUSTOM_QUOTE_OVER_SQFT = 5000;
 
-function isLuxuryHome(propertyType, bedroomTier, buaSqft) {
+function isLuxuryHome(propertyType, bedroomTier, buaSqft, bedrooms) {
   if (propertyType === 'Luxury') return true;
-  if (propertyType !== 'Villa') return false;
   if (bedroomTier === '6+ Bed' || bedroomTier === '6+ Bedrooms' || bedroomTier === 'Luxury Home') {
     return true;
   }
+  const beds = Number(bedrooms);
+  if (Number.isFinite(beds) && beds >= CUSTOM_QUOTE_MIN_BEDROOMS) {
+    return true;
+  }
   const sqft = Number(buaSqft);
-  if (Number.isFinite(sqft) && sqft > LUXURY_VILLA_MAX_SQFT) {
+  if (Number.isFinite(sqft) && sqft > CUSTOM_QUOTE_OVER_SQFT) {
     return true;
   }
   return false;
@@ -83,8 +99,13 @@ function resolveTierConfig(propertyType, bedroomTierOrBeds) {
   };
 }
 
-function calculateQuote({ propertyType, bedrooms, bathrooms, bedroomTier, buaSqft, packageType }) {
-  if (isLuxuryHome(propertyType, bedroomTier, buaSqft)) {
+function wantsRecheck(recheck, packageType) {
+  if (packageType === 'initial_recheck') return true;
+  return recheck === true || recheck === 'true' || recheck === 1 || recheck === '1';
+}
+
+function calculateQuote({ propertyType, bedrooms, bathrooms, bedroomTier, buaSqft, packageType, recheck }) {
+  if (isLuxuryHome(propertyType, bedroomTier, buaSqft, bedrooms)) {
     return {
       isLuxuryQuote: true,
       propertyType,
@@ -103,6 +124,10 @@ function calculateQuote({ propertyType, bedrooms, bathrooms, bedroomTier, buaSqf
   if (!cfg) {
     return { error: `Unsupported propertyType: ${propertyType}` };
   }
+  if (packageType && packageType !== 'initial' && packageType !== 'initial_recheck') {
+    // Developer Follow-Up, Final Handover Inspection and the Full Package Bundle were retired.
+    return { error: 'That package is no longer offered. Please refresh the page and try again.' };
+  }
 
   const beds = Math.max(
     cfg.minBedrooms,
@@ -110,42 +135,20 @@ function calculateQuote({ propertyType, bedrooms, bathrooms, bedroomTier, buaSqf
   );
   const baths = Math.max(
     cfg.minBathrooms,
-    Math.min(15, Number.isFinite(Number(bathrooms)) ? Number(bathrooms) : cfg.includedBathrooms)
+    Math.min(cfg.maxBathrooms, Number.isFinite(Number(bathrooms)) ? Number(bathrooms) : cfg.includedBathrooms)
   );
 
+  // Rooms above the included count add to the price; fewer rooms never go below the base.
   const extraBedrooms = Math.max(0, beds - cfg.includedBedrooms);
   const extraBathrooms = Math.max(0, baths - cfg.includedBathrooms);
-  const extraBedroomAed = extraBedrooms * EXTRA_BEDROOM_AED;
-  const extraBathroomAed = extraBathrooms * EXTRA_BATHROOM_AED;
+  const extraBedroomAed = extraBedrooms * cfg.extraRoomAed;
+  const extraBathroomAed = extraBathrooms * cfg.extraRoomAed;
   const baseWithExtras = cfg.baseRate + extraBedroomAed + extraBathroomAed;
 
-  const followupAddon = Math.round(cfg.baseRate * 0.4);
-  const finalAddon = Math.round(cfg.baseRate * 0.5);
-
-  let priceAed = baseWithExtras;
-  let packageLabel = 'Initial Inspection';
-  let appliedFollowupAed = 0;
-  let appliedFinalAed = 0;
-  let bundleDiscountAed = 0;
-
-  if (packageType === 'initial_followup') {
-    appliedFollowupAed = followupAddon;
-    priceAed = baseWithExtras + followupAddon;
-    packageLabel = 'Initial + Developer Follow-Up';
-  } else if (packageType === 'initial_final') {
-    appliedFinalAed = finalAddon;
-    priceAed = baseWithExtras + finalAddon;
-    packageLabel = 'Initial + Final Handover Inspection';
-  } else if (packageType === 'full_bundle') {
-    appliedFollowupAed = followupAddon;
-    appliedFinalAed = finalAddon;
-    const subtotal = baseWithExtras + followupAddon + finalAddon;
-    priceAed = Math.round(subtotal * 0.9);
-    bundleDiscountAed = subtotal - priceAed;
-    packageLabel = 'Full Package Bundle (10% Off)';
-  } else if (packageType && packageType !== 'initial') {
-    return { error: `Unsupported packageType: ${packageType}` };
-  }
+  const withRecheck = wantsRecheck(recheck, packageType);
+  const recheckAed = withRecheck ? cfg.recheckAed : 0;
+  const priceAed = baseWithExtras + recheckAed;
+  const packageLabel = withRecheck ? 'Initial Inspection + Re-Check' : 'Initial Inspection';
 
   const cal = getCalEventConfig(propertyType, beds);
   const bedLabel = propertyType === 'Studio' ? 'Studio' : `${beds} Bed`;
@@ -158,8 +161,9 @@ function calculateQuote({ propertyType, bedrooms, bathrooms, bedroomTier, buaSqf
     bathrooms: baths,
     bedroomTier: sizeLabel,
     tierLabel: sizeLabel,
-    packageType: packageType || 'initial',
+    packageType: withRecheck ? 'initial_recheck' : 'initial',
     packageLabel,
+    recheck: withRecheck,
     priceAed,
     amountFils: priceAed * 100,
     calEventTypeId: cal.calEventTypeId,
@@ -167,13 +171,12 @@ function calculateQuote({ propertyType, bedrooms, bathrooms, bedroomTier, buaSqf
     kindOfApartment: bedLabel,
     pricingBreakdown: {
       baseRateAed: cfg.baseRate,
+      extraRoomRateAed: cfg.extraRoomAed,
       extraBedrooms,
       extraBedroomAed,
       extraBathrooms,
       extraBathroomAed,
-      followupAddonAed: appliedFollowupAed,
-      finalAddonAed: appliedFinalAed,
-      bundleDiscountAed,
+      recheckAed,
       totalAed: priceAed,
     },
   };
@@ -193,9 +196,8 @@ function getSiteUrl(req) {
 
 module.exports = {
   BASE_RATES,
-  EXTRA_BEDROOM_AED,
-  EXTRA_BATHROOM_AED,
-  LUXURY_VILLA_MAX_SQFT,
+  CUSTOM_QUOTE_MIN_BEDROOMS,
+  CUSTOM_QUOTE_OVER_SQFT,
   isLuxuryHome,
   resolveTierConfig,
   calculateQuote,

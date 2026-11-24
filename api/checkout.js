@@ -22,6 +22,7 @@ module.exports = async function handler(req, res) {
       bedroomTier,
       buaSqft,
       packageType,
+      recheck,
       scheduledStart,
       fullName,
       email,
@@ -50,7 +51,7 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: 'Please complete all required personal, unit, on-site access, and schedule fields.' });
     }
 
-    const quote = calculateQuote({ propertyType, bedrooms, bathrooms, bedroomTier, buaSqft, packageType });
+    const quote = calculateQuote({ propertyType, bedrooms, bathrooms, bedroomTier, buaSqft, packageType, recheck });
     if (quote.error) {
       return res.status(400).json({ error: quote.error });
     }
@@ -93,6 +94,7 @@ module.exports = async function handler(req, res) {
       tierLabel: quote.tierLabel,
       packageType: quote.packageType,
       packageLabel: quote.packageLabel,
+      recheck: quote.recheck,
       priceAed: quote.priceAed,
       amountFils: quote.amountFils,
       pricingBreakdown: quote.pricingBreakdown,
