@@ -136,7 +136,6 @@
                     <a href="/#what-we-check" class="hover:text-vnBlack transition">What we check</a>
                     <a href="/#process" class="hover:text-vnBlack transition">Process</a>
                     <a href="/#pricing" class="hover:text-vnBlack transition">Pricing</a>
-                    <a href="/savings-calculator" class="hidden lg:inline text-vnBlack transition" aria-current="page">Savings calculator</a>
                 </nav>
             </div>
             <div class="flex items-center gap-2.5 sm:gap-3 text-sm shrink-0">
@@ -163,7 +162,6 @@
                 <a href="/#what-we-check" class="mobile-nav-link px-3 py-2 rounded-xl hover:bg-neutral-100 hover:text-vnBlack transition">What we check</a>
                 <a href="/#process" class="mobile-nav-link px-3 py-2 rounded-xl hover:bg-neutral-100 hover:text-vnBlack transition">Process</a>
                 <a href="/#pricing" class="mobile-nav-link px-3 py-2 rounded-xl hover:bg-neutral-100 hover:text-vnBlack transition">Pricing</a>
-                <a href="/savings-calculator" class="mobile-nav-link px-3 py-2 rounded-xl hover:bg-neutral-100 hover:text-vnBlack transition">Savings calculator</a>
             </nav>
             <div class="pt-2 border-t border-neutral-100">
                 <a href="https://wa.me/971585565311" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center px-4 py-2.5 rounded-full border border-neutral-300 text-vnBlack hover:border-vnBlack transition font-medium text-sm">
@@ -250,7 +248,7 @@
                             <i data-lucide="chevron-down" class="w-4 h-4 text-vnGray transition group-open:rotate-180"></i>
                         </summary>
                         <ul class="mt-3 space-y-2 text-xs sm:text-sm text-vnDarkGray leading-relaxed">
-                            <li class="flex gap-2"><span class="text-vnGray">1.</span><span>Defects at handover typically cost <strong id="svAsmRate">0.5% to 1.5%</strong> of the purchase price to repair, based on the defects we typically find in Dubai handovers.</span></li>
+                            <li class="flex gap-2"><span class="text-vnGray">1.</span><span>For <span id="svAsmType">an apartment</span>, defects at handover typically cost <strong id="svAsmRate">0.5% to 1.5%</strong> of the purchase price to repair, based on the defects we typically find in Dubai handovers. Townhouses and villas sit higher because they have more to check: roofs, external walls, outdoor areas, more AC units and more plumbing and electrics.</span></li>
                             <li class="flex gap-2"><span class="text-vnGray">2.</span><span>About <strong id="svAsmMiss">60%</strong> of that value is in problems most buyers don't spot on a walk-through: hidden leaks, weak AC, hollow tiles and wiring faults.</span></li>
                             <li class="flex gap-2"><span class="text-vnGray">3.</span><span>The inspection price is our standard rate for the property type. Extra rooms can add to it, so get an exact quote before you book.</span></li>
                         </ul>
@@ -315,8 +313,14 @@
         // Assumptions are the business's typical findings, not published statistics; keep them in step with the
         // "How we estimate this" text above.
         (function () {
-            const SV_DEFECT_RATE_LOW = 0.005;   // 0.5% of purchase price
-            const SV_DEFECT_RATE_HIGH = 0.015;  // 1.5% of purchase price
+            // Repair cost of defects at handover, as a share of purchase price, by property type.
+            // Houses have more to go wrong per dirham: roofs, external walls, outdoor areas, more AC units and more MEP.
+            const SV_DEFECT_RATES = {
+                Studio:    { low: 0.004, high: 0.012 },  // 0.4% to 1.2%
+                Apartment: { low: 0.005, high: 0.015 },  // 0.5% to 1.5%
+                Townhouse: { low: 0.007, high: 0.020 },  // 0.7% to 2.0%
+                Villa:     { low: 0.008, high: 0.024 }   // 0.8% to 2.4%
+            };
             const SV_MISSED_SHARE = 0.6;        // share a buyer would likely miss on their own
             const svState = { price: 1500000, type: 'Apartment' };
             const input = document.getElementById('svPriceInput');
@@ -327,8 +331,12 @@
 
             function renderSavings() {
                 const insp = window.VN_PRICING[svState.type].base;
-                const missLow = round50(svState.price * SV_DEFECT_RATE_LOW * SV_MISSED_SHARE);
-                const missHigh = round50(svState.price * SV_DEFECT_RATE_HIGH * SV_MISSED_SHARE);
+                const rate = SV_DEFECT_RATES[svState.type];
+                const missLow = round50(svState.price * rate.low * SV_MISSED_SHARE);
+                const missHigh = round50(svState.price * rate.high * SV_MISSED_SHARE);
+                const pct = (r) => `${Math.round(r * 1000) / 10}%`;
+                document.getElementById('svAsmRate').textContent = `${pct(rate.low)} to ${pct(rate.high)}`;
+                document.getElementById('svAsmType').textContent = (svState.type === 'Apartment' ? 'an ' : 'a ') + svState.type.toLowerCase();
                 const saveLow = Math.max(0, missLow - insp);
                 const saveHigh = Math.max(0, missHigh - insp);
 
