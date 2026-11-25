@@ -117,6 +117,33 @@ async function updateBookingByReference(bookingReference, patch) {
   return { skipped: false, data: Array.isArray(res.data) ? res.data[0] : res.data };
 }
 
+// Booking with everything the reschedule/cancel pages need.
+async function getBookingForManage(bookingReference) {
+  if (!isSupabaseConfigured()) return null;
+  const encoded = encodeURIComponent(bookingReference);
+  const res = await supabaseFetch(
+    `bookings?booking_reference=eq.${encoded}&select=*,clients(*),payments(*),units(*,projects(*))&limit=1`,
+    { method: 'GET' }
+  );
+  return Array.isArray(res.data) ? res.data[0] || null : null;
+}
+
+// Atomically move a booking from one of `fromStatuses` to a new status. Returns the
+// updated row, or null if another request changed it first (e.g. a double click).
+async function claimBookingStatus(bookingReference, fromStatuses, patch) {
+  if (!isSupabaseConfigured()) return null;
+  const params = new URLSearchParams({
+    booking_reference: `eq.${bookingReference}`,
+    status: `in.(${fromStatuses.join(',')})`,
+  });
+  const res = await supabaseFetch(`bookings?${params.toString()}`, {
+    method: 'PATCH',
+    headers: { Prefer: 'return=representation' },
+    body: JSON.stringify({ ...patch, updated_at: new Date().toISOString() }),
+  });
+  return Array.isArray(res.data) ? res.data[0] || null : null;
+}
+
 async function updateBookingByCalUid(calBookingUid, patch) {
   if (!isSupabaseConfigured() || !calBookingUid) return { skipped: true, data: null };
   const encoded = encodeURIComponent(calBookingUid);
@@ -522,4 +549,7 @@ module.exports = {
   deleteCheckoutHold,
   signBookingToken,
   verifyBookingToken,
+  getSigningSecret,
+  getBookingForManage,
+  claimBookingStatus,
 };
