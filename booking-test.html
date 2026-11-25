@@ -178,10 +178,20 @@
                 <div class="rounded-2xl bg-neutral-50 border border-neutral-200 p-4 flex items-center justify-between">
                     <div>
                         <div class="text-sm font-semibold">Apartment — 2 Bed, 2 Bath (Test)</div>
-                        <div class="text-xs text-vnGray">Creates Cal.com booking + Supabase inspection</div>
+                        <div class="text-xs text-vnGray">Creates the booking, calendar event and emails</div>
                     </div>
                     <span id="totalDisplay" class="text-2xl font-urbanist font-bold">2 AED</span>
                 </div>
+
+                <label class="flex items-start gap-3 rounded-2xl border border-neutral-200 p-4 cursor-pointer">
+                    <input id="skipPayment" type="checkbox" class="mt-0.5 h-4 w-4 accent-black">
+                    <span>
+                        <span class="block text-sm font-semibold">Skip payment</span>
+                        <span class="block text-xs text-vnGray">Books without Ziina: saves the booking, adds it to the calendar and sends the emails. Nothing is charged.</span>
+                    </span>
+                </label>
+
+                <div id="successBox" class="hidden rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-sm p-3.5"></div>
 
                 <div id="errorBox" class="hidden rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-sm p-3.5"></div>
 
@@ -202,6 +212,16 @@
         const totalDisplay = document.getElementById('totalDisplay');
         const payBtn = document.getElementById('payBtn');
         const errorBox = document.getElementById('errorBox');
+        const successBox = document.getElementById('successBox');
+        const skipPayment = document.getElementById('skipPayment');
+        function updatePayLabel() {
+            const amt = Math.min(25, Math.max(2, Math.round(Number(amountInput.value) || 2)));
+            payBtn.querySelector('span').textContent = skipPayment.checked
+                ? 'Book Test Inspection (No Payment)'
+                : `Pay ${amt} AED & Book Test Inspection`;
+            totalDisplay.textContent = skipPayment.checked ? '0 AED' : `${amt} AED`;
+        }
+        skipPayment.addEventListener('change', updatePayLabel);
         const slotSelect = document.getElementById('slotSelect');
         const schedulerSelect = document.getElementById('schedulerSelect');
         schedulerSelect.addEventListener('change', () => loadSlots());
@@ -216,7 +236,8 @@
             const amt = Math.min(25, Math.max(2, Math.round(Number(val) || 2)));
             amountInput.value = String(amt);
             totalDisplay.textContent = `${amt} AED`;
-            payBtn.querySelector('span').textContent = `Pay ${amt} AED & Book Test Inspection`;
+            if (typeof updatePayLabel === 'function' && skipPayment) updatePayLabel();
+            else payBtn.querySelector('span').textContent = `Pay ${amt} AED & Book Test Inspection`;
             amtBtns.forEach(b => {
                 const active = Number(b.dataset.amt) === amt;
                 b.className = active
@@ -290,16 +311,17 @@
         document.getElementById('testBookingForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             errorBox.classList.add('hidden');
+            successBox.classList.add('hidden');
 
             if (!slotSelect.value) {
-                errorBox.textContent = 'Please wait for Cal.com slots to load or select a time slot.';
+                errorBox.textContent = 'Please wait for the slots to load or select a time slot.';
                 errorBox.classList.remove('hidden');
                 return;
             }
 
             payBtn.disabled = true;
             const origText = payBtn.querySelector('span').textContent;
-            payBtn.querySelector('span').textContent = 'Creating Ziina checkout...';
+            payBtn.querySelector('span').textContent = skipPayment.checked ? 'Booking...' : 'Creating Ziina checkout...';
 
             try {
                 const res = await fetch('/api/test-checkout', {
@@ -314,6 +336,7 @@
                         packageType: 'initial',
                         scheduledStart: slotSelect.value,
                         scheduler: schedulerSelect.value,
+                        skipPayment: skipPayment.checked,
                         fullName: document.getElementById('fullName').value,
                         email: document.getElementById('email').value,
                         phone: document.getElementById('phone').value,
@@ -329,6 +352,18 @@
                     }),
                 });
                 const data = await res.json();
+                if (res.ok && data.skipped) {
+                    const parts = [`Booked ${data.bookingReference} (${data.status || 'unknown status'}) with no payment.`];
+                    parts.push(data.emailSent ? 'Confirmation email sent: use its reschedule and cancel links to test those.' : 'The confirmation email was not sent.');
+                    if (data.googleEventId) parts.push('Added to Google Calendar.');
+                    if (data.calendarWarning) parts.push(`Calendar problem: ${data.calendarWarning}`);
+                    successBox.textContent = parts.join(' ');
+                    successBox.classList.remove('hidden');
+                    payBtn.disabled = false;
+                    payBtn.querySelector('span').textContent = origText;
+                    loadSlots();
+                    return;
+                }
                 if (!res.ok || !data.redirectUrl) {
                     throw new Error(data.error || 'Failed to start Ziina checkout');
                 }
