@@ -1,5 +1,7 @@
-// Tailwind is compiled at deploy time (npm run build) into /assets/site.css.
-// Any class used in an HTML page or pricing.js is picked up automatically.
+// Tailwind is compiled ahead of time into /assets/site.css, which is committed.
+// After adding or changing Tailwind classes in any page, rebuild it:
+//   npx tailwindcss@3.4.19 -c tailwind.config.js -i tailwind.input.css -o assets/site.css --minify
+// The "Tailwind CSS is up to date" GitHub check fails if you forget.
 module.exports = {
     content: ['./*.html', './terms/*.html', './pricing.js'],
     theme: {
