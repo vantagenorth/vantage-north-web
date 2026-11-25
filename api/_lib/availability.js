@@ -5,6 +5,7 @@
 //   - a booking in Supabase that holds its slot (confirmed / cancelling)
 //   - someone paying for that time right now (checkout_holds)
 //   - anything busy in Andy's Google Calendar; an all-day event blocks the whole day
+//   - the same for any public calendar links in ICLOUD_CALENDAR_URLS (e.g. iCloud Travel)
 //   - the "look busy" block for that day (see fillBlockFor)
 //
 // Which system is used:
@@ -14,6 +15,7 @@
 const crypto = require('crypto');
 const { getActiveCheckoutHolds, getSlotHoldingBookings } = require('./supabase');
 const { listBusy } = require('./google-calendar');
+const { listIcsBusy } = require('./ics-calendars');
 
 const TIME_ZONE = 'Asia/Dubai';
 const DUBAI_OFFSET = '+04:00'; // the UAE has no daylight saving
@@ -154,11 +156,14 @@ async function fetchGoogleSlots({ durationMinutes, excludeRef = null, nowMs = Da
   let bookings;
   let holds;
   let busy;
+  let ics;
   try {
-    [bookings, holds, busy] = await Promise.all([
+    [bookings, holds, busy, ics] = await Promise.all([
       getSlotHoldingBookings(startIso, endIso),
       getActiveCheckoutHolds(startIso, endIso),
       listBusy(startIso, endIso),
+      // An unreachable iCloud link never blanks the booking page; it is logged instead.
+      listIcsBusy(startIso, endIso).catch((err) => ({ allDayDates: new Set(), intervals: [], errors: [err.message] })),
     ]);
   } catch (err) {
     return {
@@ -172,13 +177,16 @@ async function fetchGoogleSlots({ durationMinutes, excludeRef = null, nowMs = Da
   if (!bookings.available || !holds.available) {
     return { ok: false, status: 502, error: 'Could not load availability', detail: 'Supabase unavailable', slots: {} };
   }
+  if (ics.errors.length) console.error('Public calendar link could not be read:', ics.errors.join('; '));
+  const allDayDates = new Set([...busy.allDayDates, ...ics.allDayDates]);
   const toInterval = (r) => ({ start: new Date(r.scheduled_start).getTime(), end: new Date(r.scheduled_end).getTime() });
   const busyIntervals = [
     ...bookings.data.filter((b) => b.booking_reference !== excludeRef).map(toInterval),
     ...holds.data.filter((h) => h.booking_reference !== excludeRef).map(toInterval),
     ...busy.intervals,
+    ...ics.intervals,
   ].filter((i) => Number.isFinite(i.start) && Number.isFinite(i.end));
-  const slots = buildSlots({ nowMs, durationMinutes, daysAhead, busyIntervals, allDayDates: busy.allDayDates });
+  const slots = buildSlots({ nowMs, durationMinutes, daysAhead, busyIntervals, allDayDates });
   return { ok: true, status: 200, slots };
 }
 
