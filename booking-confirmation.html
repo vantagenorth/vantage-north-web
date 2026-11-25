@@ -101,7 +101,9 @@
             <p id="emailStatusNote" class="text-xs text-vnGray"></p>
             <div id="manageBookingLinks" class="hidden text-xs text-vnGray flex flex-wrap items-center gap-3 pt-1">
                 <span>Need to adjust your appointment?</span>
-                <a id="cManageLink" href="#" class="text-black font-medium underline hover:opacity-75">Reschedule or cancel</a>
+                <a id="cRescheduleLink" href="#" target="_blank" rel="noopener" class="text-black font-medium underline hover:opacity-75">Reschedule</a>
+                <span id="cCancelSep">·</span>
+                <a id="cCancelLink" href="#" target="_blank" rel="noopener" class="text-vnGray underline hover:text-black">Cancel Booking</a>
                 <span id="cNoCancelNote" class="hidden text-vnGray">(Cancellations not permitted within 24h — reschedule only)</span>
             </div>
 
@@ -228,12 +230,17 @@
                     emailNote.textContent = `Booking confirmed for ${b.email}. (Email delivery note: ${data.emailResult?.reason || 'pending domain verification'})`;
                 }
 
-                if (b.calBookingUid && b.manageUrl) {
-                    document.getElementById('cManageLink').href = b.manageUrl;
+                if (b.calBookingUid) {
+                    const uid = encodeURIComponent(b.calBookingUid);
+                    document.getElementById('cRescheduleLink').href = `https://cal.com/reschedule/${uid}`;
                     const canCancel = b.scheduledStart
                         ? (new Date(b.scheduledStart).getTime() - Date.now()) >= 24 * 60 * 60 * 1000
                         : true;
-                    if (!canCancel) {
+                    if (canCancel) {
+                        document.getElementById('cCancelLink').href = `https://cal.com/booking/${uid}?cancel=true`;
+                    } else {
+                        document.getElementById('cCancelLink').classList.add('hidden');
+                        document.getElementById('cCancelSep').classList.add('hidden');
                         document.getElementById('cNoCancelNote').classList.remove('hidden');
                     }
                     document.getElementById('manageBookingLinks').classList.remove('hidden');
