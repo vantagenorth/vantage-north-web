@@ -1,0 +1,21 @@
+name: Tailwind CSS is up to date
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Rebuild assets/site.css
+        run: npx --yes tailwindcss@3.4.19 -c tailwind.config.js -i tailwind.input.css -o assets/site.css --minify
+      - name: Fail if the committed CSS is out of date
+        run: |
+          if ! git diff --quiet -- assets/site.css; then
+            echo "::error::assets/site.css is out of date. Run: npx tailwindcss@3.4.19 -c tailwind.config.js -i tailwind.input.css -o assets/site.css --minify"
+            exit 1
+          fi
