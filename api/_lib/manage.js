@@ -262,6 +262,8 @@ function cancelEmailHtml({ booking, refundAmountAed, refundStatus }) {
     refundLine = `A full refund of <strong>${refundAmountAed.toLocaleString()} AED</strong> has been issued to your original payment method. It usually reaches you within 7 to 14 business days, depending on your bank.`;
   } else if (refundAmountAed > 0) {
     refundLine = `A full refund of <strong>${refundAmountAed.toLocaleString()} AED</strong> will be made to your original payment method. It usually reaches you within 7 to 14 business days, depending on your bank.`;
+  } else if (!booking?.non_refundable) {
+    refundLine = 'Nothing was paid for this booking, so there is nothing to refund.';
   } else {
     refundLine = 'This booking was not eligible for a refund under our Booking, Rescheduling &amp; Cancellation Policy.';
   }
