@@ -14,6 +14,21 @@
         body { background-color: #FAFAFA; color: #000000; font-family: 'Epilogue', sans-serif; -webkit-font-smoothing: antialiased; }
         h1, h2, h3 { font-family: 'Urbanist', sans-serif; }
         #ziinaFrame { display: block; width: 100%; max-width: 450px; height: 820px; border: 0; margin: 0 auto; background: transparent; }
+        /* Phones: the page itself never scrolls. The Ziina form fills the
+           space under the header and is the only thing that scrolls, so a
+           swipe always moves the form instead of fighting the page. */
+        @media (max-width: 639px) {
+            html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+            body { height: 100dvh; }
+            #payMain { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; padding-top: 0.75rem; padding-bottom: 0.5rem; }
+            #payIntro { margin-bottom: 0.5rem; }
+            #payIntro p { display: none; }
+            #payIntro h1 { font-size: 1.125rem; line-height: 1.75rem; }
+            #frameWrap { flex: 1 1 auto; min-height: 0; }
+            #ziinaFrame { height: 100%; }
+            #payFooter { margin-top: 0.5rem; }
+            #payCancel { margin-top: 0.25rem; }
+        }
     </style>
     <!-- Tailwind, prebuilt (see tailwind.config.js). Kept last so it overrides page styles, as the old CDN did. -->
     <link rel="stylesheet" href="/assets/site.css">
@@ -31,8 +46,8 @@
         </div>
     </header>
 
-    <main class="max-w-2xl mx-auto w-full px-4 sm:px-6 py-8 flex-1">
-        <div class="text-center mb-5">
+    <main id="payMain" class="max-w-2xl mx-auto w-full px-4 sm:px-6 py-8 flex-1">
+        <div id="payIntro" class="text-center mb-5">
             <h1 class="text-2xl font-semibold">Secure payment</h1>
             <p class="text-sm text-vnGray mt-1">Pay below to confirm your inspection. Stay on this page until it says your payment went through.</p>
         </div>
@@ -50,11 +65,11 @@
             <iframe id="ziinaFrame" title="Ziina secure payment" allow="payment"></iframe>
         </div>
 
-        <p class="text-xs text-vnGray text-center mt-5 leading-relaxed">
+        <p id="payFooter" class="text-xs text-vnGray text-center mt-5 leading-relaxed">
             Payments are processed securely by Ziina.
             <span id="fallbackWrap" class="hidden">Payment form not loading? <a id="fallbackLink" href="#" class="underline underline-offset-4 hover:text-vnBlack">Open the payment page instead</a>.</span>
         </p>
-        <p class="text-center mt-3">
+        <p id="payCancel" class="text-center mt-3">
             <a id="cancelLink" href="/book" class="text-sm text-vnGray underline underline-offset-4 hover:text-vnBlack">Cancel and go back</a>
         </p>
     </main>
