@@ -14,6 +14,11 @@
       "source": "/agents",
       "destination": "/partners",
       "permanent": true
+    },
+    {
+      "source": "/true_north_landing_page",
+      "destination": "/",
+      "permanent": true
     }
   ],
   "headers": [
