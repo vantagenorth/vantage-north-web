@@ -13,7 +13,10 @@ const {
   getBookingByReference,
   deleteCheckoutHold,
   claimCheckoutHold,
+  updateBookingByReference,
+  isOverlapError,
 } = require('./supabase');
+const { createBookingEvent } = require('./google-calendar');
 const { logPaymentEvent, errorMessageOf } = require('./payment-log');
 const { manageButtonsHtml } = require('./manage');
 
@@ -240,7 +243,15 @@ async function finalizeBookingInner({ bookingReference, paymentIntentId, tokenDa
   let calWarning = null;
   let calCollision = false;
   const calApiKey = process.env.CAL_API_KEY;
-  if (calApiKey && b.calEventTypeId) {
+  // Bookings made through our own calendar (Supabase + Google) skip Cal.com. A clash is
+  // caught when the booking row is saved (bookings_no_overlap) and the Google event is
+  // added after that.
+  const useGoogle = b.scheduler === 'google';
+  let googleEventId = null;
+  let googleWarning = null;
+  if (useGoogle) {
+    // Nothing to do before the database step.
+  } else if (calApiKey && b.calEventTypeId) {
     const startUtc = new Date(b.scheduledStart).toISOString();
     let cleanPhone = (b.phone || '').replace(/[^\d+]/g, '');
     if (cleanPhone.startsWith('00')) cleanPhone = '+' + cleanPhone.slice(2);
@@ -404,7 +415,7 @@ async function finalizeBookingInner({ bookingReference, paymentIntentId, tokenDa
     });
   }
 
-  const bookingStatus = calCollision ? 'needs_reschedule' : 'confirmed';
+  let bookingStatus = calCollision ? 'needs_reschedule' : 'confirmed';
 
   // 3. Create all Supabase records ONLY now that payment is verified
   let supabaseSynced = false;
@@ -481,16 +492,17 @@ async function finalizeBookingInner({ bookingReference, paymentIntentId, tokenDa
         console.warn('Report creation warning:', repErr.message);
       }
 
-      const summaryNotes = [
-        `Package: ${b.packageLabel} (${b.priceAed} AED)`,
-        `Purpose: ${b.inspectionPurpose}`,
-        calCollision ? 'CAL_COLLISION: Slot taken during checkout — needs reschedule' : null,
-        b.notes,
-      ]
-        .filter(Boolean)
-        .join(' | ');
+      const summaryNotesFor = (collided) =>
+        [
+          `Package: ${b.packageLabel} (${b.priceAed} AED)`,
+          `Purpose: ${b.inspectionPurpose}`,
+          collided ? 'CAL_COLLISION: Slot taken during checkout — needs reschedule' : null,
+          b.notes,
+        ]
+          .filter(Boolean)
+          .join(' | ');
 
-      const bookingRes = await insertBooking({
+      const bookingRow = {
         booking_reference: b.bookingReference,
         client_id: clientId,
         unit_id: unitId,
@@ -506,8 +518,31 @@ async function finalizeBookingInner({ bookingReference, paymentIntentId, tokenDa
         cal_booking_uid: calBookingUid,
         terms_accepted: true,
         terms_accepted_at: b.termsAcceptedAt,
-        notes: summaryNotes,
-      });
+        notes: summaryNotesFor(calCollision),
+      };
+      let bookingRes;
+      try {
+        bookingRes = await insertBooking(bookingRow);
+      } catch (insErr) {
+        // Another booking already holds this time (database rule bookings_no_overlap).
+        // Save it as needs_reschedule so the payment is never lost.
+        if (!isOverlapError(insErr)) throw insErr;
+        calCollision = true;
+        bookingStatus = 'needs_reschedule';
+        await logPaymentEvent({
+          ...logBase,
+          source: useGoogle ? 'calendar' : 'cal',
+          event: 'booking.slot_collision',
+          level: 'error',
+          message: 'Slot was taken during checkout; booking saved as needs_reschedule',
+          details: { start: b.scheduledStart },
+        });
+        bookingRes = await insertBooking({
+          ...bookingRow,
+          status: bookingStatus,
+          notes: summaryNotesFor(true),
+        });
+      }
 
       await insertPayment({
         booking_id: bookingRes.data.id,
@@ -559,11 +594,54 @@ async function finalizeBookingInner({ bookingReference, paymentIntentId, tokenDa
     });
   }
 
+  // 3b. Our own calendar: put the booking in Google Calendar (no attendees, so Google
+  // emails nobody). A failure here does not undo the booking; Andy is told in his email.
+  if (useGoogle && !calCollision) {
+    try {
+      googleEventId = await createBookingEvent({
+        ref: b.bookingReference,
+        start: b.scheduledStart,
+        end: b.scheduledEnd,
+        title: `Inspection ${b.bookingReference} · ${b.propertyType} ${b.bedroomTier || ''}`.trim(),
+        location: [b.unitNumber, b.projectName, b.areaCommunity].filter(Boolean).join(', '),
+        clientName: b.fullName,
+        clientEmail: b.email,
+        clientPhone: b.phone,
+        details: [
+          `Package: ${b.packageLabel} (${b.priceAed} AED)`,
+          `Purpose: ${b.inspectionPurpose || 'Handover'}`,
+          `DEWA on: ${b.dewaConnected ? 'Yes' : 'No'}`,
+          `Developer: ${b.developer || 'Not specified'}`,
+          `Access: ${b.accessInstructions || 'N/A'}`,
+          b.agentName ? `Agent: ${b.agentName}${b.agentPhone ? ` (${b.agentPhone})` : ''}` : null,
+          b.notes ? `Notes: ${b.notes}` : null,
+        ]
+          .filter(Boolean)
+          .join('\n'),
+      });
+      if (supabaseSynced) {
+        await updateBookingByReference(b.bookingReference, { google_event_id: googleEventId }).catch(async (e) => {
+          await logPaymentEvent({ ...logBase, source: 'calendar', event: 'calendar.event_id_save_failed', level: 'warn', message: errorMessageOf(e) });
+        });
+      }
+      await logPaymentEvent({ ...logBase, source: 'calendar', event: 'calendar.event_created', details: { google_event_id: googleEventId } });
+    } catch (gErr) {
+      googleWarning = errorMessageOf(gErr);
+      await logPaymentEvent({
+        ...logBase,
+        source: 'calendar',
+        event: 'calendar.event_create_failed',
+        level: 'error',
+        message: googleWarning,
+      });
+    }
+  }
+
   // 4. Send confirmation / receipt email via Resend
   const emailHtml = buildConfirmationHtml(
     b,
     ziinaData?.is_test ? 'Paid (Test Mode)' : 'Paid',
-    calBookingUid,
+    calBookingUid || (useGoogle && !calCollision ? b.bookingReference : null),
     calCollision
   );
   const customerEmailResult = await sendResendEmail({
@@ -589,8 +667,12 @@ async function finalizeBookingInner({ bookingReference, paymentIntentId, tokenDa
       to: adminEmail,
       subject: calCollision
         ? `[ACTION REQUIRED: Slot Collision] ${b.bookingReference} — ${b.projectName}`
-        : `[New Paid Booking] ${b.bookingReference} — ${b.projectName} (${b.priceAed} AED)`,
-      html: emailHtml,
+        : googleWarning
+          ? `[ACTION REQUIRED: Add to Google Calendar] ${b.bookingReference} — ${b.projectName} (${b.priceAed} AED)`
+          : `[New Paid Booking] ${b.bookingReference} — ${b.projectName} (${b.priceAed} AED)`,
+      html: googleWarning
+        ? `<p style="font-family:Arial,sans-serif;font-size:14px;color:#92400E;background:#FEF3C7;padding:12px;border-radius:8px;">This booking could not be added to your Google Calendar automatically (${googleWarning}). Please add it by hand.</p>${emailHtml}`
+        : emailHtml,
     });
   }
 
@@ -607,12 +689,14 @@ async function finalizeBookingInner({ bookingReference, paymentIntentId, tokenDa
       status: bookingStatus,
       calBookingId,
       calBookingUid,
+      googleEventId,
       calCollision,
       reportId,
     },
     isTest: Boolean(ziinaData?.is_test),
     supabaseSynced,
     calWarning,
+    googleWarning,
     normWarning,
     reportWarning,
     emailResult: customerEmailResult,

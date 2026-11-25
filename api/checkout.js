@@ -4,6 +4,7 @@ const {
   getActiveCheckoutHolds,
   createCheckoutHold,
 } = require('./_lib/supabase');
+const { googleIsDefault, isGoogleSlotOpen } = require('./_lib/availability');
 const { logPaymentEvent, ziinaSummary, errorMessageOf } = require('./_lib/payment-log');
 
 module.exports = async function handler(req, res) {
@@ -73,6 +74,19 @@ module.exports = async function handler(req, res) {
     const endDt = new Date(startDt.getTime() + quote.durationMinutes * 60 * 1000);
 
     // Check temporary 15-minute checkout holds to prevent concurrent double-bookings
+    // Live customers switch only with BOOKING_CALENDAR=google (never per request).
+    const useGoogle = googleIsDefault();
+    if (useGoogle) {
+      // Our own calendar: only accept a time that is open right now.
+      const check = await isGoogleSlotOpen({ startIso: startDt.toISOString(), durationMinutes: quote.durationMinutes });
+      if (!check.ok) {
+        return res.status(502).json({ error: 'We could not check that time just now. Please try again or WhatsApp us.' });
+      }
+      if (!check.open) {
+        return res.status(409).json({ error: 'Sorry, that time is no longer available. Please pick another.' });
+      }
+    }
+
     const holdsRes = await getActiveCheckoutHolds(startDt.toISOString(), endDt.toISOString());
     if ((holdsRes.data || []).length > 0) {
       return res.status(409).json({
@@ -103,6 +117,7 @@ module.exports = async function handler(req, res) {
       kindOfApartment: quote.kindOfApartment,
       scheduledStart: startDt.toISOString(),
       scheduledEnd: endDt.toISOString(),
+      scheduler: useGoogle ? 'google' : 'cal',
       fullName: fullName.trim(),
       email: email.trim().toLowerCase(),
       phone: phone.trim(),

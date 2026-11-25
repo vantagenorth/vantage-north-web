@@ -1,4 +1,4 @@
-const { getActiveCheckoutHolds } = require('./supabase');
+const { getActiveCheckoutHolds, getSlotHoldingBookings } = require('./supabase');
 
 const SLOTS_DAYS_AHEAD = 60;
 
@@ -19,7 +19,7 @@ function calHeaders(version = '2024-08-13') {
  *
  * Returns { ok, status, error, slots: { 'YYYY-MM-DD': [{ start }] } }.
  */
-async function fetchAvailableSlots({ eventTypeId, durationMinutes, bookingUidToReschedule = null, daysAhead = SLOTS_DAYS_AHEAD }) {
+async function fetchAvailableSlots({ eventTypeId, durationMinutes, bookingUidToReschedule = null, excludeRef = null, daysAhead = SLOTS_DAYS_AHEAD }) {
   const nowMs = Date.now();
   const startIso = new Date(nowMs).toISOString();
   const endIso = new Date(nowMs + daysAhead * 24 * 60 * 60 * 1000).toISOString();
@@ -32,12 +32,15 @@ async function fetchAvailableSlots({ eventTypeId, durationMinutes, bookingUidToR
   });
   if (bookingUidToReschedule) params.set('bookingUidToReschedule', bookingUidToReschedule);
 
-  const [calRes, holdsRes] = await Promise.all([
+  const [calRes, holdsRes, bookingsRes] = await Promise.all([
     fetch(`https://api.cal.com/v2/slots?${params.toString()}`, {
       method: 'GET',
       headers: calHeaders('2024-09-04'),
     }),
     getActiveCheckoutHolds(startIso, endIso),
+    // Bookings made with the Google Calendar system are not in Cal.com, so leave
+    // their times out here too while both systems run side by side.
+    getSlotHoldingBookings(startIso, endIso).catch(() => ({ data: [] })),
   ]);
 
   const calJson = await calRes.json().catch(() => ({}));
@@ -50,7 +53,10 @@ async function fetchAvailableSlots({ eventTypeId, durationMinutes, bookingUidToR
     };
   }
 
-  const activeHolds = (holdsRes.data || []).map((h) => ({
+  const activeHolds = [
+    ...(holdsRes.data || []),
+    ...(bookingsRes.data || []).filter((b) => !excludeRef || b.booking_reference !== excludeRef),
+  ].map((h) => ({
     start: new Date(h.scheduled_start).getTime(),
     end: new Date(h.scheduled_end).getTime(),
   }));
