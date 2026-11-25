@@ -857,7 +857,16 @@
                     if (data.token) localStorage.setItem(`vn_token_${data.bookingReference}`, data.token);
                 } catch {}
 
-                window.location.href = data.checkoutUrl;
+                if (data.embeddedUrl) {
+                    const q = new URLSearchParams({
+                        booking_ref: data.bookingReference,
+                        embed: data.embeddedUrl,
+                        hosted: data.checkoutUrl,
+                    });
+                    window.location.href = `/pay?${q}`;
+                } else {
+                    window.location.href = data.checkoutUrl;
+                }
             } catch (err) {
                 errorEl.textContent = err.message;
                 errorEl.classList.remove('hidden');

@@ -190,6 +190,9 @@ module.exports = async function handler(req, res) {
 
     return res.status(200).json({
       redirectUrl: ziinaData.redirect_url,
+      // The test page always uses the embedded form on /pay, so it can be
+      // tried before turning it on for customers (ZIINA_EMBEDDED_CHECKOUT).
+      embeddedUrl: ziinaData.embedded_url || null,
       paymentIntentId: ziinaData.id,
       bookingReference,
       amountAed,
