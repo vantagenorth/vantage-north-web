@@ -222,6 +222,10 @@ module.exports = async function handler(req, res) {
       bookingReference,
       paymentIntentId: ziinaData.id,
       checkoutUrl: ziinaData.redirect_url,
+      // Ziina's payment form for an iframe on /pay. Keeps the customer on our
+      // site, so a phone with the Ziina app installed does not hand off to it.
+      // Off until ZIINA_EMBEDDED_CHECKOUT=true (Ziina must approve the domain).
+      embeddedUrl: process.env.ZIINA_EMBEDDED_CHECKOUT === 'true' ? ziinaData.embedded_url || null : null,
       token,
       isTest,
       priceAed: quote.priceAed,

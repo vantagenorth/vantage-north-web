@@ -240,15 +240,15 @@
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                 <div>
                                     <label class="block text-xs font-medium mb-1">Full Name *</label>
-                                    <input id="fullName" type="text" required placeholder="John Smith" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
+                                    <input id="fullName" name="name" type="text" autocomplete="name" required placeholder="John Smith" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
                                 </div>
                                 <div>
                                     <label class="block text-xs font-medium mb-1">Email Address *</label>
-                                    <input id="email" type="email" required placeholder="john@example.com" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
+                                    <input id="email" name="email" type="email" autocomplete="email" inputmode="email" required placeholder="john@example.com" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
                                 </div>
                                 <div>
                                     <label class="block text-xs font-medium mb-1">Phone / WhatsApp *</label>
-                                    <input id="phone" type="tel" required placeholder="+971 50 123 4567" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
+                                    <input id="phone" name="phone" type="tel" autocomplete="tel" required placeholder="+971 50 123 4567" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
                                 </div>
                             </div>
                         </div>
@@ -320,15 +320,15 @@
                                     </div>
                                     <div>
                                         <label class="block text-xs font-medium mb-1">Agency / Brokerage</label>
-                                        <input id="agentAgency" type="text" placeholder="Brokerage name" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
+                                        <input id="agentAgency" type="text" autocomplete="off" placeholder="Brokerage name" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
                                     </div>
                                     <div>
                                         <label class="block text-xs font-medium mb-1">Agent Email</label>
-                                        <input id="agentEmail" type="email" placeholder="agent@agency.ae" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
+                                        <input id="agentEmail" type="email" autocomplete="off" placeholder="agent@agency.ae" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
                                     </div>
                                     <div>
                                         <label class="block text-xs font-medium mb-1">Agent Phone</label>
-                                        <input id="agentPhone" type="tel" placeholder="+971 50 ..." class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
+                                        <input id="agentPhone" type="tel" autocomplete="off" placeholder="+971 50 ..." class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
                                     </div>
                                 </div>
                             </details>
@@ -857,7 +857,16 @@
                     if (data.token) localStorage.setItem(`vn_token_${data.bookingReference}`, data.token);
                 } catch {}
 
-                window.location.href = data.checkoutUrl;
+                if (data.embeddedUrl) {
+                    const q = new URLSearchParams({
+                        booking_ref: data.bookingReference,
+                        embed: data.embeddedUrl,
+                        hosted: data.checkoutUrl,
+                    });
+                    window.location.href = `/pay?${q}`;
+                } else {
+                    window.location.href = data.checkoutUrl;
+                }
             } catch (err) {
                 errorEl.textContent = err.message;
                 errorEl.classList.remove('hidden');

@@ -316,7 +316,17 @@
                 if (!res.ok || !data.redirectUrl) {
                     throw new Error(data.error || 'Failed to start Ziina checkout');
                 }
-                window.location.href = data.redirectUrl;
+                if (data.embeddedUrl) {
+                    const q = new URLSearchParams({
+                        booking_ref: data.bookingReference,
+                        embed: data.embeddedUrl,
+                        hosted: data.redirectUrl,
+                        test: '1',
+                    });
+                    window.location.href = `/pay?${q}`;
+                } else {
+                    window.location.href = data.redirectUrl;
+                }
             } catch (err) {
                 errorBox.textContent = err.message;
                 errorBox.classList.remove('hidden');
