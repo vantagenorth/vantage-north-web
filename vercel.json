@@ -26,5 +26,11 @@
         }
       ]
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/calendar-fill",
+      "schedule": "5 20 * * *"
+    }
   ]
 }
