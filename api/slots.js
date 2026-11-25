@@ -1,5 +1,5 @@
 const { resolveTierConfig } = require('./_lib/config');
-const { getActiveCheckoutHolds } = require('./_lib/supabase');
+const { fetchAvailableSlots } = require('./_lib/cal');
 const { logPaymentEvent, errorMessageOf } = require('./_lib/payment-log');
 
 module.exports = async function handler(req, res) {
@@ -14,74 +14,31 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: 'Invalid propertyType or bedroomTier' });
     }
 
-    const calApiKey = process.env.CAL_API_KEY;
-    if (!calApiKey) {
+    if (!process.env.CAL_API_KEY) {
       return res.status(500).json({ error: 'CAL_API_KEY is not configured' });
     }
 
-    const nowMs = Date.now();
-    const daysAhead = 60;
-    const startIso = new Date(nowMs).toISOString();
-    const endIso = new Date(nowMs + daysAhead * 24 * 60 * 60 * 1000).toISOString();
-
-    const params = new URLSearchParams({
-      eventTypeId: String(tier.calEventTypeId),
-      start: startIso,
-      end: endIso,
-      timeZone: 'Asia/Dubai',
+    const result = await fetchAvailableSlots({
+      eventTypeId: tier.calEventTypeId,
+      durationMinutes: tier.durationMinutes,
     });
-
-    const [calRes, holdsRes] = await Promise.all([
-      fetch(`https://api.cal.com/v2/slots?${params.toString()}`, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${calApiKey}`,
-          'cal-api-version': '2024-09-04',
-          'User-Agent': 'VantageNorthBooking/1.0',
-        },
-      }),
-      getActiveCheckoutHolds(startIso, endIso),
-    ]);
-
-    const calJson = await calRes.json().catch(() => ({}));
-    if (!calRes.ok || calJson.status === 'error') {
+    if (!result.ok) {
       // Only failures are logged here; successful slot lookups are too frequent.
       await logPaymentEvent({
         source: 'cal',
         event: 'cal.slots_failed',
         level: 'error',
-        httpStatus: calRes.status,
-        message: calJson?.error?.message || 'Failed to fetch availability from Cal.com',
+        httpStatus: result.status,
+        message: result.error,
         details: { event_type_id: tier.calEventTypeId },
       });
-      return res.status(calRes.status || 502).json({
-        error: calJson?.error?.message || 'Failed to fetch availability from Cal.com',
-      });
-    }
-
-    const activeHolds = (holdsRes.data || []).map((h) => ({
-      start: new Date(h.scheduled_start).getTime(),
-      end: new Date(h.scheduled_end).getTime(),
-    }));
-    const durationMs = tier.durationMinutes * 60 * 1000;
-    const rawSlots = calJson.data || {};
-    const filteredSlots = {};
-
-    for (const [dateKey, daySlots] of Object.entries(rawSlots)) {
-      const kept = (daySlots || []).filter((s) => {
-        const sStart = new Date(s.start).getTime();
-        const sEnd = sStart + durationMs;
-        return !activeHolds.some((h) => sStart < h.end && sEnd > h.start);
-      });
-      if (kept.length > 0) {
-        filteredSlots[dateKey] = kept;
-      }
+      return res.status(result.status).json({ error: result.error });
     }
 
     return res.status(200).json({
       durationMinutes: tier.durationMinutes,
       timeZone: 'Asia/Dubai',
-      slots: filteredSlots,
+      slots: result.slots,
     });
   } catch (err) {
     console.error('Error in /api/slots:', err);

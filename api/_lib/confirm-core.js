@@ -15,6 +15,7 @@ const {
   claimCheckoutHold,
 } = require('./supabase');
 const { logPaymentEvent, errorMessageOf } = require('./payment-log');
+const { manageButtonsHtml } = require('./manage');
 
 function formatDubaiTime(iso) {
   try {
@@ -84,17 +85,8 @@ function buildConfirmationHtml(b, paymentStatus, calBookingUid, calCollision) {
         <strong>Schedule Notice:</strong> Your payment succeeded, but your selected time slot was reserved by another client moments earlier. Our team will contact you shortly (or WhatsApp <strong>+971 58 556 5311</strong>) to confirm an alternate time at no extra cost.
       </div>`
     : '';
-  const canCancel = b.scheduledStart
-    ? (new Date(b.scheduledStart).getTime() - Date.now()) >= 24 * 60 * 60 * 1000
-    : true;
-  const manageButtons = calBookingUid
-    ? `
-      <div style="margin:24px 0 0; padding-top:20px; border-top:1px solid #E5E5E5;">
-        <a href="https://cal.com/reschedule/${encodeURIComponent(calBookingUid)}" style="display:inline-block; background:#000000; color:#FFFFFF; text-decoration:none; font-size:13px; font-weight:600; padding:11px 20px; border-radius:8px; margin-right:10px;">Reschedule</a>
-        ${canCancel ? `<a href="https://cal.com/booking/${encodeURIComponent(calBookingUid)}?cancel=true" style="display:inline-block; background:#FFFFFF; color:#2B2B2B; text-decoration:none; font-size:13px; font-weight:600; padding:10px 20px; border-radius:8px; border:1px solid #D4D4D4;">Cancel</a>` : ''}
-        <p style="font-size:11px; color:#646464; margin:12px 0 0;">Cancellations are not permitted less than 24 hours prior to inspection — only rescheduling.</p>
-      </div>`
-    : '';
+  // Links go to our own reschedule/cancel pages (not Cal.com's), so changes reach Supabase.
+  const manageButtons = calBookingUid || calCollision ? manageButtonsHtml(b.bookingReference, b.scheduledStart) : '';
   return `
   <div style="font-family: 'Helvetica Neue', Arial, sans-serif; background:#FAFAFA; padding:32px 16px; color:#000000;">
     <div style="max-width:600px; margin:0 auto; background:#FFFFFF; border:1px solid #E5E5E5; border-radius:12px; padding:32px;">
