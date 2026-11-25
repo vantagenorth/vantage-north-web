@@ -1,8 +1,9 @@
 const crypto = require('crypto');
 const {
   isSupabaseConfigured,
+  getBookingByReference,
+  getBookingByCalUid,
   updateBookingByReference,
-  updateBookingByCalUid,
 } = require('./_lib/supabase');
 const { logPaymentEvent, errorMessageOf } = require('./_lib/payment-log');
 
@@ -14,6 +15,10 @@ function verifySignature(rawBody, signatureHeader, secret) {
   return a.length === b.length && crypto.timingSafeEqual(a, b);
 }
 
+function dubaiDate(iso) {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Dubai' }).format(new Date(iso));
+}
+
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -23,7 +28,18 @@ module.exports = async function handler(req, res) {
     const rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body || {});
     const secret = process.env.CAL_WEBHOOK_SECRET;
     const sig = req.headers['x-cal-signature-256'];
-    if (secret && !verifySignature(rawBody, sig, secret)) {
+    // Without a secret anyone could move or cancel bookings through this URL.
+    if (!secret) {
+      await logPaymentEvent({
+        source: 'cal_webhook',
+        event: 'webhook.no_secret',
+        level: 'error',
+        httpStatus: 503,
+        message: 'CAL_WEBHOOK_SECRET is not set; Cal.com webhook ignored',
+      });
+      return res.status(503).json({ error: 'Webhook secret not configured' });
+    }
+    if (!verifySignature(rawBody, sig, secret)) {
       await logPaymentEvent({
         source: 'cal_webhook',
         event: 'webhook.rejected_signature',
@@ -41,38 +57,57 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ received: true, skipped: true });
     }
 
-    const bookingReference = payload?.metadata?.bookingReference || null;
-    const calUid = payload?.rescheduleUid || payload?.uid || null;
+    const metadataRef = payload?.metadata?.bookingReference || null;
+    // On a reschedule Cal.com makes a new booking: uid is the new one and
+    // rescheduleUid the one it replaced.
+    const oldUid = payload?.rescheduleUid || null;
+    const uid = payload?.uid || null;
 
-    async function applyPatch(patch) {
-      if (bookingReference) {
-        const resByRef = await updateBookingByReference(bookingReference, patch);
-        if (resByRef?.data) return resByRef.data;
+    // Find our row: by booking reference first, then by the Cal.com uid we stored.
+    async function findRow() {
+      if (metadataRef) {
+        const byRef = await getBookingByReference(metadataRef);
+        if (byRef?.data) return byRef.data;
       }
-      if (calUid) {
-        const resByUid = await updateBookingByCalUid(calUid, patch);
-        return resByUid?.data || null;
+      for (const candidate of [oldUid, uid]) {
+        if (!candidate) continue;
+        const byUid = await getBookingByCalUid(candidate);
+        if (byUid) return byUid;
       }
       return null;
     }
 
-    async function logResult(updated) {
+    const row = await findRow();
+    const bookingReference = row?.booking_reference || metadataRef;
+
+    async function applyPatch(patch) {
+      if (!row) return null;
+      const res = await updateBookingByReference(row.booking_reference, patch);
+      return res?.data || null;
+    }
+
+    async function logResult(updated, note = null) {
       await logPaymentEvent({
         source: 'cal_webhook',
         event: `cal.${String(triggerEvent).toLowerCase()}`,
-        level: updated ? 'info' : 'warn',
+        level: updated || note ? 'info' : 'warn',
         bookingReference,
-        message: updated ? null : 'No matching booking found to update',
-        details: { cal_booking_uid: calUid, updated: Boolean(updated) },
+        message: note || (updated ? null : 'No matching booking found to update'),
+        details: { cal_booking_uid: uid, reschedule_uid: oldUid, updated: Boolean(updated) },
       });
     }
 
     if (triggerEvent === 'BOOKING_RESCHEDULED') {
+      // Skip an old reschedule that arrives after a newer one was applied.
+      if (row && row.cal_booking_uid && oldUid && row.cal_booking_uid !== oldUid && row.cal_booking_uid !== uid) {
+        await logResult(null, 'Reschedule was for an older Cal.com booking; newer time kept');
+        return res.status(200).json({ received: true, triggerEvent, updated: false, stale: true });
+      }
       const startTime = payload.startTime || payload.start;
       const endTime = payload.endTime || payload.end;
       const patch = {
         status: 'confirmed',
-        ...(startTime ? { scheduled_date: String(startTime).slice(0, 10), scheduled_start: startTime } : {}),
+        ...(startTime ? { scheduled_date: dubaiDate(startTime), scheduled_start: startTime } : {}),
         ...(endTime ? { scheduled_end: endTime } : {}),
         ...(payload.uid ? { cal_booking_uid: payload.uid } : {}),
         ...(payload.bookingId ? { cal_booking_id: payload.bookingId } : {}),
@@ -83,6 +118,14 @@ module.exports = async function handler(req, res) {
     }
 
     if (triggerEvent === 'BOOKING_CANCELLED') {
+      // Ignore a cancel for a Cal.com booking that has since been replaced by a
+      // reschedule: the client still has a live booking.
+      if (row && row.cal_booking_uid && uid && row.cal_booking_uid !== uid) {
+        await logResult(null, 'Cancel was for an older Cal.com booking; current booking kept');
+        return res.status(200).json({ received: true, triggerEvent, updated: false, stale: true });
+      }
+      // Refunds are handled by hand: only the booking status changes, the
+      // payment row is left as it is so the app can show a refund may be owed.
       const updated = await applyPatch({ status: 'cancelled' });
       await logResult(updated);
       return res.status(200).json({ received: true, triggerEvent, updated: Boolean(updated) });

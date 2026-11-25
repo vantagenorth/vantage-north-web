@@ -128,6 +128,15 @@ async function updateBookingByCalUid(calBookingUid, patch) {
   return { skipped: false, data: Array.isArray(res.data) ? res.data[0] : res.data };
 }
 
+async function getBookingByCalUid(calBookingUid) {
+  if (!isSupabaseConfigured() || !calBookingUid) return null;
+  const res = await supabaseFetch(
+    `bookings?cal_booking_uid=eq.${encodeURIComponent(calBookingUid)}&limit=1`,
+    { method: 'GET' }
+  );
+  return Array.isArray(res.data) ? res.data[0] || null : null;
+}
+
 async function insertPayment(payment) {
   if (!isSupabaseConfigured()) return { skipped: true, data: null };
   const res = await supabaseFetch('payments', {
@@ -504,6 +513,7 @@ module.exports = {
   getBookingByReference,
   updateBookingByReference,
   updateBookingByCalUid,
+  getBookingByCalUid,
   insertPayment,
   updatePaymentByIntentId,
   getPaymentByIntentId,

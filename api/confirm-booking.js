@@ -5,6 +5,7 @@ const {
   isSupabaseConfigured,
 } = require('./_lib/supabase');
 const { finalizeBooking } = require('./_lib/confirm-core');
+const { manageBookingUrl } = require('./_lib/manage');
 const { logPaymentEvent, ziinaSummary, errorMessageOf } = require('./_lib/payment-log');
 
 module.exports = async function handler(req, res) {
@@ -50,6 +51,7 @@ module.exports = async function handler(req, res) {
             unitNumber: tokenData?.unitNumber || 'TBD',
             inspectionPurpose: tokenData?.inspectionPurpose || 'Handover',
             calBookingUid: existing.cal_booking_uid || null,
+            manageUrl: manageBookingUrl(existing.booking_reference),
             calCollision: existing.status === 'needs_reschedule',
             intentId: existing.payments?.[0]?.ziina_payment_intent_id || paymentIntentId || hold?.ziina_payment_intent_id,
           },
@@ -132,6 +134,9 @@ module.exports = async function handler(req, res) {
       trigger: 'redirect',
     });
 
+    if (result?.booking?.bookingReference) {
+      result.booking.manageUrl = manageBookingUrl(result.booking.bookingReference);
+    }
     return res.status(200).json(result);
   } catch (err) {
     console.error('Error in /api/confirm-booking:', err);
