@@ -41,11 +41,14 @@ function verifyManageToken(ref, token) {
   return expected.length === given.length && crypto.timingSafeEqual(expected, given);
 }
 
+// Set MANAGE_RESCHEDULE_BASE_URL=https://reschedule.vantagenorth.ae and
+// MANAGE_CANCEL_BASE_URL=https://cancel.vantagenorth.ae in Vercel once their DNS
+// records are live. Until then links use the same pages on the main domain.
 function buildManageLinks(ref) {
   const clean = normalizeRef(ref);
   const t = manageToken(clean);
-  const rescheduleBase = (process.env.MANAGE_RESCHEDULE_BASE_URL || 'https://reschedule.vantagenorth.ae').replace(/\/+$/, '');
-  const cancelBase = (process.env.MANAGE_CANCEL_BASE_URL || 'https://cancel.vantagenorth.ae').replace(/\/+$/, '');
+  const rescheduleBase = (process.env.MANAGE_RESCHEDULE_BASE_URL || 'https://vantagenorth.ae/reschedule').replace(/\/+$/, '');
+  const cancelBase = (process.env.MANAGE_CANCEL_BASE_URL || 'https://vantagenorth.ae/cancel').replace(/\/+$/, '');
   return {
     rescheduleUrl: `${rescheduleBase}/${encodeURIComponent(clean)}?t=${t}`,
     cancelUrl: `${cancelBase}/${encodeURIComponent(clean)}?t=${t}`,
