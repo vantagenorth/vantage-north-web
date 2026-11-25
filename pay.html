@@ -13,28 +13,45 @@
     <style>
         body { background-color: #FAFAFA; color: #000000; font-family: 'Epilogue', sans-serif; -webkit-font-smoothing: antialiased; }
         h1, h2, h3 { font-family: 'Urbanist', sans-serif; }
-        #ziinaFrame { display: block; width: 100%; max-width: 450px; height: 820px; border: 0; margin: 0 auto; background: transparent; }
+        /* Ziina's form has its own white background; keep it flush inside our card. */
+        #ziinaFrame { display: block; width: 100%; max-width: 450px; height: 820px; border: 0; margin: 0 auto; background: #FFFFFF; }
+        /* Phones: the page itself never scrolls. The card fills the screen under
+           the header and the Ziina form inside it is the only thing that
+           scrolls, so a swipe always moves the form instead of the page. */
+        @media (max-width: 639px) {
+            html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+            body { height: 100dvh; }
+            #payMain { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; padding-top: 0.75rem; padding-bottom: 0.5rem; }
+            #payIntro { margin-bottom: 0.75rem; }
+            #payIntro .eyebrow, #payIntro .lede { display: none; }
+            #payIntro h1 { font-size: 1.375rem; line-height: 1.75rem; }
+            #payCard { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+            #frameWrap { flex: 1 1 auto; min-height: 0; }
+            #ziinaFrame { height: 100%; }
+            #payFooter { margin-top: 0.5rem; }
+        }
     </style>
     <!-- Tailwind, prebuilt (see tailwind.config.js). Kept last so it overrides page styles, as the old CDN did. -->
     <link rel="stylesheet" href="/assets/site.css">
 </head>
 <body class="bg-vnBg text-vnBlack min-h-screen flex flex-col">
 
-    <header class="w-full border-b border-neutral-200 bg-vnBg">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    <header class="w-full border-b border-neutral-200 bg-white">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
             <a href="/" class="flex items-center">
                 <img src="/logo/vantage_north_logo_light.png" alt="Vantage North" class="h-7 w-auto">
             </a>
             <a href="https://wa.me/971585565311" target="_blank" rel="noopener" class="text-sm px-3.5 py-1.5 rounded-full border border-neutral-300 hover:border-black transition font-medium">
-                Let's Chat
+                Got questions?
             </a>
         </div>
     </header>
 
-    <main class="max-w-2xl mx-auto w-full px-4 sm:px-6 py-8 flex-1">
-        <div class="text-center mb-5">
-            <h1 class="text-2xl font-semibold">Secure payment</h1>
-            <p class="text-sm text-vnGray mt-1">Pay below to confirm your inspection. Stay on this page until it says your payment went through.</p>
+    <main id="payMain" class="max-w-xl mx-auto w-full px-4 sm:px-6 py-8 sm:py-12 flex-1">
+        <div id="payIntro" class="mb-6">
+            <p class="eyebrow text-xs uppercase tracking-widest text-vnGray font-medium mb-2">RERA-Certified Property Snagging</p>
+            <h1 class="text-3xl sm:text-4xl font-semibold tracking-tight">Complete Your Payment</h1>
+            <p class="lede text-vnGray mt-2 text-sm sm:text-base">Your slot is held while you pay. Stay on this page until it confirms your booking.</p>
         </div>
 
         <div id="errorBox" class="hidden rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-sm p-3.5 mb-4"></div>
@@ -46,17 +63,31 @@
             <p class="text-sm text-vnGray mt-2">Taking you to your booking confirmation...</p>
         </div>
 
-        <div id="frameWrap">
-            <iframe id="ziinaFrame" title="Ziina secure payment" allow="payment"></iframe>
-        </div>
+        <section id="payCard" class="bg-white border border-neutral-200 rounded-2xl overflow-hidden">
+            <div class="flex items-center justify-between gap-3 px-5 sm:px-6 py-4 border-b border-neutral-200">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center shrink-0" aria-hidden="true">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>
+                    </span>
+                    <div>
+                        <h2 class="text-base font-semibold leading-tight">Secure payment</h2>
+                        <p id="refLine" class="text-xs text-vnGray">Apple Pay, Visa, Mastercard</p>
+                    </div>
+                </div>
+                <div id="amountWrap" class="hidden text-right">
+                    <p class="text-[11px] uppercase tracking-wider text-vnGray font-medium">Total</p>
+                    <p id="amountText" class="text-lg font-urbanist font-bold leading-tight"></p>
+                </div>
+            </div>
+            <div id="frameWrap" class="sm:py-2">
+                <iframe id="ziinaFrame" title="Ziina secure payment" allow="payment"></iframe>
+            </div>
+        </section>
 
-        <p class="text-xs text-vnGray text-center mt-5 leading-relaxed">
-            Payments are processed securely by Ziina.
-            <span id="fallbackWrap" class="hidden">Payment form not loading? <a id="fallbackLink" href="#" class="underline underline-offset-4 hover:text-vnBlack">Open the payment page instead</a>.</span>
-        </p>
-        <p class="text-center mt-3">
-            <a id="cancelLink" href="/book" class="text-sm text-vnGray underline underline-offset-4 hover:text-vnBlack">Cancel and go back</a>
-        </p>
+        <div id="payFooter" class="mt-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-vnGray">
+            <a id="cancelLink" href="/book" class="underline underline-offset-4 decoration-neutral-300 hover:text-vnBlack">&larr; Cancel and go back</a>
+            <span>Processed securely by Ziina<span id="fallbackWrap" class="hidden"> &middot; <a id="fallbackLink" href="#" class="underline underline-offset-4 decoration-neutral-300 hover:text-vnBlack">Form not loading?</a></span></span>
+        </div>
     </main>
 
     <script>
@@ -77,6 +108,16 @@
             const cancelUrl = `${backPath}?cancelled=1&booking_ref=${encodeURIComponent(ref)}`;
             const successUrl = `/booking-confirmation?booking_ref=${encodeURIComponent(ref)}`;
             cancelLink.href = cancelUrl;
+
+            // Display only: the amount actually charged is set on the server.
+            const amount = Number(params.get('amount'));
+            if (Number.isFinite(amount) && amount > 0) {
+                document.getElementById('amountText').textContent = `${amount.toLocaleString('en-US')} AED`;
+                document.getElementById('amountWrap').classList.remove('hidden');
+            }
+            if (ref) {
+                document.getElementById('refLine').textContent = `Booking ${ref}`;
+            }
 
             // Only ever load Ziina's own pages here.
             function ziinaUrl(raw) {
@@ -104,7 +145,7 @@
             }
 
             if (!ref || !embedded) {
-                frameWrap.classList.add('hidden');
+                document.getElementById('payCard').classList.add('hidden');
                 if (hosted) {
                     window.location.replace(hosted.toString());
                 } else {
@@ -127,7 +168,7 @@
 
                 if (status === 'COMPLETED') {
                     finished = true;
-                    frameWrap.classList.add('hidden');
+                    document.getElementById('payCard').classList.add('hidden');
                     errorBox.classList.add('hidden');
                     doneState.classList.remove('hidden');
                     window.location.replace(successUrl);

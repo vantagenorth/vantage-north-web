@@ -321,6 +321,7 @@
                         booking_ref: data.bookingReference,
                         embed: data.embeddedUrl,
                         hosted: data.redirectUrl,
+                        amount: String(data.amountAed || ''),
                         test: '1',
                     });
                     window.location.href = `/pay?${q}`;
