@@ -5,6 +5,7 @@ const {
   createCheckoutHold,
 } = require('./_lib/supabase');
 const { useGoogleScheduler, isGoogleSlotOpen } = require('./_lib/availability');
+const { finalizeBooking } = require('./_lib/confirm-core');
 const { logPaymentEvent, ziinaSummary } = require('./_lib/payment-log');
 
 module.exports = async function handler(req, res) {
@@ -43,6 +44,7 @@ module.exports = async function handler(req, res) {
       agentPhone = '+971 50 000 0000',
       notes = 'Test inspection booking via /booking-test',
       scheduler,
+      skipPayment,
     } = body;
 
     if (!scheduledStart) {
@@ -129,6 +131,42 @@ module.exports = async function handler(req, res) {
       termsAcceptedAt: new Date().toISOString(),
       isTestBooking: true,
     };
+
+    // Skip payment: run everything that happens after a payment (booking saved, Google
+    // Calendar event, emails with reschedule/cancel links) without charging anything.
+    // Only reachable here, behind TEST_BOOKING_KEY; the payment is saved as a test one.
+    if (skipPayment === true || skipPayment === 'true') {
+      const skipPayload = {
+        ...bookingPayload,
+        packageLabel: `${quote.packageLabel} (Test Booking, no payment)`,
+        priceAed: 0,
+        amountFils: 0,
+        pricingBreakdown: null,
+      };
+      const intentId = `test-skip-${bookingReference}`;
+      await logPaymentEvent({
+        source: 'test_checkout',
+        event: 'test.payment_skipped',
+        bookingReference,
+        intentId,
+        details: { scheduler: skipPayload.scheduler, scheduled_start: skipPayload.scheduledStart },
+      });
+      const result = await finalizeBooking({
+        bookingReference,
+        paymentIntentId: intentId,
+        tokenData: skipPayload,
+        ziinaData: { id: intentId, status: 'completed', is_test: true, amount: 0, currency_code: 'AED' },
+        trigger: 'test_skip_payment',
+      });
+      return res.status(200).json({
+        skipped: true,
+        bookingReference,
+        status: result?.booking?.status || null,
+        googleEventId: result?.booking?.googleEventId || null,
+        calendarWarning: result?.googleWarning || result?.calWarning || null,
+        emailSent: Boolean(result?.emailResult?.sent),
+      });
+    }
 
     const token = signBookingToken(bookingPayload);
     const siteUrl = getSiteUrl(req);
