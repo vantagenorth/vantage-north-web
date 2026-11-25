@@ -4,6 +4,7 @@ const {
   getActiveCheckoutHolds,
   createCheckoutHold,
 } = require('./_lib/supabase');
+const { useGoogleScheduler, isGoogleSlotOpen } = require('./_lib/availability');
 const { logPaymentEvent, ziinaSummary } = require('./_lib/payment-log');
 
 module.exports = async function handler(req, res) {
@@ -41,10 +42,11 @@ module.exports = async function handler(req, res) {
       agentEmail = 'hello@vantagenorth.ae',
       agentPhone = '+971 50 000 0000',
       notes = 'Test inspection booking via /booking-test',
+      scheduler,
     } = body;
 
     if (!scheduledStart) {
-      return res.status(400).json({ error: 'Please select an available Cal.com time slot.' });
+      return res.status(400).json({ error: 'Please select an available time slot.' });
     }
 
     const quote = calculateQuote({ propertyType, bedrooms, bathrooms, packageType });
@@ -62,6 +64,18 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: 'Invalid scheduledStart datetime' });
     }
     const endDt = new Date(startDt.getTime() + quote.durationMinutes * 60 * 1000);
+
+    const useGoogle = useGoogleScheduler(scheduler);
+    if (useGoogle) {
+      // Our own calendar: only accept a time that is open right now.
+      const check = await isGoogleSlotOpen({ startIso: startDt.toISOString(), durationMinutes: quote.durationMinutes });
+      if (!check.ok) {
+        return res.status(502).json({ error: 'We could not check that time just now. Please try again or WhatsApp us.' });
+      }
+      if (!check.open) {
+        return res.status(409).json({ error: 'Sorry, that time is no longer available. Please pick another.' });
+      }
+    }
 
     const holdsRes = await getActiveCheckoutHolds(startDt.toISOString(), endDt.toISOString());
     if ((holdsRes.data || []).length > 0) {
@@ -95,6 +109,7 @@ module.exports = async function handler(req, res) {
       kindOfApartment: quote.kindOfApartment,
       scheduledStart: startDt.toISOString(),
       scheduledEnd: endDt.toISOString(),
+      scheduler: useGoogle ? 'google' : 'cal',
       fullName: String(fullName).trim(),
       email: String(email).trim().toLowerCase(),
       phone: String(phone).trim(),

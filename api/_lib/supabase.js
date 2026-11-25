@@ -518,7 +518,55 @@ async function listPaymentEvents(query) {
   return Array.isArray(res.data) ? res.data : [];
 }
 
+// Bookings that hold their time slot (anything overlapping startIso..endIso).
+// needs_reschedule bookings are left out: their original time went to someone else.
+const SLOT_HOLDING_STATUSES = ['confirmed', 'cancelling'];
+async function getSlotHoldingBookings(startIso, endIso) {
+  if (!isSupabaseConfigured()) return { available: false, data: [] };
+  const params = new URLSearchParams({
+    select: 'booking_reference,scheduled_start,scheduled_end,status',
+    status: `in.(${SLOT_HOLDING_STATUSES.join(',')})`,
+    scheduled_start: `lt.${endIso}`,
+    scheduled_end: `gt.${startIso}`,
+  });
+  const res = await supabaseFetch(`bookings?${params.toString()}`, { method: 'GET' });
+  return { available: true, data: Array.isArray(res.data) ? res.data : [] };
+}
+
+// Postgres exclusion-constraint error (bookings_no_overlap): two bookings at the same time.
+function isOverlapError(err) {
+  const msg = String(err?.message || err || '');
+  return msg.includes('23P01') || msg.includes('bookings_no_overlap');
+}
+
+// Google Calendar sign-in (one row, read and written only with the service role key).
+async function getGoogleCalendarAuth() {
+  if (!isSupabaseConfigured()) return null;
+  const res = await supabaseFetch('google_calendar_auth?id=eq.default&limit=1', { method: 'GET' });
+  return Array.isArray(res.data) ? res.data[0] || null : null;
+}
+
+async function saveGoogleCalendarAuth({ accountEmail, refreshToken, scope }) {
+  const res = await supabaseFetch('google_calendar_auth?on_conflict=id', {
+    method: 'POST',
+    headers: { Prefer: 'resolution=merge-duplicates,return=representation' },
+    body: JSON.stringify({
+      id: 'default',
+      account_email: accountEmail,
+      refresh_token: refreshToken,
+      scope: scope || null,
+      updated_at: new Date().toISOString(),
+    }),
+  });
+  return Array.isArray(res.data) ? res.data[0] || null : null;
+}
+
 module.exports = {
+  SLOT_HOLDING_STATUSES,
+  getSlotHoldingBookings,
+  isOverlapError,
+  getGoogleCalendarAuth,
+  saveGoogleCalendarAuth,
   isSupabaseConfigured,
   supabaseFetch,
   getPartnerAgentById,

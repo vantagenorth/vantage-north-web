@@ -62,11 +62,22 @@
                     <input id="testKey" type="password" required placeholder="Enter TEST_BOOKING_KEY" class="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:border-black">
                 </div>
 
-                <!-- Cal.com Slot -->
+                <!-- Booking calendar system -->
+                <div>
+                    <label for="schedulerSelect" class="block text-xs uppercase tracking-wider text-vnGray font-medium mb-2">
+                        Booking Calendar
+                    </label>
+                    <select id="schedulerSelect" class="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 bg-white text-sm focus:outline-none focus:border-black">
+                        <option value="google" selected>New: Google Calendar (no Cal.com)</option>
+                        <option value="cal">Old: Cal.com</option>
+                    </select>
+                </div>
+
+                <!-- Inspection Slot -->
                 <div>
                     <div class="flex items-center justify-between mb-2">
                         <label for="slotSelect" class="block text-xs uppercase tracking-wider text-vnGray font-medium">
-                            Cal.com Inspection Slot (Dubai Time)
+                            Inspection Slot (Dubai Time)
                         </label>
                         <span id="slotHint" class="text-[11px] text-vnGray">Loading Monday slots...</span>
                     </div>
@@ -192,6 +203,8 @@
         const payBtn = document.getElementById('payBtn');
         const errorBox = document.getElementById('errorBox');
         const slotSelect = document.getElementById('slotSelect');
+        const schedulerSelect = document.getElementById('schedulerSelect');
+        schedulerSelect.addEventListener('change', () => loadSlots());
         const slotHint = document.getElementById('slotHint');
         const amtBtns = document.querySelectorAll('.amt-btn');
 
@@ -217,8 +230,10 @@
 
         async function loadSlots() {
             try {
-                const res = await fetch('/api/slots?propertyType=Apartment&bedrooms=2');
+                slotSelect.innerHTML = '<option value="">Loading...</option>';
+                const res = await fetch('/api/slots?propertyType=Apartment&bedrooms=2&scheduler=' + encodeURIComponent(schedulerSelect.value));
                 const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Could not load slots');
                 const slotsByDate = data.slots || {};
                 const dates = Object.keys(slotsByDate).sort();
 
@@ -248,7 +263,7 @@
                 }
 
                 if (options.length === 0) {
-                    slotSelect.innerHTML = '<option value="">No Cal.com slots available</option>';
+                    slotSelect.innerHTML = '<option value="">No slots available</option>';
                     slotHint.textContent = 'No slots found';
                     return;
                 }
@@ -265,8 +280,8 @@
                     slotHint.textContent = 'Pre-selected earliest slot';
                 }
             } catch (err) {
-                slotSelect.innerHTML = '<option value="">Failed to load Cal.com slots</option>';
-                slotHint.textContent = 'Error loading slots';
+                slotSelect.innerHTML = '<option value="">Failed to load slots</option>';
+                slotHint.textContent = err.message || 'Error loading slots';
             }
         }
 
@@ -298,6 +313,7 @@
                         bathrooms: 2,
                         packageType: 'initial',
                         scheduledStart: slotSelect.value,
+                        scheduler: schedulerSelect.value,
                         fullName: document.getElementById('fullName').value,
                         email: document.getElementById('email').value,
                         phone: document.getElementById('phone').value,

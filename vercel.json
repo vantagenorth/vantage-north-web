@@ -71,6 +71,14 @@
     {
       "source": "/cancel/:ref([Vv][Nn]-[A-Za-z0-9-]+)",
       "destination": "/cancel"
+    },
+    {
+      "source": "/google-calendar/connect",
+      "destination": "/api/calendar?action=connect"
+    },
+    {
+      "source": "/google-calendar/callback",
+      "destination": "/api/calendar?action=callback"
     }
   ],
   "headers": [
@@ -95,7 +103,7 @@
   ],
   "crons": [
     {
-      "path": "/api/calendar-fill",
+      "path": "/api/calendar",
       "schedule": "5 20 * * *"
     }
   ]
