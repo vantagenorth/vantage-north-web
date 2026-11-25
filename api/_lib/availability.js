@@ -1,16 +1,10 @@
-// Open inspection times, worked out on our side (Supabase + Google Calendar)
-// instead of by Cal.com.
+// Open inspection times, worked out from Supabase + Andy's Google Calendar.
 //
 // A time is open when it is inside working hours and none of these overlap it:
 //   - a booking in Supabase that holds its slot (confirmed / cancelling)
 //   - someone paying for that time right now (checkout_holds)
 //   - anything busy in Andy's Google Calendar; an all-day event blocks the whole day
 //   - the "look busy" block for that day (see fillBlockFor)
-//
-// Which system is used:
-//   BOOKING_CALENDAR=google  (Vercel env) switches the live site to this.
-//   Otherwise Cal.com is used, except for requests that ask for scheduler=google
-//   (the /booking-test page), so the new system can be tested before switching.
 const crypto = require('crypto');
 const { getActiveCheckoutHolds, getSlotHoldingBookings } = require('./supabase');
 const { listBusy } = require('./google-calendar');
@@ -19,34 +13,25 @@ const TIME_ZONE = 'Asia/Dubai';
 const DUBAI_OFFSET = '+04:00'; // the UAE has no daylight saving
 const DUBAI_OFFSET_MS = 4 * 60 * 60 * 1000;
 
-// Working hours by weekday (0 = Sunday). Same as the Cal.com "Working Hours" schedule.
+// Working hours by weekday (0 = Sunday, 6 = Saturday).
 const WORKING_HOURS = {
   1: { start: '10:00', end: '16:00' },
   2: { start: '10:00', end: '16:00' },
   3: { start: '10:00', end: '16:00' },
   4: { start: '10:00', end: '16:00' },
   5: { start: '10:00', end: '16:00' },
+  6: { start: '10:00', end: '16:00' },
 };
-const MIN_NOTICE_MINUTES = 120; // same as Cal.com's minimum booking notice
+const MIN_NOTICE_MINUTES = 120;
 const DAYS_AHEAD = 60;
 
-// "Look busy" blocking (was the nightly Cal.com calendar-fill job). Same rules and the same
-// hash, so the days blocked today stay blocked after the switch.
+// "Look busy" blocking: a 2-hour block on some days so the calendar never looks empty.
 const FILL_SLOT_MINUTES = 120;
 const FILL_LONGEST_MINUTES = 240;
 const FILL_KEEP_OPEN_WORKING_DAYS = 2;
 const FILL_LOOKAHEAD_DAYS = 21;
 const FILL_DEFAULT_SHARE = 0.3;
 const FILL_SALT = 'vn-calendar-fill-v1';
-
-function googleIsDefault() {
-  return String(process.env.BOOKING_CALENDAR || '').toLowerCase() === 'google';
-}
-
-// True when this request should use Supabase + Google Calendar.
-function useGoogleScheduler(requested) {
-  return googleIsDefault() || String(requested || '').toLowerCase() === 'google';
-}
 
 function fillShare() {
   const raw = process.env.CALENDAR_BLOCK_SHARE;
@@ -79,7 +64,7 @@ function dubaiInstant(dateStr, minutes) {
   return Date.parse(`${dateStr}T00:00:00${DUBAI_OFFSET}`) + minutes * 60000;
 }
 
-// Cal.com's slot format, which book.html and reschedule.html already read.
+// Slot format read by book.html and reschedule.html.
 function slotIso(dateStr, minutes) {
   const h = String(Math.floor(minutes / 60)).padStart(2, '0');
   const m = String(minutes % 60).padStart(2, '0');
@@ -148,7 +133,7 @@ function buildSlots({ nowMs, durationMinutes, daysAhead = DAYS_AHEAD, busyInterv
 // Open slots from Supabase + Google Calendar.
 // excludeRef leaves out one booking (the one being rescheduled).
 // Returns { ok, status, error, slots }.
-async function fetchGoogleSlots({ durationMinutes, excludeRef = null, nowMs = Date.now(), daysAhead = DAYS_AHEAD }) {
+async function fetchSlots({ durationMinutes, excludeRef = null, nowMs = Date.now(), daysAhead = DAYS_AHEAD }) {
   const startIso = new Date(nowMs).toISOString();
   const endIso = new Date(nowMs + (daysAhead + 1) * 86400000).toISOString();
   let bookings;
@@ -184,8 +169,8 @@ async function fetchGoogleSlots({ durationMinutes, excludeRef = null, nowMs = Da
 }
 
 // True if startIso is one of the open slots right now.
-async function isGoogleSlotOpen({ startIso, durationMinutes, excludeRef = null }) {
-  const result = await fetchGoogleSlots({ durationMinutes, excludeRef });
+async function isSlotOpen({ startIso, durationMinutes, excludeRef = null }) {
+  const result = await fetchSlots({ durationMinutes, excludeRef });
   if (!result.ok) return { ok: false, open: false, error: result.error, detail: result.detail };
   const want = new Date(startIso).getTime();
   const open = Object.values(result.slots).flat().some((s) => new Date(s.start).getTime() === want);
@@ -196,11 +181,9 @@ module.exports = {
   TIME_ZONE,
   WORKING_HOURS,
   MIN_NOTICE_MINUTES,
-  googleIsDefault,
-  useGoogleScheduler,
   fillBlockFor,
   buildSlots,
-  fetchGoogleSlots,
-  isGoogleSlotOpen,
+  fetchSlots,
+  isSlotOpen,
   dubaiDateOf,
 };

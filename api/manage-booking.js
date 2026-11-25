@@ -18,8 +18,7 @@ const {
   supabaseFetch,
   isOverlapError,
 } = require('./_lib/supabase');
-const { calHeaders, fetchAvailableSlots } = require('./_lib/cal');
-const { googleIsDefault, fetchGoogleSlots } = require('./_lib/availability');
+const { fetchSlots } = require('./_lib/availability');
 const { createBookingEvent, moveBookingEvent, deleteBookingEvent } = require('./_lib/google-calendar');
 const { sendResendEmail } = require('./_lib/confirm-core');
 const { logPaymentEvent, errorMessageOf } = require('./_lib/payment-log');
@@ -39,9 +38,6 @@ const {
   adminNoticeHtml,
 } = require('./_lib/manage');
 
-// Fallback durations if a booking has no end time stored.
-const EVENT_TYPE_MINUTES = { 7985836: 120, 7985837: 180, 7985838: 240 };
-
 function dubaiDate(iso) {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Dubai', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(iso));
 }
@@ -50,7 +46,7 @@ function durationMinutesOf(booking) {
   const s = booking.scheduled_start ? new Date(booking.scheduled_start).getTime() : null;
   const e = booking.scheduled_end ? new Date(booking.scheduled_end).getTime() : null;
   if (s && e && e > s) return Math.round((e - s) / 60000);
-  return EVENT_TYPE_MINUTES[Number(booking.cal_event_type_id)] || 120;
+  return 120;
 }
 
 // Ziina refund ids must be client-generated UUIDs. Deriving it from the payment intent
@@ -60,24 +56,8 @@ function refundIdFor(intentId) {
   return `${h.slice(0, 8)}-${h.slice(8, 12)}-4${h.slice(13, 16)}-${((parseInt(h[16], 16) & 0x3) | 0x8).toString(16)}${h.slice(17, 20)}-${h.slice(20, 32)}`;
 }
 
-// Bookings made through our own calendar (Supabase + Google) are moved and cancelled
-// there; older Cal.com bookings keep going through Cal.com.
-function usesGoogle(booking) {
-  if (booking.google_event_id) return true;
-  if (booking.cal_booking_uid) return false;
-  return googleIsDefault();
-}
-
 function slotsFor(booking, durationMinutes) {
-  if (usesGoogle(booking)) {
-    return fetchGoogleSlots({ durationMinutes, excludeRef: booking.booking_reference });
-  }
-  return fetchAvailableSlots({
-    eventTypeId: booking.cal_event_type_id,
-    durationMinutes,
-    bookingUidToReschedule: booking.cal_booking_uid || null,
-    excludeRef: booking.booking_reference,
-  });
+  return fetchSlots({ durationMinutes, excludeRef: booking.booking_reference });
 }
 
 function readParams(req) {
@@ -185,9 +165,9 @@ async function finishReschedule(res, { ref, booking, merged, previousStart, star
   return res.status(200).json({ rescheduled: true, booking: publicBookingView(merged), emailSent: Boolean(emailResult?.sent) });
 }
 
-// Our own calendar: Supabase is saved first (its no-overlap rule is the final say on
+// Supabase is saved first (its no-overlap rule is the final say on
 // clashes), then the Google Calendar event is moved, or added if there was none.
-async function rescheduleWithGoogle(res, auth, { newStartIso, durationMinutes, previousStart }) {
+async function moveBooking(res, auth, { newStartIso, durationMinutes, previousStart }) {
   const { ref, booking } = auth;
   const endIso = new Date(new Date(newStartIso).getTime() + durationMinutes * 60000).toISOString();
   const late = isLateReschedule(previousStart);
@@ -244,7 +224,7 @@ async function rescheduleWithGoogle(res, auth, { newStartIso, durationMinutes, p
     startIso: newStartIso,
     late,
     calendarNote,
-    logDetails: { scheduler: 'google', google_event_id: googleEventId },
+    logDetails: { google_event_id: googleEventId },
   });
 }
 
@@ -273,122 +253,7 @@ async function handleReschedule(res, auth, params) {
 
   const newStartIso = new Date(newStartMs).toISOString();
   const previousStart = booking.scheduled_start;
-  if (usesGoogle(booking)) {
-    return rescheduleWithGoogle(res, auth, { newStartIso, durationMinutes, previousStart });
-  }
-  let calData = null;
-  let calStatus = null;
-  let calMessage = null;
-  try {
-    let calRes;
-    if (booking.cal_booking_uid) {
-      calRes = await fetch(`https://api.cal.com/v2/bookings/${encodeURIComponent(booking.cal_booking_uid)}/reschedule`, {
-        method: 'POST',
-        headers: calHeaders('2024-08-13'),
-        body: JSON.stringify({ start: newStartIso, reschedulingReason: 'Rescheduled by client on vantagenorth.ae' }),
-      });
-    } else {
-      // Booking whose original slot was taken during checkout: it has no Cal.com
-      // booking yet, so create one at the new time.
-      calRes = await fetch('https://api.cal.com/v2/bookings', {
-        method: 'POST',
-        headers: calHeaders('2024-08-13'),
-        body: JSON.stringify({
-          start: newStartIso,
-          eventTypeId: Number(booking.cal_event_type_id),
-          attendee: { name: booking.clients?.name || 'Client', email: booking.clients?.email, timeZone: 'Asia/Dubai' },
-          metadata: { bookingReference: ref },
-        }),
-      });
-    }
-    calStatus = calRes.status;
-    const json = await calRes.json().catch(() => ({}));
-    if (calRes.ok && json?.data) {
-      calData = Array.isArray(json.data) ? json.data[0] : json.data;
-    } else {
-      calMessage = json?.error?.message || JSON.stringify(json).slice(0, 300);
-    }
-  } catch (err) {
-    calMessage = errorMessageOf(err);
-  }
-
-  if (!calData) {
-    await logPaymentEvent({
-      source: 'manage',
-      event: 'manage.reschedule_cal_failed',
-      level: 'error',
-      bookingReference: ref,
-      httpStatus: calStatus,
-      message: calMessage,
-      details: { new_start: newStartIso },
-    });
-    return res.status(502).json({ error: 'We could not move your booking. The time may have just been taken. Please try another time or WhatsApp us.' });
-  }
-
-  const startIso = calData.start || newStartIso;
-  const endIso = calData.end || new Date(new Date(startIso).getTime() + durationMinutes * 60000).toISOString();
-  const late = isLateReschedule(previousStart);
-  const nonRefundable = Boolean(booking.non_refundable) || late;
-  const patch = {
-    status: 'confirmed',
-    scheduled_date: dubaiDate(startIso),
-    scheduled_start: startIso,
-    scheduled_end: endIso,
-    cal_booking_uid: calData.uid || booking.cal_booking_uid,
-    cal_booking_id: calData.id || booking.cal_booking_id,
-    original_scheduled_start: booking.original_scheduled_start || previousStart || null,
-    reschedule_count: (booking.reschedule_count || 0) + 1,
-    last_rescheduled_at: new Date().toISOString(),
-    last_rescheduled_by: 'customer',
-    non_refundable: nonRefundable,
-  };
-  let updated = null;
-  try {
-    updated = (await updateBookingByReference(ref, patch)).data;
-  } catch (err) {
-    // Cal.com already moved it; the Cal webhook will also sync the new time.
-    await logPaymentEvent({
-      source: 'manage',
-      event: 'manage.reschedule_db_failed',
-      level: 'error',
-      bookingReference: ref,
-      message: errorMessageOf(err),
-      details: { cal_booking_uid: calData.uid, new_start: startIso },
-    });
-  }
-
-  const merged = { ...booking, ...(updated || patch) };
-  const emailResult = await sendCustomerAndAdmin({
-    booking: merged,
-    subject: `Vantage North Booking Rescheduled — ${ref}`,
-    html: rescheduleEmailHtml({ booking: merged, previousStart, newStart: startIso, nonRefundable: late && !booking.non_refundable }),
-    adminSubject: `[Rescheduled] ${ref} — now ${formatDubaiTime(startIso)}${late ? ' (late, now non-refundable)' : ''}`,
-    adminHtml: adminNoticeHtml({
-      title: 'Client rescheduled their inspection',
-      lines: [
-        ['Booking Reference', ref, true],
-        ['Client', `${booking.clients?.name || ''} (${booking.clients?.email || ''})`],
-        ['Previous Time', previousStart ? `${formatDubaiTime(previousStart)} (Dubai)` : 'None'],
-        ['New Time', `${formatDubaiTime(startIso)} (Dubai)`, true],
-        ['Inside 24 hours', late ? 'Yes, booking is now non-refundable' : 'No'],
-      ],
-    }),
-  });
-
-  await logPaymentEvent({
-    source: 'manage',
-    event: 'manage.rescheduled',
-    bookingReference: ref,
-    details: {
-      previous_start: previousStart,
-      new_start: startIso,
-      cal_booking_uid: patch.cal_booking_uid,
-      late_reschedule: late,
-      email_sent: Boolean(emailResult?.sent),
-    },
-  });
-
-  return res.status(200).json({ rescheduled: true, booking: publicBookingView(merged), emailSent: Boolean(emailResult?.sent) });
+  return moveBooking(res, auth, { newStartIso, durationMinutes, previousStart });
 }
 
 // ---------- POST: cancel ----------
@@ -458,9 +323,7 @@ async function handleCancel(res, auth, params) {
   }
   const reason = String(params.reason || '').trim().slice(0, 500) || null;
 
-  // Claim it first so a double click cannot cancel (or refund) twice, and so the
-  // Cal.com webhook knows this cancellation came from us.
-  const previousStatus = booking.status;
+  // Claim it first so a double click cannot cancel (or refund) twice.
   const claimed = await claimBookingStatus(ref, ACTIVE_STATUSES, {
     status: 'cancelling',
     cancelled_by: 'customer',
@@ -470,45 +333,14 @@ async function handleCancel(res, auth, params) {
     return res.status(409).json({ error: 'This booking was just changed. Please refresh the page.' });
   }
 
+  // Remove it from Google Calendar. A failure does not stop the cancellation; Andy is told.
   let calendarNote = null;
-  if (usesGoogle(booking)) {
-    // Remove it from Google Calendar. A failure does not stop the cancellation; Andy is told.
-    if (booking.google_event_id) {
-      try {
-        await deleteBookingEvent(booking.google_event_id);
-      } catch (err) {
-        calendarNote = `Could not remove it automatically (${errorMessageOf(err)}). Please delete it by hand.`;
-        await logPaymentEvent({ source: 'calendar', event: 'calendar.event_delete_failed', level: 'error', bookingReference: ref, message: errorMessageOf(err) });
-      }
-    }
-  } else if (booking.cal_booking_uid) {
-    let calOk = false;
-    let calMessage = null;
-    let calStatus = null;
+  if (booking.google_event_id) {
     try {
-      const calRes = await fetch(`https://api.cal.com/v2/bookings/${encodeURIComponent(booking.cal_booking_uid)}/cancel`, {
-        method: 'POST',
-        headers: calHeaders('2024-08-13'),
-        body: JSON.stringify({ cancellationReason: reason ? `Client: ${reason}` : 'Cancelled by client on vantagenorth.ae' }),
-      });
-      calStatus = calRes.status;
-      const json = await calRes.json().catch(() => ({}));
-      calMessage = json?.error?.message || null;
-      calOk = calRes.ok || /already (been )?cancel/i.test(String(calMessage));
+      await deleteBookingEvent(booking.google_event_id);
     } catch (err) {
-      calMessage = errorMessageOf(err);
-    }
-    if (!calOk) {
-      await updateBookingByReference(ref, { status: previousStatus, cancelled_by: null, cancellation_reason: null }).catch(() => null);
-      await logPaymentEvent({
-        source: 'manage',
-        event: 'manage.cancel_cal_failed',
-        level: 'error',
-        bookingReference: ref,
-        httpStatus: calStatus,
-        message: calMessage,
-      });
-      return res.status(502).json({ error: 'We could not cancel your booking just now. Please try again or WhatsApp us.' });
+      calendarNote = `Could not remove it automatically (${errorMessageOf(err)}). Please delete it by hand.`;
+      await logPaymentEvent({ source: 'calendar', event: 'calendar.event_delete_failed', level: 'error', bookingReference: ref, message: errorMessageOf(err) });
     }
   }
 

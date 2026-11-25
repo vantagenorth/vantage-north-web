@@ -89,7 +89,7 @@ function evaluatePolicy(booking, nowMs = Date.now()) {
   } else if (msToStart !== null && msToStart <= rescheduleCutoffMs()) {
     canReschedule = false;
     rescheduleBlockedReason = msToStart <= 0 ? 'started' : 'too_close';
-  } else if (!booking?.cal_event_type_id) {
+  } else if (!booking?.scheduled_start) {
     canReschedule = false;
     rescheduleBlockedReason = 'inactive';
   }

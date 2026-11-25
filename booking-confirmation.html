@@ -185,9 +185,9 @@
                     body: JSON.stringify({ bookingReference, paymentIntentId, token }),
                 });
                 const data = await res.json();
-                if (data.calWarning || data.reportWarning || data.normWarning) {
+                if (data.googleWarning || data.reportWarning || data.normWarning) {
                     console.warn('Booking sync warnings:', {
-                        calWarning: data.calWarning,
+                        googleWarning: data.googleWarning,
                         reportWarning: data.reportWarning,
                         normWarning: data.normWarning,
                     });
@@ -214,7 +214,7 @@
                 }
                 renderItemizedReceipt(b);
 
-                if (b.calCollision) {
+                if (b.slotTaken) {
                     document.getElementById('collisionNotice').classList.remove('hidden');
                 }
                 if (data.isTest) {

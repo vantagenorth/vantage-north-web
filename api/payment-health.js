@@ -242,7 +242,7 @@ async function checkStuckProcessing(now, summary) {
           new Date(startedAt).toISOString()
         )}, but it has not completed. The customer has paid and may not have a booking or confirmation email.`,
         nextSteps:
-          'Check the events below for the step that failed. Then check Cal.com for a booking in this slot, create it by hand if needed, and email the customer. Refund through Ziina if the slot cannot be honoured.',
+          'Check the events below for the step that failed. Then check your Google Calendar for a booking in this slot, add it by hand if needed, and email the customer. Refund through Ziina if the slot cannot be honoured.',
         bookingReference: ref,
         intentId,
         payload: hold.payload,
@@ -333,9 +333,9 @@ async function checkExpiredPending(now, summary) {
         details: { ziina_status: status },
         html: buildAlertHtml({
           title: 'Payment received but the booking was never confirmed',
-          summary: `Ziina shows ${ref} as paid, but neither the Ziina webhook nor the confirmation page confirmed it, so no Cal.com booking or Supabase record was created.`,
+          summary: `Ziina shows ${ref} as paid, but neither the Ziina webhook nor the confirmation page confirmed it, so no booking record or Google Calendar event was created.`,
           nextSteps:
-            'Check whether the slot is still free in Cal.com, create the booking by hand, and email the customer. Refund through Ziina if the slot cannot be honoured. The hold is kept with status paid_unconfirmed until you delete it.',
+            'Check whether the slot is still free in your Google Calendar, add the booking by hand, and email the customer. Refund through Ziina if the slot cannot be honoured. The hold is kept with status paid_unconfirmed until you delete it.',
           bookingReference: ref,
           intentId,
           payload: hold.payload,
