@@ -262,7 +262,13 @@ async function handleStatus(res) {
   } catch {
     connected = false;
   }
-  return res.status(200).json({ configured: google.isGoogleConfigured(), connected, live: googleIsDefault() });
+  let icloud;
+  try {
+    icloud = await require('./_lib/ics-calendars').icsStatus();
+  } catch (err) {
+    icloud = { ok: false, errors: [errorMessageOf(err)] };
+  }
+  return res.status(200).json({ configured: google.isGoogleConfigured(), connected, live: googleIsDefault(), icloud });
 }
 
 // Daily: make sure the Google sign-in still works, so the booking page never goes blank unnoticed.

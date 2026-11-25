@@ -147,9 +147,14 @@ async function listIcsBusy(startIso, endIso) {
       events = hit.events;
     } else {
       try {
-        const res = await fetch(url, { headers: { Accept: 'text/calendar' } });
+        const res = await fetch(url, {
+          headers: { Accept: 'text/calendar, */*', 'User-Agent': 'Mozilla/5.0 (compatible; VantageNorthBooking/1.0)' },
+          redirect: 'follow',
+        });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        events = parseIcs(await res.text());
+        const body = await res.text();
+        if (!body.includes('BEGIN:VCALENDAR')) throw new Error(`Not a calendar (${res.headers.get('content-type') || 'unknown type'})`);
+        events = parseIcs(body);
         cache.set(url, { at: Date.now(), events });
       } catch (err) {
         errors.push(err.message);
@@ -181,4 +186,22 @@ async function listIcsBusy(startIso, endIso) {
   return { allDayDates, intervals, errors };
 }
 
-module.exports = { listIcsBusy, parseIcs, calendarUrls, _clearCache: () => cache.clear() };
+// Counts only (no dates or titles), for /api/calendar?action=status.
+async function icsStatus() {
+  const urls = calendarUrls();
+  if (!urls.length) return { links: 0 };
+  cache.clear();
+  const now = Date.now();
+  const r = await listIcsBusy(new Date(now).toISOString(), new Date(now + 61 * 86400000).toISOString());
+  const events = urls.reduce((n, u) => n + (cache.get(u)?.events.length || 0), 0);
+  return {
+    links: urls.length,
+    ok: r.errors.length === 0,
+    errors: r.errors,
+    eventsInFeed: events,
+    allDayDaysNext60: r.allDayDates.size,
+    timedBlocksNext60: r.intervals.length,
+  };
+}
+
+module.exports = { listIcsBusy, icsStatus, parseIcs, calendarUrls, _clearCache: () => cache.clear() };
