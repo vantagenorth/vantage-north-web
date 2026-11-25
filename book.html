@@ -19,35 +19,17 @@
     <meta name="twitter:image" content="https://vantagenorth.ae/reports_snapshot.png">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
 
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@300;400;500;600&family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        vnBg: '#FAFAFA',
-                        vnGray: '#646464',
-                        vnDarkGray: '#2B2B2B',
-                        vnBlack: '#000000',
-                        vnWhite: '#FFFFFF',
-                    },
-                    fontFamily: {
-                        urbanist: ['"Urbanist"', 'sans-serif'],
-                        epilogue: ['"Epilogue"', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
     <style>
         body { background-color: #FAFAFA; color: #000000; font-family: 'Epilogue', sans-serif; }
         h1, h2, h3, h4 { font-family: 'Urbanist', sans-serif; }
         .option-card { transition: all 0.15s ease; }
         .option-card.active { border-color: #000000; background-color: #FFFFFF; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
     </style>
+    <!-- Tailwind, built at deploy time (see tailwind.config.js). Kept last so it overrides page styles, as the old CDN did. -->
+    <link rel="stylesheet" href="/assets/site.css">
 </head>
 <body class="bg-vnBg text-vnBlack min-h-screen flex flex-col">
 

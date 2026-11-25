@@ -6,29 +6,9 @@
     <title>Vantage North | End-to-End Booking Test</title>
     <meta name="robots" content="noindex, nofollow">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@300;400;500;600&family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        vnBg: '#FAFAFA',
-                        vnGray: '#646464',
-                        vnDarkGray: '#2B2B2B',
-                        vnBlack: '#000000',
-                        vnWhite: '#FFFFFF',
-                    },
-                    fontFamily: {
-                        urbanist: ['"Urbanist"', 'sans-serif'],
-                        epilogue: ['"Epilogue"', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
     <style>
         body {
             background-color: #FAFAFA;
@@ -40,6 +20,8 @@
             font-family: 'Urbanist', sans-serif;
         }
     </style>
+    <!-- Tailwind, built at deploy time (see tailwind.config.js). Kept last so it overrides page styles, as the old CDN did. -->
+    <link rel="stylesheet" href="/assets/site.css">
 </head>
 <body class="bg-vnBg text-vnBlack min-h-screen flex flex-col">
 

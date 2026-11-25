@@ -21,31 +21,11 @@
     <meta name="twitter:image" content="https://vantagenorth.ae/reports_snapshot.png">
 
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@1.71.0/dist/umd/lucide.min.js"></script>
     <script src="/pricing.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@300;400;500;600&family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        vnBg: '#FAFAFA',
-                        vnGray: '#646464',
-                        vnDarkGray: '#2B2B2B',
-                        vnBlack: '#000000',
-                        vnWhite: '#FFFFFF',
-                    },
-                    fontFamily: {
-                        urbanist: ['"Urbanist"', 'sans-serif'],
-                        epilogue: ['"Epilogue"', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
     <style>
         body {
             background-color: #FAFAFA;
@@ -125,6 +105,8 @@
             display: none;
         }
     </style>
+    <!-- Tailwind, built at deploy time (see tailwind.config.js). Kept last so it overrides page styles, as the old CDN did. -->
+    <link rel="stylesheet" href="/assets/site.css">
 </head>
 <body class="min-h-screen flex flex-col justify-between bg-vnBg text-vnBlack selection:bg-vnBlack selection:text-vnWhite">
 

@@ -1,0 +1,10 @@
+{
+  "name": "vantage-north-web",
+  "private": true,
+  "scripts": {
+    "build": "tailwindcss -c tailwind.config.js -i tailwind.input.css -o assets/site.css --minify"
+  },
+  "devDependencies": {
+    "tailwindcss": "3.4.19"
+  }
+}
