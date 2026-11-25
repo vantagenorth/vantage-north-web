@@ -4,7 +4,7 @@ const {
   getActiveCheckoutHolds,
   createCheckoutHold,
 } = require('./_lib/supabase');
-const { useGoogleScheduler, isGoogleSlotOpen } = require('./_lib/availability');
+const { isSlotOpen } = require('./_lib/availability');
 const { finalizeBooking } = require('./_lib/confirm-core');
 const { logPaymentEvent, ziinaSummary } = require('./_lib/payment-log');
 
@@ -43,7 +43,6 @@ module.exports = async function handler(req, res) {
       agentEmail = 'hello@vantagenorth.ae',
       agentPhone = '+971 50 000 0000',
       notes = 'Test inspection booking via /booking-test',
-      scheduler,
       skipPayment,
     } = body;
 
@@ -67,16 +66,13 @@ module.exports = async function handler(req, res) {
     }
     const endDt = new Date(startDt.getTime() + quote.durationMinutes * 60 * 1000);
 
-    const useGoogle = useGoogleScheduler(scheduler);
-    if (useGoogle) {
-      // Our own calendar: only accept a time that is open right now.
-      const check = await isGoogleSlotOpen({ startIso: startDt.toISOString(), durationMinutes: quote.durationMinutes });
-      if (!check.ok) {
-        return res.status(502).json({ error: 'We could not check that time just now. Please try again or WhatsApp us.' });
-      }
-      if (!check.open) {
-        return res.status(409).json({ error: 'Sorry, that time is no longer available. Please pick another.' });
-      }
+    // Only accept a time that is open right now.
+    const check = await isSlotOpen({ startIso: startDt.toISOString(), durationMinutes: quote.durationMinutes });
+    if (!check.ok) {
+      return res.status(502).json({ error: 'We could not check that time just now. Please try again or WhatsApp us.' });
+    }
+    if (!check.open) {
+      return res.status(409).json({ error: 'Sorry, that time is no longer available. Please pick another.' });
     }
 
     const holdsRes = await getActiveCheckoutHolds(startDt.toISOString(), endDt.toISOString());
@@ -106,12 +102,10 @@ module.exports = async function handler(req, res) {
       pricingBreakdown: [
         { label: `Test Booking (${quote.tierLabel})`, amountAed },
       ],
-      calEventTypeId: quote.calEventTypeId,
       durationMinutes: quote.durationMinutes,
       kindOfApartment: quote.kindOfApartment,
       scheduledStart: startDt.toISOString(),
       scheduledEnd: endDt.toISOString(),
-      scheduler: useGoogle ? 'google' : 'cal',
       fullName: String(fullName).trim(),
       email: String(email).trim().toLowerCase(),
       phone: String(phone).trim(),
@@ -149,7 +143,7 @@ module.exports = async function handler(req, res) {
         event: 'test.payment_skipped',
         bookingReference,
         intentId,
-        details: { scheduler: skipPayload.scheduler, scheduled_start: skipPayload.scheduledStart },
+        details: { scheduled_start: skipPayload.scheduledStart },
       });
       const result = await finalizeBooking({
         bookingReference,
@@ -163,7 +157,7 @@ module.exports = async function handler(req, res) {
         bookingReference,
         status: result?.booking?.status || null,
         googleEventId: result?.booking?.googleEventId || null,
-        calendarWarning: result?.googleWarning || result?.calWarning || null,
+        calendarWarning: result?.googleWarning || null,
         emailSent: Boolean(result?.emailResult?.sent),
       });
     }

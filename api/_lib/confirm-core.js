@@ -80,16 +80,15 @@ function buildItemizedRowsHtml(b) {
   return rows.join('');
 }
 
-function buildConfirmationHtml(b, paymentStatus, calBookingUid, calCollision) {
+function buildConfirmationHtml(b, paymentStatus, slotTaken) {
   const dubaiTime = formatDubaiTime(b.scheduledStart);
-  const collisionBanner = calCollision
+  const collisionBanner = slotTaken
     ? `
       <div style="margin:0 0 20px; padding:14px 16px; background:#FEF3C7; border:1px solid #F59E0B; border-radius:8px; font-size:13px; color:#92400E;">
         <strong>Schedule Notice:</strong> Your payment succeeded, but your selected time slot was reserved by another client moments earlier. Our team will contact you shortly (or WhatsApp <strong>+971 58 556 5311</strong>) to confirm an alternate time at no extra cost.
       </div>`
     : '';
-  // Links go to our own reschedule/cancel pages (not Cal.com's), so changes reach Supabase.
-  const manageButtons = calBookingUid || calCollision ? manageButtonsHtml(b.bookingReference, b.scheduledStart) : '';
+  const manageButtons = manageButtonsHtml(b.bookingReference, b.scheduledStart);
   return `
   <div style="font-family: 'Helvetica Neue', Arial, sans-serif; background:#FAFAFA; padding:32px 16px; color:#000000;">
     <div style="max-width:600px; margin:0 auto; background:#FFFFFF; border:1px solid #E5E5E5; border-radius:12px; padding:32px;">
@@ -179,7 +178,7 @@ async function finalizeBookingInner({ bookingReference, paymentIntentId, tokenDa
         areaCommunity: tokenData?.areaCommunity || 'Dubai',
         unitNumber: tokenData?.unitNumber || 'TBD',
         inspectionPurpose: tokenData?.inspectionPurpose || 'Handover',
-        calBookingUid: existingBooking.cal_booking_uid || null,
+        slotTaken: existingBooking.status === 'needs_reschedule',
         intentId: existingBooking.payments?.[0]?.ziina_payment_intent_id || paymentIntentId,
       },
       supabaseSynced: true,
@@ -218,8 +217,7 @@ async function finalizeBookingInner({ bookingReference, paymentIntentId, tokenDa
             areaCommunity: tokenData?.areaCommunity || 'Dubai',
             unitNumber: tokenData?.unitNumber || 'TBD',
             inspectionPurpose: tokenData?.inspectionPurpose || 'Handover',
-            calBookingUid: found.cal_booking_uid || null,
-            calCollision: found.status === 'needs_reschedule',
+            slotTaken: found.status === 'needs_reschedule',
             intentId: found.payments?.[0]?.ziina_payment_intent_id || paymentIntentId,
           },
           supabaseSynced: true,
@@ -237,185 +235,13 @@ async function finalizeBookingInner({ bookingReference, paymentIntentId, tokenDa
 
   const b = { ...tokenData, intentId: paymentIntentId };
 
-  // 2. Cal.com booking creation (with UTC start, E.164 phone, and collision detection)
-  let calBookingId = null;
-  let calBookingUid = null;
-  let calWarning = null;
-  let calCollision = false;
-  const calApiKey = process.env.CAL_API_KEY;
-  // Bookings made through our own calendar (Supabase + Google) skip Cal.com. A clash is
-  // caught when the booking row is saved (bookings_no_overlap) and the Google event is
-  // added after that.
-  const useGoogle = b.scheduler === 'google';
+  // 2. A clash with another booking is caught when the booking row is saved (database
+  // rule bookings_no_overlap); the Google Calendar event is added after that.
+  let slotTaken = false;
   let googleEventId = null;
   let googleWarning = null;
-  if (useGoogle) {
-    // Nothing to do before the database step.
-  } else if (calApiKey && b.calEventTypeId) {
-    const startUtc = new Date(b.scheduledStart).toISOString();
-    let cleanPhone = (b.phone || '').replace(/[^\d+]/g, '');
-    if (cleanPhone.startsWith('00')) cleanPhone = '+' + cleanPhone.slice(2);
-    else if (/^05\d{8}$/.test(cleanPhone)) cleanPhone = '+971' + cleanPhone.slice(1);
-    else if (/^971\d{8,9}$/.test(cleanPhone)) cleanPhone = '+' + cleanPhone;
-    const validE164 = /^\+\d{8,15}$/.test(cleanPhone) ? cleanPhone : null;
 
-    const baseCalPayload = {
-      start: startUtc,
-      eventTypeId: Number(b.calEventTypeId),
-      attendee: {
-        name: b.fullName,
-        email: b.email,
-        timeZone: 'Asia/Dubai',
-        ...(validE164 ? { phoneNumber: validE164 } : {}),
-      },
-      metadata: {
-        bookingReference: b.bookingReference,
-        packageType: b.packageType,
-        propertyType: b.propertyType,
-        bedroomTier: b.bedroomTier,
-        projectName: b.projectName,
-        areaCommunity: b.areaCommunity,
-      },
-    };
-
-    const buildingLocation = [b.projectName, b.areaCommunity].filter(Boolean).join(', ') || 'On-site Property Inspection';
-    const fullCalPayload = {
-      ...baseCalPayload,
-      location: {
-        type: 'address',
-        value: buildingLocation,
-      },
-      bookingFieldsResponses: {
-        location: {
-          optionValue: 'attendeeInPerson',
-          value: buildingLocation,
-        },
-        notes: [
-          `Ref: ${b.bookingReference}`,
-          `Property: ${b.propertyType} — ${b.bedroomTier}`,
-          `Unit: ${b.unitNumber || 'TBD'}, ${b.projectName || ''}, ${b.areaCommunity || 'Dubai'}`,
-          `Package: ${b.packageLabel} (${b.priceAed} AED)`,
-          `Purpose: ${b.inspectionPurpose || 'Handover'}`,
-          `DEWA On: ${b.dewaConnected ? 'Yes' : 'No'}`,
-          `Developer: ${b.developer || 'Not specified'}`,
-          `Access: ${b.accessInstructions || 'N/A'}`,
-        ].join(' | '),
-      },
-    };
-
-    const calHeaders = {
-      Authorization: `Bearer ${calApiKey}`,
-      'cal-api-version': '2024-08-13',
-      'Content-Type': 'application/json',
-      'User-Agent': 'VantageNorthBooking/1.0',
-    };
-
-    try {
-      let calRes = await fetch('https://api.cal.com/v2/bookings', {
-        method: 'POST',
-        headers: calHeaders,
-        body: JSON.stringify(fullCalPayload),
-      });
-      let calJson = await calRes.json();
-
-      if (!calRes.ok || !calJson.data) {
-        await logPaymentEvent({
-          ...logBase,
-          source: 'cal',
-          event: 'cal.full_payload_rejected',
-          level: 'warn',
-          httpStatus: calRes.status,
-          message: calJson?.error?.message || 'Cal.com rejected the full booking payload; retrying with a minimal one',
-          details: { event_type_id: Number(b.calEventTypeId) },
-        });
-        const minimalPayload = {
-          ...baseCalPayload,
-          attendee: { name: b.fullName, email: b.email, timeZone: 'Asia/Dubai' },
-        };
-        calRes = await fetch('https://api.cal.com/v2/bookings', {
-          method: 'POST',
-          headers: calHeaders,
-          body: JSON.stringify(minimalPayload),
-        });
-        calJson = await calRes.json();
-      }
-
-      if (calRes.ok && calJson.data) {
-        calBookingId = calJson.data.id || null;
-        calBookingUid = calJson.data.uid || null;
-        await logPaymentEvent({
-          ...logBase,
-          source: 'cal',
-          event: 'cal.booking_created',
-          httpStatus: calRes.status,
-          details: { cal_booking_id: calBookingId, cal_booking_uid: calBookingUid },
-        });
-      } else {
-        calWarning = calJson?.error?.message || JSON.stringify(calJson);
-        const msg = String(calWarning).toLowerCase();
-        if (calRes.status === 409 || msg.includes('already') || msg.includes('not available') || msg.includes('busy')) {
-          try {
-            const existingCalRes = await fetch(
-              `https://api.cal.com/v2/bookings?attendeeEmail=${encodeURIComponent(b.email)}&take=5`,
-              { headers: calHeaders }
-            );
-            const existingCalJson = await existingCalRes.json();
-            const match = (existingCalJson?.data || []).find(
-              (cb) => cb.start && new Date(cb.start).getTime() === new Date(startUtc).getTime() && cb.status !== 'cancelled'
-            );
-            if (match) {
-              calBookingId = match.id || null;
-              calBookingUid = match.uid || null;
-              calWarning = null;
-            } else {
-              calCollision = true;
-            }
-          } catch {
-            calCollision = true;
-          }
-        }
-        if (calBookingUid) {
-          await logPaymentEvent({
-            ...logBase,
-            source: 'cal',
-            event: 'cal.booking_matched_existing',
-            details: { cal_booking_id: calBookingId, cal_booking_uid: calBookingUid },
-          });
-        } else {
-          await logPaymentEvent({
-            ...logBase,
-            source: 'cal',
-            event: calCollision ? 'cal.slot_collision' : 'cal.booking_failed',
-            level: 'error',
-            httpStatus: calRes.status,
-            message: calCollision
-              ? 'Slot was taken during checkout; booking saved as needs_reschedule'
-              : calWarning,
-            details: { event_type_id: Number(b.calEventTypeId), start: startUtc },
-          });
-        }
-      }
-    } catch (calErr) {
-      calWarning = calErr.message;
-      await logPaymentEvent({
-        ...logBase,
-        source: 'cal',
-        event: 'cal.request_failed',
-        level: 'error',
-        message: errorMessageOf(calErr),
-      });
-    }
-  } else {
-    await logPaymentEvent({
-      ...logBase,
-      source: 'cal',
-      event: 'cal.skipped',
-      level: 'warn',
-      message: calApiKey ? 'No Cal.com event type on this booking' : 'CAL_API_KEY is not configured',
-    });
-  }
-
-  let bookingStatus = calCollision ? 'needs_reschedule' : 'confirmed';
+  let bookingStatus = 'confirmed';
 
   // 3. Create all Supabase records ONLY now that payment is verified
   let supabaseSynced = false;
@@ -496,7 +322,7 @@ async function finalizeBookingInner({ bookingReference, paymentIntentId, tokenDa
         [
           `Package: ${b.packageLabel} (${b.priceAed} AED)`,
           `Purpose: ${b.inspectionPurpose}`,
-          collided ? 'CAL_COLLISION: Slot taken during checkout — needs reschedule' : null,
+          collided ? 'SLOT_TAKEN: Slot taken during checkout — needs reschedule' : null,
           b.notes,
         ]
           .filter(Boolean)
@@ -513,12 +339,9 @@ async function finalizeBookingInner({ bookingReference, paymentIntentId, tokenDa
         scheduled_start: b.scheduledStart,
         scheduled_end: b.scheduledEnd,
         timezone: 'Asia/Dubai',
-        cal_event_type_id: b.calEventTypeId,
-        cal_booking_id: calBookingId,
-        cal_booking_uid: calBookingUid,
         terms_accepted: true,
         terms_accepted_at: b.termsAcceptedAt,
-        notes: summaryNotesFor(calCollision),
+        notes: summaryNotesFor(false),
       };
       let bookingRes;
       try {
@@ -527,11 +350,11 @@ async function finalizeBookingInner({ bookingReference, paymentIntentId, tokenDa
         // Another booking already holds this time (database rule bookings_no_overlap).
         // Save it as needs_reschedule so the payment is never lost.
         if (!isOverlapError(insErr)) throw insErr;
-        calCollision = true;
+        slotTaken = true;
         bookingStatus = 'needs_reschedule';
         await logPaymentEvent({
           ...logBase,
-          source: useGoogle ? 'calendar' : 'cal',
+          source: 'calendar',
           event: 'booking.slot_collision',
           level: 'error',
           message: 'Slot was taken during checkout; booking saved as needs_reschedule',
@@ -579,7 +402,7 @@ async function finalizeBookingInner({ bookingReference, paymentIntentId, tokenDa
         event: 'supabase.sync_failed',
         level: 'error',
         message: errorMessageOf(syncErr),
-        details: { cal_booking_uid: calBookingUid, cal_collision: calCollision },
+        details: { slot_taken: slotTaken },
       });
       throw syncErr;
     }
@@ -596,7 +419,7 @@ async function finalizeBookingInner({ bookingReference, paymentIntentId, tokenDa
 
   // 3b. Our own calendar: put the booking in Google Calendar (no attendees, so Google
   // emails nobody). A failure here does not undo the booking; Andy is told in his email.
-  if (useGoogle && !calCollision) {
+  if (!slotTaken) {
     try {
       googleEventId = await createBookingEvent({
         ref: b.bookingReference,
@@ -641,12 +464,11 @@ async function finalizeBookingInner({ bookingReference, paymentIntentId, tokenDa
   const emailHtml = buildConfirmationHtml(
     b,
     ziinaData?.is_test ? 'Paid (Test Mode)' : 'Paid',
-    calBookingUid || (useGoogle && !calCollision ? b.bookingReference : null),
-    calCollision
+    slotTaken
   );
   const customerEmailResult = await sendResendEmail({
     to: b.email,
-    subject: calCollision
+    subject: slotTaken
       ? `Vantage North Payment Received — Reschedule Needed (${b.bookingReference})`
       : `Vantage North Booking Confirmed & Receipt — ${b.bookingReference}`,
     html: emailHtml,
@@ -665,7 +487,7 @@ async function finalizeBookingInner({ bookingReference, paymentIntentId, tokenDa
   if (adminEmail && adminEmail.toLowerCase() !== b.email.toLowerCase()) {
     await sendResendEmail({
       to: adminEmail,
-      subject: calCollision
+      subject: slotTaken
         ? `[ACTION REQUIRED: Slot Collision] ${b.bookingReference} — ${b.projectName}`
         : googleWarning
           ? `[ACTION REQUIRED: Add to Google Calendar] ${b.bookingReference} — ${b.projectName} (${b.priceAed} AED)`
@@ -687,15 +509,12 @@ async function finalizeBookingInner({ bookingReference, paymentIntentId, tokenDa
     booking: {
       ...b,
       status: bookingStatus,
-      calBookingId,
-      calBookingUid,
       googleEventId,
-      calCollision,
+      slotTaken,
       reportId,
     },
     isTest: Boolean(ziinaData?.is_test),
     supabaseSynced,
-    calWarning,
     googleWarning,
     normWarning,
     reportWarning,

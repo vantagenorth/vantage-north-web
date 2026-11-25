@@ -9,7 +9,7 @@ module.exports = function handler(req, res) {
     hasResendKey: Boolean(process.env.RESEND_API_KEY),
     hasSupabaseUrl: Boolean(baseUrl),
     hasSupabaseServiceKey: Boolean(serviceKey),
-    hasCalKey: Boolean(process.env.CAL_API_KEY),
+    hasGoogleCalendar: Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET),
     hasZiinaWebhookSecret: Boolean(process.env.ZIINA_WEBHOOK_SECRET),
     hasCronSecret: Boolean(process.env.CRON_SECRET),
   });

@@ -66,15 +66,12 @@ function isLuxuryHome(propertyType, bedroomTier, buaSqft, bedrooms) {
   return false;
 }
 
-function getCalEventConfig(propertyType, bedrooms) {
+// How long an inspection takes, in minutes.
+function inspectionMinutes(propertyType, bedrooms) {
   const beds = Number(bedrooms) || 0;
-  if (propertyType === 'Studio' || (propertyType === 'Apartment' && beds <= 1)) {
-    return { calEventTypeId: 7985836, durationMinutes: 120 };
-  }
-  if (propertyType === 'Apartment') {
-    return { calEventTypeId: 7985837, durationMinutes: 180 };
-  }
-  return { calEventTypeId: 7985838, durationMinutes: 240 };
+  if (propertyType === 'Studio' || (propertyType === 'Apartment' && beds <= 1)) return 120;
+  if (propertyType === 'Apartment') return 180;
+  return 240;
 }
 
 function resolveTierConfig(propertyType, bedroomTierOrBeds) {
@@ -92,10 +89,9 @@ function resolveTierConfig(propertyType, bedroomTierOrBeds) {
       if (m) beds = Number(m[0]);
     }
   }
-  const cal = getCalEventConfig(propertyType, beds);
   return {
     ...cfg,
-    ...cal,
+    durationMinutes: inspectionMinutes(propertyType, beds),
   };
 }
 
@@ -114,7 +110,6 @@ function calculateQuote({ propertyType, bedrooms, bathrooms, bedroomTier, buaSqf
       packageLabel: 'Luxury Home — Price on Request',
       priceAed: null,
       amountFils: null,
-      calEventTypeId: 7985838,
       durationMinutes: 240,
       kindOfApartment: 'Luxury',
     };
@@ -150,7 +145,6 @@ function calculateQuote({ propertyType, bedrooms, bathrooms, bedroomTier, buaSqf
   const priceAed = baseWithExtras + recheckAed;
   const packageLabel = withRecheck ? 'Initial Inspection + Re-Check' : 'Initial Inspection';
 
-  const cal = getCalEventConfig(propertyType, beds);
   const bedLabel = propertyType === 'Studio' ? 'Studio' : `${beds} Bed`;
   const sizeLabel = `${bedLabel}, ${baths} Bath`;
 
@@ -166,8 +160,7 @@ function calculateQuote({ propertyType, bedrooms, bathrooms, bedroomTier, buaSqf
     recheck: withRecheck,
     priceAed,
     amountFils: priceAed * 100,
-    calEventTypeId: cal.calEventTypeId,
-    durationMinutes: cal.durationMinutes,
+    durationMinutes: inspectionMinutes(propertyType, beds),
     kindOfApartment: bedLabel,
     pricingBreakdown: {
       baseRateAed: cfg.baseRate,
