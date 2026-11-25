@@ -305,7 +305,9 @@
                 state.booking = data.booking;
                 $('doneRefund').textContent = data.refundAmountAed > 0
                     ? `A full refund of ${aed(data.refundAmountAed)} will be made to your original payment method. It usually arrives within 7 to 14 business days, depending on your bank.`
-                    : 'No refund is due for this booking under our cancellation policy.';
+                    : state.booking?.nonRefundable
+                        ? 'No refund is due for this booking under our cancellation policy.'
+                        : 'Nothing was paid for this booking, so there is nothing to refund.';
                 $('doneEmail').textContent = data.emailSent ? `We've emailed a confirmation to ${state.booking.emailHint}.` : '';
                 hide('cancelState');
                 hide('summaryCard');
