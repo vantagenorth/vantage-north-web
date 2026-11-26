@@ -264,19 +264,19 @@ async function insertUnit(unit) {
   return Array.isArray(created.data) ? created.data[0] : created.data;
 }
 
-// A suggestion picked on the booking form: only accept it if it is still a live partner agent
-async function getPartnerAgentById(id) {
+// A suggestion picked on the booking form: only accept it if that agent exists and hasn't opted out
+async function getAgentById(id) {
   if (!isSupabaseConfigured() || !id) return null;
   if (!/^[0-9a-f-]{36}$/i.test(String(id))) return null;
   try {
     const res = await supabaseFetch(
-      `agents?id=eq.${encodeURIComponent(id)}&outreach_status=eq.partner&opted_out=eq.false&select=id,name&limit=1`,
+      `agents?id=eq.${encodeURIComponent(id)}&opted_out=eq.false&select=id,name&limit=1`,
       { method: 'GET' }
     );
     return Array.isArray(res.data) && res.data[0]?.id ? res.data[0] : null;
   } catch (err) {
     // e.g. referral migration not applied yet: fall back to matching by details
-    console.warn('getPartnerAgentById failed:', err.message);
+    console.warn('getAgentById failed:', err.message);
     return null;
   }
 }
@@ -558,7 +558,7 @@ module.exports = {
   saveGoogleCalendarAuth,
   isSupabaseConfigured,
   supabaseFetch,
-  getPartnerAgentById,
+  getAgentById,
   listCheckoutHolds,
   deleteCheckoutHoldsWhere,
   insertPaymentEvent,

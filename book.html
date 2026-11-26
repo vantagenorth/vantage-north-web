@@ -710,7 +710,7 @@
             });
         });
 
-        // Agent name: suggest matching partner agents after 3 letters. Free text always allowed.
+        // Agent name: suggest matching agents from the database after 3 letters. Free text always allowed.
         (function () {
             const nameEl = document.getElementById('agentName');
             const agencyEl = document.getElementById('agentAgency');
@@ -746,7 +746,7 @@
                     const a = list[Number(btn.dataset.i)];
                     nameEl.value = a.name;
                     idEl.value = a.id;
-                    // Fill from the partner's record. Email and phone are shown masked;
+                    // Fill from the agent's record. Email and phone are shown masked;
                     // the full details stay on file and are used server-side.
                     agencyEl.value = a.agency || '';
                     emailEl.value = a.emailHint || '';
