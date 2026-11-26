@@ -760,10 +760,7 @@
                     return `<button type="button" data-i="${i}" role="option" class="w-full text-left px-2 py-1.5 rounded-lg hover:bg-white focus:bg-white focus:outline-none">
                         <span class="font-medium text-black">${esc(p.name)}</span>${meta ? `<span class="text-neutral-500"> · ${meta}</span>` : ''}
                     </button>`;
-                }).join('') + (list.some((p) => p.source === 'dld')
-                    // CC BY 4.0 credit for Dubai Land Department project data
-                    ? '<p class="px-2 pt-1 text-xs text-neutral-400">Project data: Dubai Land Department via <a href="https://datadubai.ae" target="_blank" rel="noopener" class="underline">Data Dubai</a>, CC BY 4.0</p>'
-                    : '');
+                }).join('');   // DLD / Data Dubai credit (CC BY 4.0) is on the terms page
                 box.querySelectorAll('button').forEach((btn) => btn.addEventListener('click', () => {
                     const p = list[Number(btn.dataset.i)];
                     nameEl.value = p.name;
