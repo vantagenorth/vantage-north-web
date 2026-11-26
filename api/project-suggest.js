@@ -11,6 +11,10 @@ const { supabaseFetch, isSupabaseConfigured } = require('./_lib/supabase');
 //   GET /api/project-suggest?action=reelly-import   (daily Vercel cron, needs CRON_SECRET)
 //     Copies Reelly's Dubai projects into reelly_projects. Needs REELLY_API_KEY in Vercel.
 //     Picks up where it left off if a run runs out of time.
+//
+//   GET /api/project-suggest?action=dld-import   (daily Vercel cron, needs CRON_SECRET)
+//     Copies Dubai Land Department's project list from https://datadubai.ae/projects.json
+//     (CC BY 4.0, "Data Dubai", Dubai Land Department open data) into dld_projects.
 
 const REELLY_BASE = (process.env.REELLY_API_BASE || 'https://api-reelly.up.railway.app/api/v2/clients').replace(/\/+$/, '');
 const PAGE_SIZE = 100;
@@ -62,6 +66,52 @@ async function saveState(patch) {
   });
 }
 
+const DLD_URL = process.env.DLD_PROJECTS_URL || 'https://datadubai.ae/projects.json';
+
+// "Azizi Developments L.L.C" -> "Azizi Developments", "Binghatti Developers Fze" -> "Binghatti Developers"
+function cleanDeveloper(name) {
+  let s = clean(name);
+  if (!s) return null;
+  const suffix = /[\s,.-]*\(?\s*(l\.?\s?l\.?\s?c\.?|f\.?z\.?e\.?|f\.?z\.?c\.?o\.?|fz[\s-]?llc|p\.?j\.?s\.?c\.?|p\.?s\.?c\.?|ltd\.?|limited|sole proprietorship|one person company)\s*\)?\s*$/i;
+  for (let i = 0; i < 3 && suffix.test(s); i++) s = s.replace(suffix, '').trim();
+  return s || null;
+}
+
+async function runDldImport(req, res) {
+  if (!isAuthorized(req)) return res.status(401).json({ error: 'Unauthorized' });
+  if (!isSupabaseConfigured()) return res.status(200).json({ skipped: 'Supabase is not configured' });
+  try {
+    const r = await fetch(DLD_URL, { headers: { Accept: 'application/json' } });
+    if (!r.ok) throw new Error(`datadubai ${r.status}`);
+    const data = await r.json();
+    const list = Array.isArray(data) ? data : Array.isArray(data.projects) ? data.projects : [];
+    const now = new Date().toISOString();
+    const rows = list
+      .map((p) => ({
+        pn: Number(p.pn),
+        name: clean(p.name),
+        slug: clean(p.slug),
+        community: clean(p.community) || clean(p.area_name),
+        developer: cleanDeveloper(p.developer),
+        status: clean(p.status),
+        completion_date: /^\d{4}-\d{2}-\d{2}$/.test(p.completion_date || '') ? p.completion_date : null,
+        synced_at: now,
+      }))
+      .filter((x) => Number.isFinite(x.pn) && x.pn > 0 && x.name);
+    for (let i = 0; i < rows.length; i += 500) {
+      await supabaseFetch('dld_projects?on_conflict=pn', {
+        method: 'POST',
+        headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
+        body: JSON.stringify(rows.slice(i, i + 500)),
+      });
+    }
+    return res.status(200).json({ saved: rows.length, listed: list.length, through: data.through || null });
+  } catch (err) {
+    console.error('dld-import failed:', err.message);
+    return res.status(502).json({ error: err.message });
+  }
+}
+
 async function runImport(req, res) {
   if (!isAuthorized(req)) return res.status(401).json({ error: 'Unauthorized' });
   if (!process.env.REELLY_API_KEY) return res.status(200).json({ skipped: 'REELLY_API_KEY is not set' });
@@ -111,6 +161,7 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
   if (req.query?.action === 'reelly-import') return runImport(req, res);
+  if (req.query?.action === 'dld-import') return runDldImport(req, res);
 
   const q = String(req.query?.q || '').trim().slice(0, 80);
   if (q.length < 3 || !isSupabaseConfigured()) {
@@ -118,7 +169,7 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const result = await supabaseFetch('rpc/suggest_projects', {
+    const result = await supabaseFetch('rpc/suggest_project_matches', {
       method: 'POST',
       body: JSON.stringify({ q }),
     });
@@ -130,6 +181,7 @@ module.exports = async function handler(req, res) {
         name: r.name,
         area: r.area || null,
         developer: r.developer || null,
+        source: r.source || 'saved',
       })),
     });
   } catch (err) {
