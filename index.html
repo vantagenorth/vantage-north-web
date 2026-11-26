@@ -146,6 +146,16 @@
         .check-item.is-active .check-desc { max-height: 12rem; opacity: 1; margin-top: 0.5rem; }
         @media (max-width: 639px) { .check-spot { box-shadow: 0 0 0 2px rgba(255,255,255,0.9); } }
         @media (prefers-reduced-motion: reduce) { .check-spot .check-ping { animation: none; } .who-panel:not(.hidden) { animation: none; } }
+        /* Hero photo: B&W villa that fades into the page background */
+        .hero-stage { position: relative; isolation: isolate; }
+        .hero-photo { position: absolute; z-index: -1; left: 0; right: 0; top: 0; margin: 0 !important; height: 46rem; overflow: hidden; pointer-events: none;
+            -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, #000 30%, #000 58%, transparent 100%);
+                    mask-image: linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, #000 30%, #000 58%, transparent 100%); }
+        .hero-photo img { width: 100%; height: 100%; object-fit: cover; object-position: 38% 55%; opacity: 0.36; animation: hero-photo-in 1.2s ease-out both; }
+        .hero-photo::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse 60% 50% at 50% 52%, rgba(250,250,250,0.6), rgba(250,250,250,0) 100%); }
+        @media (min-width: 640px) { .hero-photo { height: 50rem; } .hero-photo img { object-position: 60% 55%; opacity: 0.42; } }
+        @keyframes hero-photo-in { from { opacity: 0; } }
+        @media (prefers-reduced-motion: reduce) { .hero-photo img { animation: none; } }
         details > summary::-webkit-details-marker {
             display: none;
         }
@@ -202,7 +212,7 @@
         </div>
     </header>
 
-    <main class="flex-grow pt-20 sm:pt-28 pb-24 px-4 sm:px-6 space-y-24 sm:space-y-28">
+    <main class="hero-stage flex-grow pt-20 sm:pt-28 pb-24 px-4 sm:px-6 space-y-24 sm:space-y-28">
 
         <!-- Hero Section -->
         <section class="max-w-4xl mx-auto flex flex-col items-center text-center">
@@ -222,7 +232,7 @@
                     href="https://reports.vantagenorth.ae/sample"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="w-[230px] max-w-full inline-flex items-center justify-center border border-neutral-300 bg-transparent text-vnBlack font-urbanist text-sm sm:text-base font-semibold tracking-[0.12em] uppercase px-8 py-4 rounded-3xl hover:border-vnBlack transition-colors duration-300"
+                    class="w-[230px] max-w-full inline-flex items-center justify-center border border-neutral-300 bg-white/70 backdrop-blur-sm text-vnBlack font-urbanist text-sm sm:text-base font-semibold tracking-[0.12em] uppercase px-8 py-4 rounded-3xl hover:border-vnBlack transition-colors duration-300"
                 >
                     <span>Sample Report</span>
                 </a>
@@ -235,6 +245,15 @@
                 </a>
             </div>
         </section>
+
+        <!-- Hero photo (decorative): Dubai villa in B&W, faded into the background -->
+        <div class="hero-photo" aria-hidden="true">
+            <picture>
+                <source type="image/avif" srcset="/assets/hero/villa-800.avif 800w, /assets/hero/villa-1200.avif 1200w, /assets/hero/villa-1672.avif 1672w" sizes="100vw">
+                <source type="image/webp" srcset="/assets/hero/villa-800.webp 800w, /assets/hero/villa-1200.webp 1200w, /assets/hero/villa-1672.webp 1672w" sizes="100vw">
+                <img src="/assets/hero/villa-1200.webp" alt="" width="1672" height="941" fetchpriority="high" decoding="async">
+            </picture>
+        </div>
 
         <!-- Interlocking Bento Feature Grid -->
         <section id="features" aria-label="Why Choose Us" class="max-w-6xl mx-auto scroll-mt-24">
