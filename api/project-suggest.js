@@ -45,7 +45,8 @@ function toRow(p) {
 }
 
 async function reellyPage(offset) {
-  const url = `${REELLY_BASE}/projects?country=${encodeURIComponent('United Arab Emirates')}&region=Dubai&limit=${PAGE_SIZE}&offset=${offset}`;
+  // No country/region filter: with them Reelly returned only 38 projects. We keep Dubai ones below.
+  const url = `${REELLY_BASE}/projects?limit=${PAGE_SIZE}&offset=${offset}`;
   const res = await fetch(url, { headers: { 'X-API-Key': process.env.REELLY_API_KEY, Accept: 'application/json' } });
   if (!res.ok) {
     const text = await res.text().catch(() => '');
@@ -78,9 +79,9 @@ async function runImport(req, res) {
       const page = await reellyPage(offset);
       const results = Array.isArray(page.results) ? page.results : [];
       total = Number.isFinite(page.count) ? page.count : total;
-      // Only Dubai, in case the region filter is ignored by Reelly's backend
+      // Only Dubai projects
       const rows = results
-        .filter((p) => !p.location?.region || /dubai/i.test(p.location.region))
+        .filter((p) => /dubai/i.test(p.location?.region || ''))
         .map(toRow)
         .filter((r) => r.reelly_id && r.name);
       if (rows.length) {
