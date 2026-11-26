@@ -109,6 +109,10 @@
     {
       "path": "/api/project-suggest?action=reelly-import",
       "schedule": "30 21 * * *"
+    },
+    {
+      "path": "/api/project-suggest?action=dld-import",
+      "schedule": "40 21 * * *"
     }
   ],
   "functions": {
