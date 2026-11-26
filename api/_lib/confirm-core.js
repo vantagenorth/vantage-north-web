@@ -119,7 +119,7 @@ function buildConfirmationHtml(b, paymentStatus, slotTaken) {
       </div>
 
       <p style="font-size:13px; line-height:1.6; color:#646464; margin:0 0 16px;">
-        Please ensure DEWA (electricity &amp; water) and site access are arranged prior to the inspection. Your interactive digital report will be delivered within 24 hours of inspection completion.
+        Please ensure DEWA (electricity &amp; water) and site access are arranged prior to the inspection. Your interactive digital report will be delivered on the same day as your inspection.
       </p>
       <p style="font-size:13px; color:#646464; margin:0 0 16px;">
         Questions? Reply to this email or WhatsApp us on <strong>+971 58 556 5311</strong>.
