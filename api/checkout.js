@@ -1,3 +1,4 @@
+const { normalizeReportReason } = require('./_lib/report-reasons');
 const { calculateQuote, getSiteUrl } = require('./_lib/config');
 const {
   signBookingToken,
@@ -36,6 +37,7 @@ module.exports = async function handler(req, res) {
       dewaConnected = true,
       inspectionPurpose = 'Handover',
       accessInstructions,
+      projectId,
       agentId,
       agentName,
       agentAgency,
@@ -115,13 +117,14 @@ module.exports = async function handler(req, res) {
       fullName: fullName.trim(),
       email: email.trim().toLowerCase(),
       phone: phone.trim(),
+      projectId: projectId && /^[0-9a-f-]{36}$/i.test(String(projectId)) ? String(projectId) : null,
       projectName: projectName.trim(),
       areaCommunity: areaCommunity.trim(),
       unitNumber: unitNumber.trim(),
       address: address ? address.trim() : null,
       developer: developer ? developer.trim() : 'Not specified',
       dewaConnected: Boolean(dewaConnected),
-      inspectionPurpose,
+      inspectionPurpose: normalizeReportReason(inspectionPurpose),
       accessInstructions: accessInstructions ? accessInstructions.trim() : 'Will coordinate prior to inspection',
       agentId: agentId && /^[0-9a-f-]{36}$/i.test(String(agentId)) ? String(agentId) : null,
       agentName: agentName ? agentName.trim() : null,

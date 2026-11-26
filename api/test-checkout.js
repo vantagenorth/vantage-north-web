@@ -1,3 +1,4 @@
+const { normalizeReportReason } = require('./_lib/report-reasons');
 const { calculateQuote, getSiteUrl } = require('./_lib/config');
 const {
   signBookingToken,
@@ -115,7 +116,7 @@ module.exports = async function handler(req, res) {
       address: null,
       developer: String(developer).trim(),
       dewaConnected: Boolean(dewaConnected),
-      inspectionPurpose,
+      inspectionPurpose: normalizeReportReason(inspectionPurpose),
       accessInstructions: String(accessInstructions).trim(),
       agentName: agentName ? String(agentName).trim() : null,
       agentAgency: agentAgency ? String(agentAgency).trim() : null,

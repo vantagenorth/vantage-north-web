@@ -1,3 +1,4 @@
+const { normalizeReportReason } = require('./_lib/report-reasons');
 const { isSupabaseConfigured, upsertClient, insertBooking } = require('./_lib/supabase');
 
 async function sendResendEmail({ to, subject, html }) {
@@ -43,7 +44,7 @@ module.exports = async function handler(req, res) {
       address,
       developer,
       dewaConnected = true,
-      inspectionPurpose = 'Handover',
+      inspectionPurpose: rawReason,
       accessInstructions,
       agentName,
       agentAgency,
@@ -52,6 +53,7 @@ module.exports = async function handler(req, res) {
       notes,
       termsAccepted,
     } = body;
+    const inspectionPurpose = normalizeReportReason(rawReason);
 
     if (!termsAccepted) {
       return res.status(400).json({ error: 'You must accept the Vantage North Terms of Service.' });
@@ -79,7 +81,7 @@ module.exports = async function handler(req, res) {
         terms_accepted_at: new Date().toISOString(),
         notes: notes
           ? notes.trim()
-          : `Luxury Villa (${bedroomTier || 'Custom'}${buaSqft ? `, ${buaSqft} sq ft` : ''}) — ${unitNumber}, ${projectName}, ${areaCommunity} | Purpose: ${inspectionPurpose}`,
+          : `Luxury Villa (${bedroomTier || 'Custom'}${buaSqft ? `, ${buaSqft} sq ft` : ''}) — ${unitNumber}, ${projectName}, ${areaCommunity} | Reason for report: ${inspectionPurpose}`,
       });
       supabaseSynced = true;
     }
@@ -97,7 +99,7 @@ module.exports = async function handler(req, res) {
             <p style="margin:4px 0;"><strong>Reference:</strong> ${bookingReference}</p>
             <p style="margin:4px 0;"><strong>Property:</strong> ${propertyType} (${bedroomTier || 'Custom'}${buaSqft ? `, ${buaSqft} sq ft` : ''})</p>
             <p style="margin:4px 0;"><strong>Location:</strong> ${unitNumber}, ${projectName}, ${areaCommunity}</p>
-            <p style="margin:4px 0;"><strong>Purpose:</strong> ${inspectionPurpose}</p>
+            <p style="margin:4px 0;"><strong>Reason for report:</strong> ${inspectionPurpose}</p>
           </div>
           <p style="font-size:13px;color:#646464;margin:20px 0 0;">Need immediate assistance? WhatsApp us on <strong>+971 58 556 5311</strong>.</p>
         </div>
