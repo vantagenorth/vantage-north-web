@@ -1,8 +1,9 @@
 const { supabaseFetch, isSupabaseConfigured } = require('./_lib/supabase');
 
 // GET /api/agent-suggest?q=ahm
-// Returns up to 3 partner agents (id, name, agency) whose name matches what the client typed.
-// Partners only, and only name + agency, so the agent list itself is never exposed.
+// Returns up to 3 agents (id, name, agency, masked email/phone) whose name matches what the client typed.
+// Searches every agent who hasn't opted out (partners first). Contact details are masked and
+// results are capped at 3, so the agent list itself is never exposed.
 module.exports = async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -14,7 +15,7 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const result = await supabaseFetch('rpc/suggest_partner_agents', {
+    const result = await supabaseFetch('rpc/suggest_agents', {
       method: 'POST',
       body: JSON.stringify({ q }),
     });
