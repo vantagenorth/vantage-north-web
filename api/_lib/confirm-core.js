@@ -3,6 +3,7 @@ const {
   upsertClient,
   upsertDeveloper,
   findOrCreateProject,
+  getProjectById,
   insertUnit,
   findOrCreateAgent,
   getAgentById,
@@ -106,7 +107,7 @@ function buildConfirmationHtml(b, paymentStatus, slotTaken) {
           <tr><td style="padding:6px 0; color:#646464;">Inspection Date &amp; Time</td><td style="padding:6px 0; text-align:right; font-weight:600;">${dubaiTime} (Dubai)</td></tr>
           <tr><td style="padding:6px 0; color:#646464;">Property</td><td style="padding:6px 0; text-align:right;">${b.propertyType} — ${b.bedroomTier}</td></tr>
           <tr><td style="padding:6px 0; color:#646464;">Unit / Project</td><td style="padding:6px 0; text-align:right;">${b.unitNumber}, ${b.projectName} (${b.areaCommunity})</td></tr>
-          <tr><td style="padding:6px 0; color:#646464;">Purpose</td><td style="padding:6px 0; text-align:right;">${b.inspectionPurpose}</td></tr>
+          <tr><td style="padding:6px 0; color:#646464;">Reason for report</td><td style="padding:6px 0; text-align:right;">${b.inspectionPurpose}</td></tr>
         </table>
       </div>
 
@@ -268,12 +269,15 @@ async function finalizeBookingInner({ bookingReference, paymentIntentId, tokenDa
           developerId = dev?.id || null;
         }
 
-        const project = await findOrCreateProject({
+        // Client picked a saved project from the search: link to it instead of matching by spelling
+        const pickedProject = b.projectId ? await getProjectById(b.projectId) : null;
+        const project = pickedProject || await findOrCreateProject({
           name: b.projectName,
           area: b.areaCommunity,
           developerId,
         });
         projectId = project?.id || null;
+        if (pickedProject && !developerId) developerId = pickedProject.developer_id || null;
 
         const unit = await insertUnit({
           unitNo: b.unitNumber,

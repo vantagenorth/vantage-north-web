@@ -281,6 +281,21 @@ async function getAgentById(id) {
   }
 }
 
+async function getProjectById(id) {
+  if (!isSupabaseConfigured() || !id) return null;
+  if (!/^[0-9a-f-]{36}$/i.test(String(id))) return null;
+  try {
+    const res = await supabaseFetch(
+      `projects?id=eq.${encodeURIComponent(id)}&select=id,name,area,developer_id&limit=1`,
+      { method: 'GET' }
+    );
+    return Array.isArray(res.data) && res.data[0]?.id ? res.data[0] : null;
+  } catch (err) {
+    console.warn('getProjectById failed:', err.message);
+    return null;
+  }
+}
+
 async function findOrCreateAgent(agent) {
   if (!isSupabaseConfigured() || !agent?.fullName) return null;
   const name = agent.fullName.trim();
@@ -559,6 +574,7 @@ module.exports = {
   isSupabaseConfigured,
   supabaseFetch,
   getAgentById,
+  getProjectById,
   listCheckoutHolds,
   deleteCheckoutHoldsWhere,
   insertPaymentEvent,

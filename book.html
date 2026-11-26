@@ -262,7 +262,14 @@
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-xs font-medium mb-1">Project / Building Name *</label>
-                                    <input id="projectName" type="text" required placeholder="e.g. Creekside 18, Tower A" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
+                                    <div class="relative">
+                                        <input id="projectName" type="text" required autocomplete="off" placeholder="Start typing, e.g. Creek Vista" class="w-full border border-neutral-300 rounded-xl pl-3.5 pr-10 py-2.5 text-sm focus:outline-none focus:border-black">
+                                        <svg id="projectSpinner" class="hidden absolute right-3 top-3 h-4 w-4 animate-spin text-neutral-400" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity="0.25"/><path d="M22 12a10 10 0 0 0-10-10" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+                                        <p id="projectStatus" class="hidden mt-1.5 text-xs text-neutral-500" aria-live="polite"></p>
+                                        <input id="projectId" type="hidden" value="">
+                                        <div id="projectSuggest" class="hidden mt-2 rounded-xl border border-neutral-200 bg-neutral-50 p-2 text-sm" role="listbox" aria-label="Matching projects"></div>
+                                        <p id="projectLinked" class="hidden mt-1.5 text-xs text-neutral-500"></p>
+                                    </div>
                                 </div>
                                 <div>
                                     <label class="block text-xs font-medium mb-1">Area / Community *</label>
@@ -277,11 +284,16 @@
                                     <input id="developer" type="text" placeholder="e.g. Emaar, Nakheel, Sobha" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-black">
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-medium mb-1">Purpose of Inspection *</label>
+                                    <label class="block text-xs font-medium mb-1">Reason for Report *</label>
                                     <select id="inspectionPurpose" class="w-full border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:border-black">
-                                        <option value="Handover">Handover</option>
+                                        <option value="Handover">Handover (new build)</option>
                                         <option value="Secondary purchase">Secondary purchase</option>
+                                        <option value="Move in">Move in</option>
                                         <option value="Move out">Move out</option>
+                                        <option value="Post-renovation">Post-renovation</option>
+                                        <option value="Before DLP ends">Before the DLP ends</option>
+                                        <option value="Rental property check">Rental property check</option>
+                                        <option value="Before selling">Before selling</option>
                                     </select>
                                 </div>
                                 <div>
@@ -710,6 +722,90 @@
             });
         });
 
+        // Project name: suggest saved projects after 3 letters and prefill area and developer,
+        // so the same building isn't saved under different spellings. Free text always allowed.
+        (function () {
+            const nameEl = document.getElementById('projectName');
+            const idEl = document.getElementById('projectId');
+            const areaEl = document.getElementById('areaCommunity');
+            const devEl = document.getElementById('developer');
+            const box = document.getElementById('projectSuggest');
+            const linked = document.getElementById('projectLinked');
+            const spinner = document.getElementById('projectSpinner');
+            const status = document.getElementById('projectStatus');
+            let timer = null;
+            let lastQuery = '';
+            let filled = null;   // what we prefilled, so we only clear values the client didn't change
+
+            const esc = (t) => String(t || '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+            const setStatus = (text) => { status.textContent = text || ''; status.classList.toggle('hidden', !text); };
+            const loading = (on) => { spinner.classList.toggle('hidden', !on); if (on) setStatus('Searching projects…'); };
+            const hide = () => { box.classList.add('hidden'); box.innerHTML = ''; };
+            const unlink = () => {
+                if (filled) {
+                    if (areaEl.value === filled.area) areaEl.value = '';
+                    if (devEl.value === filled.developer) devEl.value = '';
+                    filled = null;
+                }
+                idEl.value = '';
+                linked.classList.add('hidden');
+            };
+
+            function render(list) {
+                if (!list.length) return hide();
+                box.innerHTML = '<p class="px-2 pb-1 text-xs text-neutral-500">Did you mean</p>' + list.map((p, i) => {
+                    const meta = [p.area, p.developer].filter(Boolean).map(esc).join(' · ');
+                    return `<button type="button" data-i="${i}" role="option" class="w-full text-left px-2 py-1.5 rounded-lg hover:bg-white focus:bg-white focus:outline-none">
+                        <span class="font-medium text-black">${esc(p.name)}</span>${meta ? `<span class="text-neutral-500"> · ${meta}</span>` : ''}
+                    </button>`;
+                }).join('');
+                box.querySelectorAll('button').forEach((btn) => btn.addEventListener('click', () => {
+                    const p = list[Number(btn.dataset.i)];
+                    nameEl.value = p.name;
+                    idEl.value = p.id;
+                    // Prefill, but leave editable. Unit number stays for the client to fill in.
+                    if (p.area) areaEl.value = p.area;
+                    if (p.developer) devEl.value = p.developer;
+                    filled = { area: p.area ? areaEl.value : null, developer: p.developer ? devEl.value : null };
+                    linked.textContent = 'Area and developer filled in for ' + p.name + '. Please add your unit number.';
+                    linked.classList.remove('hidden');
+                    setStatus('');
+                    hide();
+                    document.getElementById('unitNumber').focus();
+                }));
+                box.classList.remove('hidden');
+            }
+
+            nameEl.addEventListener('input', () => {
+                // Any edit after picking unlinks the project, so typed text is what gets saved
+                if (idEl.value) unlink();
+                clearTimeout(timer);
+                const q = nameEl.value.trim();
+                if (q.length < 3) { lastQuery = ''; loading(false); setStatus(''); return hide(); }
+                if (q !== lastQuery) loading(true);
+                timer = setTimeout(async () => {
+                    if (q === lastQuery) return;
+                    lastQuery = q;
+                    try {
+                        const res = await fetch('/api/project-suggest?q=' + encodeURIComponent(q));
+                        const data = await res.json();
+                        if (nameEl.value.trim() !== q) return;   // a newer search is running
+                        const list = data.suggestions || [];
+                        loading(false);
+                        setStatus(list.length ? '' : 'Not in our list yet. Just type the full name and fill in the area below.');
+                        render(list);
+                    } catch {
+                        if (nameEl.value.trim() === q) { loading(false); setStatus(''); hide(); }
+                    }
+                }, 250);
+            });
+
+            nameEl.addEventListener('keydown', (e) => { if (e.key === 'Escape') hide(); });
+            document.addEventListener('click', (e) => {
+                if (!box.contains(e.target) && e.target !== nameEl) hide();
+            });
+        })();
+
         // Agent name: suggest matching agents from the database after 3 letters. Free text always allowed.
         (function () {
             const nameEl = document.getElementById('agentName');
@@ -808,6 +904,7 @@
                 fullName: document.getElementById('fullName').value.trim(),
                 email: document.getElementById('email').value.trim(),
                 phone: document.getElementById('phone').value.trim(),
+                projectId: document.getElementById('projectId').value || null,
                 projectName: document.getElementById('projectName').value.trim(),
                 areaCommunity: document.getElementById('areaCommunity').value.trim(),
                 unitNumber: document.getElementById('unitNumber').value.trim(),
@@ -894,6 +991,10 @@
                 }
             }
             if (q.get('recheck') === '1') state.recheck = true;
+            // ?reason=… from the homepage "Who it's for" picker preselects the reason for report
+            const reason = (q.get('reason') || '').toLowerCase();
+            const reasonOpt = [...document.getElementById('inspectionPurpose').options].find(o => o.value.toLowerCase() === reason);
+            if (reasonOpt) reasonOpt.selected = true;
         })();
 
 
