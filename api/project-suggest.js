@@ -77,6 +77,21 @@ function cleanDeveloper(name) {
   return s || null;
 }
 
+// "SOBHA HARTLAND" -> "Sobha Hartland". Only for names written fully in capitals; known
+// acronyms and words with digits ("EZ2") stay as they are.
+const KEEP_CAPS = new Set(['JVC', 'JVT', 'JLT', 'JBR', 'DIFC', 'DMCC', 'DAMAC', 'DSO', 'DIP', 'MBR', 'UAE', 'DWC', 'IMPZ', 'JGE', 'DHCC', 'RAK', 'II', 'III', 'IV']);
+const SMALL_WORDS = new Set(['of', 'the', 'and', 'at', 'by', 'al', 'el', 'bin', 'in', 'on']);
+function tidyCaps(value) {
+  const s = clean(value);
+  if (!s || s !== s.toUpperCase() || !/[A-Z]/.test(s)) return s;
+  return s.split(/(\s+|-)/).map((w, i) => {
+    if (!/[A-Z]/.test(w) || KEEP_CAPS.has(w) || /\d/.test(w)) return w;
+    const lower = w.toLowerCase();
+    if (i > 0 && SMALL_WORDS.has(lower)) return lower === 'al' ? 'Al' : lower;
+    return lower.charAt(0).toUpperCase() + lower.slice(1);
+  }).join('');
+}
+
 async function runDldImport(req, res) {
   if (!isAuthorized(req)) return res.status(401).json({ error: 'Unauthorized' });
   if (!isSupabaseConfigured()) return res.status(200).json({ skipped: 'Supabase is not configured' });
@@ -91,7 +106,7 @@ async function runDldImport(req, res) {
         pn: Number(p.pn),
         name: clean(p.name),
         slug: clean(p.slug),
-        community: clean(p.community) || clean(p.area_name),
+        community: tidyCaps(p.community) || tidyCaps(p.area_name),
         developer: cleanDeveloper(p.developer),
         status: clean(p.status),
         completion_date: /^\d{4}-\d{2}-\d{2}$/.test(p.completion_date || '') ? p.completion_date : null,
