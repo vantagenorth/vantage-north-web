@@ -12,7 +12,7 @@ const { supabaseFetch, isSupabaseConfigured } = require('./_lib/supabase');
 //     Copies Reelly's Dubai projects into reelly_projects. Needs REELLY_API_KEY in Vercel.
 //     Picks up where it left off if a run runs out of time.
 
-const REELLY_BASE = (process.env.REELLY_API_BASE || 'https://api.reelly.io/api/v2/clients').replace(/\/+$/, '');
+const REELLY_BASE = (process.env.REELLY_API_BASE || 'https://api-reelly.up.railway.app/api/v2/clients').replace(/\/+$/, '');
 const PAGE_SIZE = 100;
 const TIME_BUDGET_MS = 50 * 1000;
 
