@@ -4,6 +4,7 @@ const {
   getActiveCheckoutHolds,
   createCheckoutHold,
 } = require('./_lib/supabase');
+const { isSlotOpen } = require('./_lib/availability');
 const { logPaymentEvent, ziinaSummary, errorMessageOf } = require('./_lib/payment-log');
 
 module.exports = async function handler(req, res) {
@@ -73,6 +74,15 @@ module.exports = async function handler(req, res) {
     const endDt = new Date(startDt.getTime() + quote.durationMinutes * 60 * 1000);
 
     // Check temporary 15-minute checkout holds to prevent concurrent double-bookings
+    // Only accept a time that is open right now.
+    const check = await isSlotOpen({ startIso: startDt.toISOString(), durationMinutes: quote.durationMinutes });
+    if (!check.ok) {
+      return res.status(502).json({ error: 'We could not check that time just now. Please try again or WhatsApp us.' });
+    }
+    if (!check.open) {
+      return res.status(409).json({ error: 'Sorry, that time is no longer available. Please pick another.' });
+    }
+
     const holdsRes = await getActiveCheckoutHolds(startDt.toISOString(), endDt.toISOString());
     if ((holdsRes.data || []).length > 0) {
       return res.status(409).json({
@@ -98,7 +108,6 @@ module.exports = async function handler(req, res) {
       priceAed: quote.priceAed,
       amountFils: quote.amountFils,
       pricingBreakdown: quote.pricingBreakdown,
-      calEventTypeId: quote.calEventTypeId,
       durationMinutes: quote.durationMinutes,
       kindOfApartment: quote.kindOfApartment,
       scheduledStart: startDt.toISOString(),
@@ -222,6 +231,10 @@ module.exports = async function handler(req, res) {
       bookingReference,
       paymentIntentId: ziinaData.id,
       checkoutUrl: ziinaData.redirect_url,
+      // Ziina's payment form for an iframe on /pay. Keeps the customer on our
+      // site, so a phone with the Ziina app installed does not hand off to it.
+      // Off until ZIINA_EMBEDDED_CHECKOUT=true (Ziina must approve the domain).
+      embeddedUrl: process.env.ZIINA_EMBEDDED_CHECKOUT === 'true' ? ziinaData.embedded_url || null : null,
       token,
       isTest,
       priceAed: quote.priceAed,

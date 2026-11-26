@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Payment | Vantage North Dubai</title>
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#FAFAFA">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@300;400;500;600&family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #FAFAFA; color: #000000; font-family: 'Epilogue', sans-serif; -webkit-font-smoothing: antialiased; }
+        h1, h2, h3 { font-family: 'Urbanist', sans-serif; }
+        /* Ziina's form has its own white background; keep it flush inside our card. */
+        #ziinaFrame { display: block; width: 100%; max-width: 450px; height: 820px; border: 0; margin: 0 auto; background: #FFFFFF; }
+        /* Phones: the page itself never scrolls. The card fills the screen under
+           the header and the Ziina form inside it is the only thing that
+           scrolls, so a swipe always moves the form instead of the page. */
+        @media (max-width: 639px) {
+            html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+            body { height: 100dvh; }
+            #payMain { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; padding-top: 0.75rem; padding-bottom: 0.5rem; }
+            #payIntro { margin-bottom: 0.75rem; }
+            #payIntro .eyebrow, #payIntro .lede { display: none; }
+            #payIntro h1 { font-size: 1.375rem; line-height: 1.75rem; }
+            #payCard { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+            #frameWrap { flex: 1 1 auto; min-height: 0; }
+            #ziinaFrame { height: 100%; }
+            #payFooter { margin-top: 0.5rem; }
+        }
+    </style>
+    <!-- Tailwind, prebuilt (see tailwind.config.js). Kept last so it overrides page styles, as the old CDN did. -->
+    <link rel="stylesheet" href="/assets/site.css">
+</head>
+<body class="bg-vnBg text-vnBlack min-h-screen flex flex-col">
+
+    <header class="w-full border-b border-neutral-200 bg-white">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <a href="/" class="flex items-center">
+                <img src="/logo/vantage_north_logo_light.png" alt="Vantage North" class="h-7 w-auto">
+            </a>
+            <a href="https://wa.me/971585565311" target="_blank" rel="noopener" class="text-sm px-3.5 py-1.5 rounded-full border border-neutral-300 hover:border-black transition font-medium">
+                Got questions?
+            </a>
+        </div>
+    </header>
+
+    <main id="payMain" class="max-w-xl mx-auto w-full px-4 sm:px-6 py-8 sm:py-12 flex-1">
+        <div id="payIntro" class="mb-6">
+            <p class="eyebrow text-xs uppercase tracking-widest text-vnGray font-medium mb-2">RERA-Certified Property Snagging</p>
+            <h1 class="text-3xl sm:text-4xl font-semibold tracking-tight">Complete Your Payment</h1>
+            <p class="lede text-vnGray mt-2 text-sm sm:text-base">Your slot is held while you pay. Stay on this page until it confirms your booking.</p>
+        </div>
+
+        <div id="errorBox" class="hidden rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-sm p-3.5 mb-4"></div>
+
+        <!-- Shown once Ziina reports the payment completed -->
+        <div id="doneState" class="hidden bg-white border border-neutral-200 rounded-2xl p-8 text-center">
+            <div class="w-10 h-10 border-2 border-neutral-300 border-t-black rounded-full animate-spin mx-auto mb-4"></div>
+            <h2 class="text-xl font-semibold">Payment received</h2>
+            <p class="text-sm text-vnGray mt-2">Taking you to your booking confirmation...</p>
+        </div>
+
+        <section id="payCard" class="bg-white border border-neutral-200 rounded-2xl overflow-hidden">
+            <div class="flex items-center justify-between gap-3 px-5 sm:px-6 py-4 border-b border-neutral-200">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center shrink-0" aria-hidden="true">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>
+                    </span>
+                    <div>
+                        <h2 class="text-base font-semibold leading-tight">Secure payment</h2>
+                        <p id="refLine" class="text-xs text-vnGray">Apple Pay, Visa, Mastercard</p>
+                    </div>
+                </div>
+                <div id="amountWrap" class="hidden text-right">
+                    <p class="text-[11px] uppercase tracking-wider text-vnGray font-medium">Total</p>
+                    <p id="amountText" class="text-lg font-urbanist font-bold leading-tight"></p>
+                </div>
+            </div>
+            <div id="frameWrap" class="sm:py-2">
+                <iframe id="ziinaFrame" title="Ziina secure payment" allow="payment"></iframe>
+            </div>
+        </section>
+
+        <div id="payFooter" class="mt-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-vnGray">
+            <a id="cancelLink" href="/book" class="underline underline-offset-4 decoration-neutral-300 hover:text-vnBlack">&larr; Cancel and go back</a>
+            <span>Processed securely by Ziina<span id="fallbackWrap" class="hidden"> &middot; <a id="fallbackLink" href="#" class="underline underline-offset-4 decoration-neutral-300 hover:text-vnBlack">Form not loading?</a></span></span>
+        </div>
+    </main>
+
+    <script>
+        (function () {
+            const params = new URLSearchParams(window.location.search);
+            const ref = params.get('booking_ref') || '';
+            const isTest = params.get('test') === '1';
+
+            const errorBox = document.getElementById('errorBox');
+            const frame = document.getElementById('ziinaFrame');
+            const frameWrap = document.getElementById('frameWrap');
+            const doneState = document.getElementById('doneState');
+            const fallbackWrap = document.getElementById('fallbackWrap');
+            const fallbackLink = document.getElementById('fallbackLink');
+            const cancelLink = document.getElementById('cancelLink');
+
+            const backPath = isTest ? '/booking-test' : '/book';
+            const cancelUrl = `${backPath}?cancelled=1&booking_ref=${encodeURIComponent(ref)}`;
+            const successUrl = `/booking-confirmation?booking_ref=${encodeURIComponent(ref)}`;
+            cancelLink.href = cancelUrl;
+
+            // Display only: the amount actually charged is set on the server.
+            const amount = Number(params.get('amount'));
+            if (Number.isFinite(amount) && amount > 0) {
+                document.getElementById('amountText').textContent = `${amount.toLocaleString('en-US')} AED`;
+                document.getElementById('amountWrap').classList.remove('hidden');
+            }
+            if (ref) {
+                document.getElementById('refLine').textContent = `Booking ${ref}`;
+            }
+
+            // Only ever load Ziina's own pages here.
+            function ziinaUrl(raw) {
+                try {
+                    const u = new URL(raw);
+                    if (u.protocol !== 'https:') return null;
+                    if (u.hostname !== 'ziina.com' && !u.hostname.endsWith('.ziina.com')) return null;
+                    return u;
+                } catch {
+                    return null;
+                }
+            }
+
+            function showError(msg) {
+                errorBox.textContent = msg;
+                errorBox.classList.remove('hidden');
+            }
+
+            const embedded = ziinaUrl(params.get('embed') || '');
+            const hosted = ziinaUrl(params.get('hosted') || '');
+
+            if (hosted) {
+                fallbackLink.href = hosted.toString();
+                fallbackWrap.classList.remove('hidden');
+            }
+
+            if (!ref || !embedded) {
+                document.getElementById('payCard').classList.add('hidden');
+                if (hosted) {
+                    window.location.replace(hosted.toString());
+                } else {
+                    showError('This payment link is missing details. Please go back and try booking again.');
+                }
+                return;
+            }
+
+            embedded.searchParams.set('version', 'v1');
+            frame.src = embedded.toString();
+            const frameOrigin = embedded.origin;
+
+            let finished = false;
+            window.addEventListener('message', (event) => {
+                if (event.source !== frame.contentWindow) return;
+                if (event.origin !== frameOrigin && event.origin !== 'https://pay.ziina.com') return;
+                const data = event.data || {};
+                if (data.type !== 'ZIINA_PAYMENT_STATUS_CHANGE' || finished) return;
+                const status = String(data.data?.status || data.status || '').toUpperCase();
+
+                if (status === 'COMPLETED') {
+                    finished = true;
+                    document.getElementById('payCard').classList.add('hidden');
+                    errorBox.classList.add('hidden');
+                    doneState.classList.remove('hidden');
+                    window.location.replace(successUrl);
+                } else if (status === 'CANCELED' || status === 'CANCELLED') {
+                    finished = true;
+                    window.location.replace(cancelUrl);
+                } else if (status === 'FAILED') {
+                    showError('The payment did not go through and you have not been charged. You can try again with another card below.');
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

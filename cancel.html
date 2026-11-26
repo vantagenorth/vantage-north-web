@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cancel Your Inspection | Vantage North</title>
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="referrer" content="no-referrer">
+    <meta name="theme-color" content="#FAFAFA">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@300;400;500;600&family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #FAFAFA; color: #000000; font-family: 'Epilogue', sans-serif; }
+        h1, h2, h3 { font-family: 'Urbanist', sans-serif; }
+    </style>
+    <link rel="stylesheet" href="/assets/site.css">
+</head>
+<body class="bg-vnBg text-vnBlack min-h-screen flex flex-col">
+
+    <header class="w-full border-b border-neutral-200 bg-vnBg">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <a href="https://vantagenorth.ae/" class="flex items-center">
+                <img src="/logo/vantage_north_logo_light.png" alt="Vantage North" class="h-7 w-auto">
+            </a>
+            <a href="https://wa.me/971585565311" target="_blank" rel="noopener" class="text-sm px-3.5 py-1.5 rounded-full border border-neutral-300 hover:border-black transition font-medium">
+                Let's Chat
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-2xl mx-auto w-full px-4 sm:px-6 py-10 sm:py-12 flex-1 space-y-6">
+        <div id="loadingState" class="bg-white border border-neutral-200 rounded-2xl p-8 text-center">
+            <div class="w-10 h-10 border-2 border-neutral-300 border-t-black rounded-full animate-spin mx-auto mb-4"></div>
+            <p class="text-sm text-vnGray">Loading your booking...</p>
+        </div>
+
+        <form id="emailState" class="hidden bg-white border border-neutral-200 rounded-2xl p-6 sm:p-8 space-y-4">
+            <h1 class="text-2xl font-semibold">Find your booking</h1>
+            <p class="text-sm text-vnGray">To keep your booking safe, please enter the email address you booked with.</p>
+            <div>
+                <label for="refInput" class="block text-xs uppercase tracking-wider text-vnGray font-medium mb-1.5">Booking reference</label>
+                <input id="refInput" type="text" required autocomplete="off" class="w-full px-4 py-3 rounded-xl border border-neutral-300 focus:border-black outline-none text-sm uppercase" placeholder="VN-...">
+            </div>
+            <div>
+                <label for="emailInput" class="block text-xs uppercase tracking-wider text-vnGray font-medium mb-1.5">Email address</label>
+                <input id="emailInput" type="email" required autocomplete="email" class="w-full px-4 py-3 rounded-xl border border-neutral-300 focus:border-black outline-none text-sm" placeholder="you@example.com">
+            </div>
+            <p id="emailError" class="hidden text-sm text-red-600"></p>
+            <button type="submit" class="bg-black text-white px-6 py-3 rounded-xl text-sm font-medium hover:bg-neutral-800 transition">Continue</button>
+        </form>
+
+        <div id="errorState" class="hidden bg-white border border-red-200 rounded-2xl p-8">
+            <h1 class="text-2xl font-semibold text-red-700 mb-2">Something went wrong</h1>
+            <p id="errorMessage" class="text-sm text-vnDarkGray mb-6"></p>
+            <a href="https://wa.me/971585565311" target="_blank" rel="noopener" class="inline-block bg-black text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-neutral-800 transition">WhatsApp us</a>
+        </div>
+
+        <section id="summaryCard" class="hidden bg-white border border-neutral-200 rounded-2xl p-6 sm:p-8">
+            <div class="flex items-start justify-between gap-4 mb-5">
+                <div>
+                    <p class="text-xs uppercase tracking-wider text-vnGray font-medium mb-1">Cancel</p>
+                    <h1 id="greeting" class="text-2xl sm:text-3xl font-semibold">Cancel your inspection</h1>
+                </div>
+                <span id="testBadge" class="hidden text-xs uppercase tracking-wider bg-amber-100 text-amber-800 px-3 py-1 rounded-full font-medium">Test</span>
+            </div>
+            <div class="bg-vnBg border border-neutral-200 rounded-xl p-5 space-y-3 text-sm">
+                <div class="flex justify-between gap-4">
+                    <span class="text-vnGray">Booking Reference</span>
+                    <span id="sRef" class="font-semibold text-right"></span>
+                </div>
+                <div class="flex justify-between gap-4">
+                    <span class="text-vnGray">Date &amp; Time</span>
+                    <span id="sTime" class="font-semibold text-right"></span>
+                </div>
+                <div id="sPropertyRow" class="hidden flex justify-between gap-4">
+                    <span class="text-vnGray">Property</span>
+                    <span id="sProperty" class="text-right"></span>
+                </div>
+                <div class="flex justify-between gap-4">
+                    <span class="text-vnGray">Package</span>
+                    <span id="sPackage" class="text-right"></span>
+                </div>
+                <div class="flex justify-between gap-4 pt-3 border-t border-neutral-200">
+                    <span class="text-vnGray">Amount Paid</span>
+                    <span id="sPaid" class="font-semibold text-right"></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cannot cancel -->
+        <section id="blockedState" class="hidden bg-white border border-neutral-200 rounded-2xl p-6 sm:p-8">
+            <h2 id="blockedTitle" class="text-xl font-semibold mb-2"></h2>
+            <p id="blockedText" class="text-sm text-vnDarkGray mb-5"></p>
+            <div class="flex flex-wrap gap-3">
+                <a id="blockedRescheduleLink" href="#" class="hidden bg-black text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-neutral-800 transition">Reschedule instead</a>
+                <a href="https://wa.me/971585565311" target="_blank" rel="noopener" class="border border-neutral-300 px-5 py-2.5 rounded-xl text-sm font-medium hover:border-black transition">WhatsApp us</a>
+            </div>
+            <p class="mt-4 text-[11px] text-vnGray"><a href="https://vantagenorth.ae/terms#booking" target="_blank" rel="noopener" class="underline hover:text-black">Booking, Rescheduling &amp; Cancellation Policy</a></p>
+        </section>
+
+        <!-- Cancel form -->
+        <section id="cancelState" class="hidden bg-white border border-neutral-200 rounded-2xl p-6 sm:p-8 space-y-5">
+            <div id="refundBox" class="hidden bg-vnBg border border-neutral-200 rounded-xl p-4 text-sm leading-relaxed">
+                <p class="font-semibold mb-1">Full refund: <span id="refundAmount"></span></p>
+                <p class="text-vnGray text-xs">Your refund goes back to your original payment method and usually arrives within 7 to 14 business days, depending on your bank.</p>
+            </div>
+            <div id="noRefundBox" class="hidden bg-amber-50 border border-amber-200 text-amber-900 rounded-xl p-4 text-sm leading-relaxed">
+                <p class="font-semibold mb-1">This booking is non-refundable</p>
+                <p class="text-xs">It was rescheduled within 24 hours of an earlier appointment, so under our policy no refund is due if it is cancelled. You can still reschedule for free instead.</p>
+                <label class="mt-3 flex items-start gap-2 text-xs">
+                    <input id="ackNoRefund" type="checkbox" class="mt-0.5 accent-black">
+                    <span>I understand I will not receive a refund.</span>
+                </label>
+            </div>
+
+            <div class="bg-white border border-neutral-200 rounded-xl p-4 text-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <span class="text-vnDarkGray">Just need a different day? Rescheduling is free.</span>
+                <a id="rescheduleLink" href="#" class="shrink-0 bg-black text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-neutral-800 transition text-center">Reschedule instead</a>
+            </div>
+
+            <div>
+                <label for="reasonInput" class="block text-xs uppercase tracking-wider text-vnGray font-medium mb-1.5">Reason (optional)</label>
+                <textarea id="reasonInput" rows="3" maxlength="500" class="w-full px-4 py-3 rounded-xl border border-neutral-300 focus:border-black outline-none text-sm" placeholder="e.g. Handover was postponed by the developer"></textarea>
+            </div>
+
+            <div class="pt-2 border-t border-neutral-200 space-y-3">
+                <button id="cancelBtn" type="button" class="w-full sm:w-auto border border-red-300 text-red-700 bg-white px-6 py-3 rounded-xl text-sm font-medium hover:border-red-600 hover:bg-red-50 transition disabled:opacity-40 disabled:cursor-not-allowed">Cancel my inspection</button>
+                <div id="confirmRow" class="hidden bg-red-50 border border-red-200 rounded-xl p-4 text-sm space-y-3">
+                    <p class="text-red-800">Are you sure? Your inspection slot will be released and this can't be undone.</p>
+                    <div class="flex flex-wrap gap-3">
+                        <button id="confirmCancelBtn" type="button" class="bg-red-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-red-800 transition disabled:opacity-50">Yes, cancel it</button>
+                        <button id="keepBtn" type="button" class="border border-neutral-300 bg-white px-5 py-2.5 rounded-xl text-sm font-medium hover:border-black transition">Keep my booking</button>
+                    </div>
+                </div>
+                <p id="submitError" class="hidden text-sm text-red-600"></p>
+            </div>
+            <p class="text-[11px] text-vnGray">Cancellations are allowed up to 24 hours before the inspection. <a href="https://vantagenorth.ae/terms#booking" target="_blank" rel="noopener" class="underline hover:text-black">Booking, Rescheduling &amp; Cancellation Policy</a></p>
+        </section>
+
+        <!-- Done -->
+        <section id="doneState" class="hidden bg-white border border-neutral-200 rounded-2xl p-6 sm:p-8 space-y-4">
+            <h2 class="text-2xl font-semibold">Your inspection has been cancelled</h2>
+            <p id="doneRefund" class="text-sm text-vnDarkGray"></p>
+            <p id="doneEmail" class="text-sm text-vnGray"></p>
+            <div class="flex flex-wrap gap-3 pt-2">
+                <a href="https://vantagenorth.ae/book" class="bg-black text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-neutral-800 transition">Book a new inspection</a>
+                <a href="https://vantagenorth.ae/" class="border border-neutral-300 px-5 py-2.5 rounded-xl text-sm font-medium hover:border-black transition">Return to homepage</a>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const API = '/api/manage-booking';
+        const state = { ref: null, t: null, email: null, booking: null };
+
+        function $(id) { return document.getElementById(id); }
+        function show(id) { $(id).classList.remove('hidden'); }
+        function hide(id) { $(id).classList.add('hidden'); }
+
+        function refFromUrl() {
+            const parts = location.pathname.split('/').filter(Boolean).map(decodeURIComponent);
+            const hit = parts.reverse().find(p => /^VN-[A-Z0-9-]+$/i.test(p));
+            return hit ? hit.toUpperCase() : null;
+        }
+
+        function siblingUrl() {
+            const q = state.t ? `?t=${encodeURIComponent(state.t)}` : '';
+            if (location.hostname === 'cancel.vantagenorth.ae') return `https://reschedule.vantagenorth.ae/${encodeURIComponent(state.ref)}${q}`;
+            return `/reschedule/${encodeURIComponent(state.ref)}${q}`;
+        }
+
+        function authParams() {
+            const p = new URLSearchParams({ ref: state.ref });
+            if (state.t) p.set('t', state.t);
+            if (state.email) p.set('email', state.email);
+            return p;
+        }
+
+        function fmtDateTime(iso) {
+            return new Intl.DateTimeFormat('en-AE', { timeZone: 'Asia/Dubai', weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }).format(new Date(iso));
+        }
+        function aed(n) { return `${Number(n || 0).toLocaleString()} AED`; }
+
+        function showError(msg) {
+            ['loadingState', 'emailState', 'summaryCard', 'cancelState', 'blockedState', 'doneState'].forEach(hide);
+            $('errorMessage').textContent = msg;
+            show('errorState');
+        }
+
+        function renderSummary(b) {
+            $('greeting').textContent = b.firstName ? `Hi ${b.firstName}, cancel your inspection?` : 'Cancel your inspection';
+            $('sRef').textContent = b.reference;
+            $('sTime').textContent = b.scheduledStart ? `${fmtDateTime(b.scheduledStart)} (Dubai)` : 'To be confirmed';
+            const prop = [b.propertyType, b.unitNumber, b.projectName].filter(Boolean).join(', ');
+            if (prop) { $('sProperty').textContent = prop; show('sPropertyRow'); }
+            $('sPackage').textContent = b.packageLabel || 'Property Inspection';
+            $('sPaid').textContent = aed(b.amountPaidAed);
+            $('testBadge').classList.toggle('hidden', !b.isTest);
+            show('summaryCard');
+        }
+
+        function renderBlocked(b) {
+            const r = b.cancelBlockedReason;
+            const link = $('blockedRescheduleLink');
+            link.href = siblingUrl();
+            link.classList.toggle('hidden', !b.canReschedule);
+            if (r === 'cancelled') {
+                $('blockedTitle').textContent = 'This booking is already cancelled';
+                $('blockedText').textContent = b.refundAmountAed > 0
+                    ? `A refund of ${aed(b.refundAmountAed)} is being made to your original payment method.`
+                    : 'Nothing more is needed. You are welcome to book a new inspection any time.';
+            } else if (r === 'within_24h') {
+                $('blockedTitle').textContent = 'Cancellation is closed for this booking';
+                $('blockedText').textContent = 'Cancellations are not permitted within 24 hours of the inspection. You can still move it to another day for free.';
+            } else if (r === 'started') {
+                $('blockedTitle').textContent = 'This inspection has already started';
+                $('blockedText').textContent = 'If you need help, please WhatsApp us on +971 58 556 5311.';
+            } else {
+                $('blockedTitle').textContent = 'This booking can\'t be cancelled online';
+                $('blockedText').textContent = 'Please WhatsApp us on +971 58 556 5311 and we will help.';
+            }
+            show('blockedState');
+        }
+
+        function renderCancelForm(b) {
+            $('rescheduleLink').href = siblingUrl();
+            $('rescheduleLink').classList.toggle('hidden', !b.canReschedule);
+            if (b.nonRefundable) {
+                show('noRefundBox'); hide('refundBox');
+            } else if (b.refundAmountAed > 0) {
+                $('refundAmount').textContent = aed(b.refundAmountAed);
+                show('refundBox'); hide('noRefundBox');
+            }
+            show('cancelState');
+        }
+
+        async function lookup() {
+            show('loadingState');
+            try {
+                const res = await fetch(`${API}?${authParams().toString()}`);
+                const data = await res.json();
+                hide('loadingState');
+                if (data.needsEmail) {
+                    $('refInput').value = state.ref || '';
+                    if (state.email) { $('emailError').textContent = data.error; show('emailError'); }
+                    show('emailState');
+                    return;
+                }
+                if (!res.ok) return showError(data.error || 'We could not load your booking.');
+                state.booking = data.booking;
+                if (data.t) {
+                    state.t = data.t;
+                    const onSub = /^(reschedule|cancel)\.vantagenorth\.ae$/.test(location.hostname);
+                    const kind = 'cancel';
+                    const path = onSub ? `/${encodeURIComponent(state.ref)}` : `/${kind}/${encodeURIComponent(state.ref)}`;
+                    history.replaceState(null, '', `${path}?t=${encodeURIComponent(state.t)}`);
+                }
+                renderSummary(state.booking);
+                if (!state.booking.canCancel) return renderBlocked(state.booking);
+                renderCancelForm(state.booking);
+            } catch {
+                showError('We could not load your booking. Please check your connection and try again.');
+            }
+        }
+
+        $('cancelBtn').addEventListener('click', () => {
+            hide('submitError');
+            if (state.booking?.nonRefundable && !$('ackNoRefund').checked) {
+                $('submitError').textContent = 'Please tick the box to confirm you understand there is no refund.';
+                show('submitError');
+                return;
+            }
+            hide('cancelBtn');
+            show('confirmRow');
+        });
+        $('keepBtn').addEventListener('click', () => { hide('confirmRow'); show('cancelBtn'); });
+
+        $('confirmCancelBtn').addEventListener('click', async () => {
+            const btn = $('confirmCancelBtn');
+            btn.disabled = true; btn.textContent = 'Cancelling...';
+            hide('submitError');
+            try {
+                const res = await fetch(API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'cancel',
+                        ref: state.ref,
+                        t: state.t,
+                        email: state.email,
+                        reason: $('reasonInput').value,
+                        acknowledgeNoRefund: $('ackNoRefund').checked,
+                    }),
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    $('submitError').textContent = data.error || 'We could not cancel your booking.';
+                    show('submitError');
+                    hide('confirmRow'); show('cancelBtn');
+                    if (data.booking) { state.booking = data.booking; if (!data.booking.canCancel) { hide('cancelState'); renderBlocked(data.booking); } }
+                    return;
+                }
+                state.booking = data.booking;
+                $('doneRefund').textContent = data.refundAmountAed > 0
+                    ? `A full refund of ${aed(data.refundAmountAed)} will be made to your original payment method. It usually arrives within 7 to 14 business days, depending on your bank.`
+                    : state.booking?.nonRefundable
+                        ? 'No refund is due for this booking under our cancellation policy.'
+                        : 'Nothing was paid for this booking, so there is nothing to refund.';
+                $('doneEmail').textContent = data.emailSent ? `We've emailed a confirmation to ${state.booking.emailHint}.` : '';
+                hide('cancelState');
+                hide('summaryCard');
+                show('doneState');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch {
+                $('submitError').textContent = 'Network error. Please try again.';
+                show('submitError');
+            } finally {
+                btn.disabled = false; btn.textContent = 'Yes, cancel it';
+            }
+        });
+
+        $('emailState').addEventListener('submit', (e) => {
+            e.preventDefault();
+            state.ref = $('refInput').value.trim().toUpperCase();
+            state.email = $('emailInput').value.trim();
+            hide('emailError'); hide('emailState');
+            lookup();
+        });
+
+        (function init() {
+            state.ref = refFromUrl();
+            state.t = new URLSearchParams(location.search).get('t');
+            if (!state.ref) { hide('loadingState'); show('emailState'); return; }
+            lookup();
+        })();
+    </script>
+</body>
+</html>

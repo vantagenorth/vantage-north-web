@@ -4,6 +4,8 @@ const {
   getActiveCheckoutHolds,
   createCheckoutHold,
 } = require('./_lib/supabase');
+const { isSlotOpen } = require('./_lib/availability');
+const { finalizeBooking } = require('./_lib/confirm-core');
 const { logPaymentEvent, ziinaSummary } = require('./_lib/payment-log');
 
 module.exports = async function handler(req, res) {
@@ -41,10 +43,11 @@ module.exports = async function handler(req, res) {
       agentEmail = 'hello@vantagenorth.ae',
       agentPhone = '+971 50 000 0000',
       notes = 'Test inspection booking via /booking-test',
+      skipPayment,
     } = body;
 
     if (!scheduledStart) {
-      return res.status(400).json({ error: 'Please select an available Cal.com time slot.' });
+      return res.status(400).json({ error: 'Please select an available time slot.' });
     }
 
     const quote = calculateQuote({ propertyType, bedrooms, bathrooms, packageType });
@@ -62,6 +65,15 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: 'Invalid scheduledStart datetime' });
     }
     const endDt = new Date(startDt.getTime() + quote.durationMinutes * 60 * 1000);
+
+    // Only accept a time that is open right now.
+    const check = await isSlotOpen({ startIso: startDt.toISOString(), durationMinutes: quote.durationMinutes });
+    if (!check.ok) {
+      return res.status(502).json({ error: 'We could not check that time just now. Please try again or WhatsApp us.' });
+    }
+    if (!check.open) {
+      return res.status(409).json({ error: 'Sorry, that time is no longer available. Please pick another.' });
+    }
 
     const holdsRes = await getActiveCheckoutHolds(startDt.toISOString(), endDt.toISOString());
     if ((holdsRes.data || []).length > 0) {
@@ -90,7 +102,6 @@ module.exports = async function handler(req, res) {
       pricingBreakdown: [
         { label: `Test Booking (${quote.tierLabel})`, amountAed },
       ],
-      calEventTypeId: quote.calEventTypeId,
       durationMinutes: quote.durationMinutes,
       kindOfApartment: quote.kindOfApartment,
       scheduledStart: startDt.toISOString(),
@@ -114,6 +125,42 @@ module.exports = async function handler(req, res) {
       termsAcceptedAt: new Date().toISOString(),
       isTestBooking: true,
     };
+
+    // Skip payment: run everything that happens after a payment (booking saved, Google
+    // Calendar event, emails with reschedule/cancel links) without charging anything.
+    // Only reachable here, behind TEST_BOOKING_KEY; the payment is saved as a test one.
+    if (skipPayment === true || skipPayment === 'true') {
+      const skipPayload = {
+        ...bookingPayload,
+        packageLabel: `${quote.packageLabel} (Test Booking, no payment)`,
+        priceAed: 0,
+        amountFils: 0,
+        pricingBreakdown: null,
+      };
+      const intentId = `test-skip-${bookingReference}`;
+      await logPaymentEvent({
+        source: 'test_checkout',
+        event: 'test.payment_skipped',
+        bookingReference,
+        intentId,
+        details: { scheduled_start: skipPayload.scheduledStart },
+      });
+      const result = await finalizeBooking({
+        bookingReference,
+        paymentIntentId: intentId,
+        tokenData: skipPayload,
+        ziinaData: { id: intentId, status: 'completed', is_test: true, amount: 0, currency_code: 'AED' },
+        trigger: 'test_skip_payment',
+      });
+      return res.status(200).json({
+        skipped: true,
+        bookingReference,
+        status: result?.booking?.status || null,
+        googleEventId: result?.booking?.googleEventId || null,
+        calendarWarning: result?.googleWarning || null,
+        emailSent: Boolean(result?.emailResult?.sent),
+      });
+    }
 
     const token = signBookingToken(bookingPayload);
     const siteUrl = getSiteUrl(req);
@@ -190,6 +237,9 @@ module.exports = async function handler(req, res) {
 
     return res.status(200).json({
       redirectUrl: ziinaData.redirect_url,
+      // The test page always uses the embedded form on /pay, so it can be
+      // tried before turning it on for customers (ZIINA_EMBEDDED_CHECKOUT).
+      embeddedUrl: ziinaData.embedded_url || null,
       paymentIntentId: ziinaData.id,
       bookingReference,
       amountAed,

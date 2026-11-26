@@ -49,7 +49,7 @@
                 </span>
                 <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">Test booking &amp; Ziina checkout</h1>
                 <p class="text-sm text-vnDarkGray mt-1.5 leading-relaxed">
-                    Pre-filled with test client, unit, developer, and agent data plus a real Cal.com slot so you can run a complete test inspection &amp; report.
+                    Pre-filled with test client, unit, developer, and agent data plus a real open slot so you can run a complete test inspection &amp; report.
                 </p>
             </div>
 
@@ -62,16 +62,16 @@
                     <input id="testKey" type="password" required placeholder="Enter TEST_BOOKING_KEY" class="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:border-black">
                 </div>
 
-                <!-- Cal.com Slot -->
+                <!-- Inspection Slot -->
                 <div>
                     <div class="flex items-center justify-between mb-2">
                         <label for="slotSelect" class="block text-xs uppercase tracking-wider text-vnGray font-medium">
-                            Cal.com Inspection Slot (Dubai Time)
+                            Inspection Slot (Dubai Time)
                         </label>
                         <span id="slotHint" class="text-[11px] text-vnGray">Loading Monday slots...</span>
                     </div>
                     <select id="slotSelect" required class="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 bg-white text-sm focus:outline-none focus:border-black">
-                        <option value="">Loading available Cal.com slots...</option>
+                        <option value="">Loading available slots...</option>
                     </select>
                 </div>
 
@@ -167,10 +167,20 @@
                 <div class="rounded-2xl bg-neutral-50 border border-neutral-200 p-4 flex items-center justify-between">
                     <div>
                         <div class="text-sm font-semibold">Apartment — 2 Bed, 2 Bath (Test)</div>
-                        <div class="text-xs text-vnGray">Creates Cal.com booking + Supabase inspection</div>
+                        <div class="text-xs text-vnGray">Creates the booking, calendar event and emails</div>
                     </div>
                     <span id="totalDisplay" class="text-2xl font-urbanist font-bold">2 AED</span>
                 </div>
+
+                <label class="flex items-start gap-3 rounded-2xl border border-neutral-200 p-4 cursor-pointer">
+                    <input id="skipPayment" type="checkbox" class="mt-0.5 h-4 w-4 accent-black">
+                    <span>
+                        <span class="block text-sm font-semibold">Skip payment</span>
+                        <span class="block text-xs text-vnGray">Books without Ziina: saves the booking, adds it to the calendar and sends the emails. Nothing is charged.</span>
+                    </span>
+                </label>
+
+                <div id="successBox" class="hidden rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-sm p-3.5"></div>
 
                 <div id="errorBox" class="hidden rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-sm p-3.5"></div>
 
@@ -191,6 +201,16 @@
         const totalDisplay = document.getElementById('totalDisplay');
         const payBtn = document.getElementById('payBtn');
         const errorBox = document.getElementById('errorBox');
+        const successBox = document.getElementById('successBox');
+        const skipPayment = document.getElementById('skipPayment');
+        function updatePayLabel() {
+            const amt = Math.min(25, Math.max(2, Math.round(Number(amountInput.value) || 2)));
+            payBtn.querySelector('span').textContent = skipPayment.checked
+                ? 'Book Test Inspection (No Payment)'
+                : `Pay ${amt} AED & Book Test Inspection`;
+            totalDisplay.textContent = skipPayment.checked ? '0 AED' : `${amt} AED`;
+        }
+        skipPayment.addEventListener('change', updatePayLabel);
         const slotSelect = document.getElementById('slotSelect');
         const slotHint = document.getElementById('slotHint');
         const amtBtns = document.querySelectorAll('.amt-btn');
@@ -203,7 +223,8 @@
             const amt = Math.min(25, Math.max(2, Math.round(Number(val) || 2)));
             amountInput.value = String(amt);
             totalDisplay.textContent = `${amt} AED`;
-            payBtn.querySelector('span').textContent = `Pay ${amt} AED & Book Test Inspection`;
+            if (typeof updatePayLabel === 'function' && skipPayment) updatePayLabel();
+            else payBtn.querySelector('span').textContent = `Pay ${amt} AED & Book Test Inspection`;
             amtBtns.forEach(b => {
                 const active = Number(b.dataset.amt) === amt;
                 b.className = active
@@ -217,8 +238,10 @@
 
         async function loadSlots() {
             try {
+                slotSelect.innerHTML = '<option value="">Loading...</option>';
                 const res = await fetch('/api/slots?propertyType=Apartment&bedrooms=2');
                 const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Could not load slots');
                 const slotsByDate = data.slots || {};
                 const dates = Object.keys(slotsByDate).sort();
 
@@ -248,7 +271,7 @@
                 }
 
                 if (options.length === 0) {
-                    slotSelect.innerHTML = '<option value="">No Cal.com slots available</option>';
+                    slotSelect.innerHTML = '<option value="">No slots available</option>';
                     slotHint.textContent = 'No slots found';
                     return;
                 }
@@ -265,8 +288,8 @@
                     slotHint.textContent = 'Pre-selected earliest slot';
                 }
             } catch (err) {
-                slotSelect.innerHTML = '<option value="">Failed to load Cal.com slots</option>';
-                slotHint.textContent = 'Error loading slots';
+                slotSelect.innerHTML = '<option value="">Failed to load slots</option>';
+                slotHint.textContent = err.message || 'Error loading slots';
             }
         }
 
@@ -275,16 +298,17 @@
         document.getElementById('testBookingForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             errorBox.classList.add('hidden');
+            successBox.classList.add('hidden');
 
             if (!slotSelect.value) {
-                errorBox.textContent = 'Please wait for Cal.com slots to load or select a time slot.';
+                errorBox.textContent = 'Please wait for the slots to load or select a time slot.';
                 errorBox.classList.remove('hidden');
                 return;
             }
 
             payBtn.disabled = true;
             const origText = payBtn.querySelector('span').textContent;
-            payBtn.querySelector('span').textContent = 'Creating Ziina checkout...';
+            payBtn.querySelector('span').textContent = skipPayment.checked ? 'Booking...' : 'Creating Ziina checkout...';
 
             try {
                 const res = await fetch('/api/test-checkout', {
@@ -298,6 +322,7 @@
                         bathrooms: 2,
                         packageType: 'initial',
                         scheduledStart: slotSelect.value,
+                        skipPayment: skipPayment.checked,
                         fullName: document.getElementById('fullName').value,
                         email: document.getElementById('email').value,
                         phone: document.getElementById('phone').value,
@@ -313,10 +338,33 @@
                     }),
                 });
                 const data = await res.json();
+                if (res.ok && data.skipped) {
+                    const parts = [`Booked ${data.bookingReference} (${data.status || 'unknown status'}) with no payment.`];
+                    parts.push(data.emailSent ? 'Confirmation email sent: use its reschedule and cancel links to test those.' : 'The confirmation email was not sent.');
+                    if (data.googleEventId) parts.push('Added to Google Calendar.');
+                    if (data.calendarWarning) parts.push(`Calendar problem: ${data.calendarWarning}`);
+                    successBox.textContent = parts.join(' ');
+                    successBox.classList.remove('hidden');
+                    payBtn.disabled = false;
+                    payBtn.querySelector('span').textContent = origText;
+                    loadSlots();
+                    return;
+                }
                 if (!res.ok || !data.redirectUrl) {
                     throw new Error(data.error || 'Failed to start Ziina checkout');
                 }
-                window.location.href = data.redirectUrl;
+                if (data.embeddedUrl) {
+                    const q = new URLSearchParams({
+                        booking_ref: data.bookingReference,
+                        embed: data.embeddedUrl,
+                        hosted: data.redirectUrl,
+                        amount: String(data.amountAed || ''),
+                        test: '1',
+                    });
+                    window.location.href = `/pay?${q}`;
+                } else {
+                    window.location.href = data.redirectUrl;
+                }
             } catch (err) {
                 errorBox.textContent = err.message;
                 errorBox.classList.remove('hidden');

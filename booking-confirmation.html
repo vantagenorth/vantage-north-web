@@ -101,9 +101,9 @@
             <p id="emailStatusNote" class="text-xs text-vnGray"></p>
             <div id="manageBookingLinks" class="hidden text-xs text-vnGray flex flex-wrap items-center gap-3 pt-1">
                 <span>Need to adjust your appointment?</span>
-                <a id="cRescheduleLink" href="#" target="_blank" rel="noopener" class="text-black font-medium underline hover:opacity-75">Reschedule</a>
+                <a id="cRescheduleLink" href="#" class="text-black font-medium underline hover:opacity-75">Reschedule</a>
                 <span id="cCancelSep">·</span>
-                <a id="cCancelLink" href="#" target="_blank" rel="noopener" class="text-vnGray underline hover:text-black">Cancel Booking</a>
+                <a id="cCancelLink" href="#" class="text-vnGray underline hover:text-black">Cancel Booking</a>
                 <span id="cNoCancelNote" class="hidden text-vnGray">(Cancellations not permitted within 24h — reschedule only)</span>
             </div>
 
@@ -185,9 +185,9 @@
                     body: JSON.stringify({ bookingReference, paymentIntentId, token }),
                 });
                 const data = await res.json();
-                if (data.calWarning || data.reportWarning || data.normWarning) {
+                if (data.googleWarning || data.reportWarning || data.normWarning) {
                     console.warn('Booking sync warnings:', {
-                        calWarning: data.calWarning,
+                        googleWarning: data.googleWarning,
                         reportWarning: data.reportWarning,
                         normWarning: data.normWarning,
                     });
@@ -214,7 +214,7 @@
                 }
                 renderItemizedReceipt(b);
 
-                if (b.calCollision) {
+                if (b.slotTaken) {
                     document.getElementById('collisionNotice').classList.remove('hidden');
                 }
                 if (data.isTest) {
@@ -230,14 +230,14 @@
                     emailNote.textContent = `Booking confirmed for ${b.email}. (Email delivery note: ${data.emailResult?.reason || 'pending domain verification'})`;
                 }
 
-                if (b.calBookingUid) {
-                    const uid = encodeURIComponent(b.calBookingUid);
-                    document.getElementById('cRescheduleLink').href = `https://cal.com/reschedule/${uid}`;
+                // Our own reschedule/cancel pages (reschedule.vantagenorth.ae / cancel.vantagenorth.ae)
+                if (b.manageLinks) {
+                    document.getElementById('cRescheduleLink').href = b.manageLinks.rescheduleUrl;
                     const canCancel = b.scheduledStart
                         ? (new Date(b.scheduledStart).getTime() - Date.now()) >= 24 * 60 * 60 * 1000
                         : true;
                     if (canCancel) {
-                        document.getElementById('cCancelLink').href = `https://cal.com/booking/${uid}?cancel=true`;
+                        document.getElementById('cCancelLink').href = b.manageLinks.cancelUrl;
                     } else {
                         document.getElementById('cCancelLink').classList.add('hidden');
                         document.getElementById('cCancelSep').classList.add('hidden');

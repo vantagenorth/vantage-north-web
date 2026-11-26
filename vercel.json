@@ -19,6 +19,66 @@
       "source": "/true_north_landing_page",
       "destination": "/",
       "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "reschedule.vantagenorth.ae"
+        }
+      ],
+      "destination": "https://vantagenorth.ae/reschedule",
+      "permanent": false
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "cancel.vantagenorth.ae"
+        }
+      ],
+      "destination": "https://vantagenorth.ae/cancel",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/:ref([Vv][Nn]-[A-Za-z0-9-]+)",
+      "has": [
+        {
+          "type": "host",
+          "value": "reschedule.vantagenorth.ae"
+        }
+      ],
+      "destination": "/reschedule"
+    },
+    {
+      "source": "/reschedule/:ref([Vv][Nn]-[A-Za-z0-9-]+)",
+      "destination": "/reschedule"
+    },
+    {
+      "source": "/:ref([Vv][Nn]-[A-Za-z0-9-]+)",
+      "has": [
+        {
+          "type": "host",
+          "value": "cancel.vantagenorth.ae"
+        }
+      ],
+      "destination": "/cancel"
+    },
+    {
+      "source": "/cancel/:ref([Vv][Nn]-[A-Za-z0-9-]+)",
+      "destination": "/cancel"
+    },
+    {
+      "source": "/google-calendar/connect",
+      "destination": "/api/calendar?action=connect"
+    },
+    {
+      "source": "/google-calendar/callback",
+      "destination": "/api/calendar?action=callback"
     }
   ],
   "headers": [
@@ -30,11 +90,20 @@
           "value": "text/plain"
         }
       ]
+    },
+    {
+      "source": "/api/manage-booking",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
     }
   ],
   "crons": [
     {
-      "path": "/api/calendar-fill",
+      "path": "/api/calendar",
       "schedule": "5 20 * * *"
     }
   ]
