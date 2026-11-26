@@ -105,6 +105,15 @@
     {
       "path": "/api/calendar",
       "schedule": "5 20 * * *"
+    },
+    {
+      "path": "/api/project-suggest?action=reelly-import",
+      "schedule": "30 21 * * *"
     }
-  ]
+  ],
+  "functions": {
+    "api/project-suggest.js": {
+      "maxDuration": 60
+    }
+  }
 }

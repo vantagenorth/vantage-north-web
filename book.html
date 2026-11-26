@@ -762,7 +762,7 @@
                 box.querySelectorAll('button').forEach((btn) => btn.addEventListener('click', () => {
                     const p = list[Number(btn.dataset.i)];
                     nameEl.value = p.name;
-                    idEl.value = p.id;
+                    idEl.value = p.id || '';   // empty for projects from the Reelly list
                     // Prefill, but leave editable. Unit number stays for the client to fill in.
                     if (p.area) areaEl.value = p.area;
                     if (p.developer) devEl.value = p.developer;
@@ -778,7 +778,7 @@
 
             nameEl.addEventListener('input', () => {
                 // Any edit after picking unlinks the project, so typed text is what gets saved
-                if (idEl.value) unlink();
+                if (filled || idEl.value) unlink();
                 clearTimeout(timer);
                 const q = nameEl.value.trim();
                 if (q.length < 3) { lastQuery = ''; loading(false); setStatus(''); return hide(); }
